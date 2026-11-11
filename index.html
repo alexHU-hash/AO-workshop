@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#09131d">
   <title>Arcane Odyssey · Gear Workshop</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=saved-gear-sets-20261111">
 </head>
 <body>
   <div class="app-shell">
@@ -25,6 +25,14 @@
         </div>
       </div>
     </header>
+    <section class="saved-build-toolbar" aria-label="Saved gear sets">
+      <span class="saved-build-title">SAVED GEAR SETS</span>
+      <div class="saved-build-controls">
+        <select id="saved-build-select" aria-label="Choose a saved gear set"><option value="">No saved sets</option></select>
+        <button class="button button-accent" id="save-named-build" type="button">Save named build</button>
+        <button class="button button-quiet" id="load-named-build" type="button" disabled>Load set</button>
+      </div>
+    </section>
     <section class="import-panel" id="import-panel" hidden aria-label="Import build">
       <div class="import-panel-heading"><div><strong>Import a build</strong><span>Paste a copied build code below.</span></div><button class="import-close" id="close-import" type="button" aria-label="Close import panel">×</button></div>
       <textarea id="import-code" rows="3" placeholder="Paste build code…" spellcheck="false"></textarea>
@@ -96,6 +104,7 @@
               <small class="magic-wiki-note">Strength builds can choose a fighting style; Berserker can choose a second after Awakening.</small>
               <a class="magic-wiki-link" href="https://roblox-arcane-odyssey.fandom.com/wiki/Fighting_Styles" target="_blank" rel="noreferrer">View Fighting Styles on the wiki ↗</a>
             </div>
+            <a class="stat-planner-link" href="stat-build.html"><strong>Plan stat investments</strong><span>Open planner ↗</span></a>
           </div>
         </div>
       </section>
@@ -108,6 +117,6 @@
   <script src="fighting-gear-catalog.js?v=fighting-gear-20261111"></script>
   <script src="newer-armor-records.js"></script>
   <script src="wiki-armor-records.js"></script>
-  <script src="app.js"></script>
+  <script src="app.js?v=saved-gear-sets-20261111"></script>
 </body>
 </html>

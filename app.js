@@ -221,7 +221,9 @@ const starter = {
     accessory1:null,accessory2:null,accessory3:null,chestplate:null,pants:null
   }
 };
+const SAVED_GEAR_BUILDS_KEY="ao-gear-workshop-presets-v1";
 let build = loadStoredBuild();
+let savedGearBuilds = loadSavedGearBuilds();
 const itemSearches = Object.fromEntries(SLOTS.map(slot=>[slot.id,""]));
 const itemDropdownOpen = Object.fromEntries(SLOTS.map(slot=>[slot.id,false]));
 const activeItemIndexes = Object.fromEntries(SLOTS.map(slot=>[slot.id,0]));
@@ -431,6 +433,32 @@ function loadStoredBuild(){
   return structuredClone(starter);
 }
 function persist(){clearTimeout(saveTimer);document.getElementById("save-state").textContent="Saving…";saveTimer=setTimeout(()=>{try{localStorage.setItem("ao-gear-workshop-v1",JSON.stringify(build));document.getElementById("save-state").textContent="Changes save locally";}catch(error){document.getElementById("save-state").textContent="Could not save locally";console.error(error);}},180);}
+function loadSavedGearBuilds(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(SAVED_GEAR_BUILDS_KEY));
+    return Array.isArray(saved)?saved.filter(entry=>entry&&typeof entry.name==="string"&&entry.build&&typeof entry.build==="object"):[];
+  }catch(error){console.warn("Could not read saved gear sets.",error);return [];}
+}
+function renderSavedGearBuilds(selectedName=""){
+  const select=document.getElementById("saved-build-select");
+  const sorted=[...savedGearBuilds].sort((a,b)=>a.name.localeCompare(b.name));
+  select.innerHTML=`<option value="">${sorted.length?"Choose a saved gear set":"No saved sets"}</option>${sorted.map(entry=>`<option value="${esc(entry.name)}">${esc(entry.name)}</option>`).join("")}`;
+  select.value=sorted.some(entry=>entry.name===selectedName)?selectedName:"";
+  document.getElementById("load-named-build").disabled=!select.value;
+}
+function saveNamedGearBuild(){
+  const name=String(build.name||"").trim();
+  if(!name){document.getElementById("build-name").focus();showToast("Enter a build name before saving.");return;}
+  const existingIndex=savedGearBuilds.findIndex(entry=>entry.name.toLowerCase()===name.toLowerCase());
+  const savedSet={name,build:{...structuredClone(build),name}};
+  if(existingIndex<0)savedGearBuilds.push(savedSet);
+  else savedGearBuilds[existingIndex]=savedSet;
+  try{
+    localStorage.setItem(SAVED_GEAR_BUILDS_KEY,JSON.stringify(savedGearBuilds));
+    renderSavedGearBuilds(name);
+    showToast(existingIndex<0?"Gear set saved.":"Saved gear set updated.");
+  }catch(error){console.error("Could not save this gear set.",error);showToast("Could not save this gear set locally.");}
+}
 function formatStat(value){const rounded=Math.round(value*10)/10;return `${rounded>0?"+":""}${Number.isInteger(rounded)?rounded:rounded.toFixed(1)}`;}
 function options(items,selected){return items.map(([value,label])=>`<option value="${esc(value)}"${value===selected?" selected":""}>${esc(label)}</option>`).join("");}
 function renderStatFilters(){return STAT_KEYS.map(key=>`<label class="filter-chip"><input type="checkbox" data-filter-stat="${key}"${statFilters.has(key)?" checked":""}><span>${STAT_LABELS[key]}</span></label>`).join("");}
@@ -746,6 +774,14 @@ document.getElementById("gear-grid").addEventListener("change",event=>{
   }
 });
 document.getElementById("build-name").addEventListener("input",event=>{build.name=event.target.value;persist();});
+document.getElementById("save-named-build").addEventListener("click",saveNamedGearBuild);
+document.getElementById("saved-build-select").addEventListener("change",event=>{document.getElementById("load-named-build").disabled=!event.target.value;});
+document.getElementById("load-named-build").addEventListener("click",()=>{
+  const savedSet=savedGearBuilds.find(entry=>entry.name===document.getElementById("saved-build-select").value);
+  if(!savedSet)return;
+  try{importBuildData(savedSet.build,{toast:"Saved gear set loaded.",closeImport:false});}
+  catch(error){console.error("Could not load the saved gear set.",error);showToast(error.message||"Could not load saved gear set.");}
+});
 document.getElementById("stat-build").addEventListener("change",event=>{
   build.statBuild=STAT_BUILDS.some(([id])=>id===event.target.value)?event.target.value:"";
   sanitizeStatBuild(build);
@@ -804,7 +840,7 @@ async function decodeBuildCode(value){
   const stream=new Blob([decodeBase64Url(trimmed.slice(4))]).stream().pipeThrough(new DecompressionStream("gzip"));
   return JSON.parse(await new Response(stream).text());
 }
-function importBuildData(parsed){
+function importBuildData(parsed,{toast="Build imported.",closeImport=true}={}){
   if(!parsed||!parsed.gear||typeof parsed.gear!=="object")throw new Error("This does not look like a valid build code.");
   const merged={...structuredClone(starter),...parsed,gear:{...structuredClone(starter.gear),...parsed.gear}};
   merged.level=clampGameLevel(merged.level);
@@ -819,9 +855,11 @@ function importBuildData(parsed){
   sanitizeGearModifiers(merged.gear);
   build=merged;
   render();persist();
-  document.getElementById("import-panel").hidden=true;
-  document.getElementById("import-code").value="";
-  showToast("Build imported.");
+  if(closeImport){
+    document.getElementById("import-panel").hidden=true;
+    document.getElementById("import-code").value="";
+  }
+  showToast(toast);
 }
 document.getElementById("export-build").addEventListener("click",async()=>{
   try{await navigator.clipboard.writeText(await encodeBuildCode());showToast("Short build code copied to clipboard.");}
@@ -848,4 +886,5 @@ document.getElementById("toggle-screenshot").addEventListener("click",event=>{
   event.currentTarget.setAttribute("aria-pressed",String(enabled));
   window.scrollTo(0,0);
 });
+renderSavedGearBuilds();
 render();
