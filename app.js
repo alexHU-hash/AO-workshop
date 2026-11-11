@@ -56,6 +56,19 @@ const ATLANTEAN_STATS = [
   ["power",.7648],["defense",6.8236],["size",2.2353],
   ["dexterity",2.2353],["range",2.2353],["haste",2.2353]
 ];
+const GEM_FUSION_MULTIPLIERS = {
+  power:0.6,
+  defense:0.6,
+  regeneration:0.6,
+  pierce:0.6,
+  resistance:0.6,
+  dexterity:2/3,
+  size:2/3,
+  range:2/3,
+  haste:2/3,
+  drawback:0.5
+};
+const GEM_FUSION_RATIO = 0.55;
 const GEMS = [
   {id:"defense",name:"Amethyst",variants:["Diamond","Onyx"],stats:[{defense:6.5},{defense:13.1},{defense:19.6},{defense:26.2},{defense:32.8},{defense:39.3}]},
   {id:"power",name:"Ruby",variants:["Sunstone","Zircon"],stats:[{power:1},{power:1.4},{power:2.1},{power:2.9},{power:3.6},{power:3.9}]},
@@ -196,9 +209,11 @@ function getCombinedGemStats(socket){
   if(!Object.keys(fusion).length)return Object.fromEntries(Object.entries(primary).map(([key,value])=>[key,Math.trunc(value)]));
   const combined={};
   for(const key of STAT_KEYS){
-    combined[key]=key==="drawback"
-      ?Math.trunc(primary[key]||0)
-      :Math.trunc((primary[key]||0)+(fusion[key]||0)*.5);
+    const baseValue = primary[key] || 0;
+    const fusionValue = fusion[key] || 0;
+    const multiplier = GEM_FUSION_MULTIPLIERS[key] ?? GEM_FUSION_RATIO;
+    const value = (baseValue + fusionValue) * multiplier;
+    combined[key] = Math.trunc(value);
   }
   return combined;
 }
