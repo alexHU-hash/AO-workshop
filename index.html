@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#09131d">
+  <title>Arcane Odyssey · Gear Workshop</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Gear Workshop home">
+        <img class="brand-mark-image" src="assets/everthel-4.2.png" alt="Everthel 4.2">
+        <span>ARCANE <b>ODYSSEY</b><small>GEAR WORKSHOP</small></span>
+      </a>
+      <div class="top-actions">
+        <label class="top-build-name" for="build-name"><span>BUILD NAME</span><input id="build-name" type="text" maxlength="40" placeholder="Untitled build"></label>
+        <span class="save-state" id="save-state">Changes save locally</span>
+        <div class="share-build-actions">
+          <span class="share-build-label">SHARE BUILDS</span>
+          <button class="button button-accent" id="export-build" type="button" title="Copy a shareable build code">Copy build code <span>⧉</span></button>
+          <button class="button button-quiet import-button" id="toggle-import" type="button">Import build</button>
+        </div>
+      </div>
+    </header>
+    <section class="import-panel" id="import-panel" hidden aria-label="Import build">
+      <div class="import-panel-heading"><div><strong>Import a build</strong><span>Paste a copied build code below.</span></div><button class="import-close" id="close-import" type="button" aria-label="Close import panel">×</button></div>
+      <textarea id="import-code" rows="3" placeholder="Paste build code…" spellcheck="false"></textarea>
+      <div class="import-panel-actions"><button class="button button-accent" id="import-code-button" type="button">Load build</button></div>
+    </section>
+
+    <main>
+      <section class="layout">
+        <div class="workshop">
+          <div class="section-heading">
+            <div class="equipment-heading">
+              <div><span class="eyebrow">YOUR LOADOUT</span><h2>Equipment</h2></div>
+              <div class="global-filter">
+                <span class="filter-label">ONLY SHOW ITEMS WITH</span>
+                <div class="filter-options" id="stat-filter-list" aria-label="Filter items by stats"></div>
+                <button class="clear-filters" id="clear-filters" type="button">Clear</button>
+              </div>
+            </div>
+            <span class="slot-count" id="slot-count">0 / 5 EQUIPPED</span>
+            <button class="clear-all-button" id="clear-all-gear" type="button">Clear all gear</button>
+          </div>
+          <div class="gear-grid" id="gear-grid"></div>
+        </div>
+
+        <div class="summary-column">
+          <aside class="summary">
+            <div class="summary-top"><div><span class="eyebrow">BUILD OVERVIEW</span><h2>Stat totals</h2></div><span class="live-pill"><i></i> LIVE</span></div>
+            <div class="level-row">
+              <label for="player-level">PLAYER LEVEL</label>
+              <div class="level-input"><span>LV</span><input id="player-level" type="number" min="1" max="300" value="175" inputmode="numeric"></div>
+            </div>
+            <div class="stat-list" id="stat-list"></div>
+            <div class="efficiency-total"><span>EFFICIENCY POINTS</span><strong id="summary-efficiency-points">0</strong><small>Power × 3 · Defense ÷ 3 · Other stats × 1 (Dexterity excluded)</small></div>
+            <div class="ritual-controls">
+              <label for="dragonblood-ritual">DRAGONBLOOD RITUAL</label>
+              <select id="dragonblood-ritual"></select>
+              <span class="modifier-note" id="dragonblood-effect"></span>
+            </div>
+            <div class="health-total">
+              <span>TOTAL HEALTH</span><strong id="summary-total-health">1000</strong>
+              <small>Base <b id="summary-base-health">1000</b> · Gear defense <b id="summary-gear-health">+0</b> · Ritual <b id="summary-ritual-health">+0</b></small>
+            </div>
+            <div class="summary-foot"><span>Equipped gear</span><b id="summary-equipped">0 / 5</b></div>
+            <div class="summary-foot"><span>Jewel sockets filled</span><b id="summary-jewels">0</b></div>
+            <div class="summary-foot"><span>Selected enchantments</span><b id="summary-enchants">0</b></div>
+            <button class="button button-wide" id="copy-summary" type="button">Copy stat summary <span>⧉</span></button>
+          </aside>
+          <div class="class-picker">
+            <label for="stat-build">YOUR STAT BUILD</label>
+            <select id="stat-build">
+              <option value="">Select a class</option>
+              <option value="savant">Savant</option>
+              <option value="oracle">Oracle</option>
+              <option value="paladin">Paladin</option>
+              <option value="juggernaut">Juggernaut</option>
+              <option value="knight">Knight</option>
+              <option value="mage">Mage</option>
+              <option value="warlock">Warlock</option>
+              <option value="conjurer">Conjurer</option>
+              <option value="berserker">Berserker</option>
+              <option value="warlord">Warlord</option>
+              <option value="warrior">Warrior</option>
+            </select>
+            <small id="stat-build-description">Choose your stat build to see its focus and wiki requirements.</small>
+            <a href="https://roblox-arcane-odyssey.fandom.com/wiki/Stat_Builds" target="_blank" rel="noreferrer">View Stat Builds on the wiki ↗</a>
+            <div class="magic-controls" id="magic-controls" hidden>
+              <div class="magic-selectors" id="magic-selectors"></div>
+              <small class="magic-wiki-note">Mage builds can choose a second Magic after the first Awakening.</small>
+              <a class="magic-wiki-link" href="https://roblox-arcane-odyssey.fandom.com/wiki/Magics" target="_blank" rel="noreferrer">View Magics on the wiki ↗</a>
+            </div>
+            <div class="magic-controls" id="fighting-style-controls" hidden>
+              <div class="magic-selectors" id="fighting-style-selectors"></div>
+              <small class="magic-wiki-note">Strength builds can choose a fighting style; Berserker can choose a second after Awakening.</small>
+              <a class="magic-wiki-link" href="https://roblox-arcane-odyssey.fandom.com/wiki/Fighting_Styles" target="_blank" rel="noreferrer">View Fighting Styles on the wiki ↗</a>
+            </div>
+          </div>
+        </div>
+      </section>
+      <footer>Built for theorycrafting. Not affiliated with the Arcane Odyssey developers.</footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="item-catalog.js?v=amulets-fair-20261111"></script>
+  <script src="magic-gear-catalog.js?v=arcanium-gear-20261111"></script>
+  <script src="fighting-gear-catalog.js?v=fighting-gear-20261111"></script>
+  <script src="app.js"></script>
+</body>
+</html>
