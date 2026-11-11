@@ -2,7 +2,7 @@
 
 :root{color-scheme:dark;--bg:#09131d;--panel:#101d29;--panel2:#142432;--border:#2a4352;--muted:#91a7ad;--text:#e8e5d8;--lime:#75c9c1;--green:#9ecdb7;--orange:#d8b975;--red:#d18b78;--mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--serif:'Playfair Display',serif}
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(ellipse at 70% -15%,#303522 0,transparent 38%),var(--bg);color:var(--text);font:14px var(--sans);min-height:100vh}
+body{margin:0;background:radial-gradient(ellipse at 70% -15%,#303522 0,transparent 38%),var(--bg);color:var(--text);font:15px var(--sans);min-height:100vh}
 button,input,select{font:inherit}
 button{cursor:pointer}
 a{color:var(--lime)}
@@ -352,3 +352,58 @@ h1 span{color:#79c9ff}
 .hero-banner .build-name-wrap label{color:#9db6d2}
 .hero-banner .build-name-wrap input{width:100%;border-color:#2b4668}
 @media(max-width:700px){.intro.hero-banner{align-items:flex-start;gap:18px;margin-bottom:18px;padding:20px}.hero-banner .build-name-wrap{flex:0 1 auto;width:100%;max-width:320px}}
+
+@media(min-width:1100px){.gear-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.gear-grid>.gear-card:nth-child(-n+3){grid-column:span 2}.gear-grid>.gear-card:nth-child(n+4){grid-column:span 3}}
+
+/* More readable control labels and supporting text */
+.brand{font-size:15px}
+.brand small,.save-state,.build-name-wrap label,.level-row label,.clear-all-button,.clear-slot-button,.filter-label,.filter-chip,.clear-filters,.slot-count,.live-pill,.slot-label,.item-type,.field label,.socket-title,.item-result-stats,.item-result-type,.equipped-tag,.item-count,.base-stat-readout,.item-total-label,.item-efficiency,.modifier-note,.socket-subtitle,.socket-label,.level-input,.efficiency-total>span,.ritual-controls label,.health-total>span,.summary-foot,.fineprint,footer,.top-build-name,.share-build-label,.class-picker label,.magic-select-field,.magic-wiki-note,.magic-wiki-link{font-size:11px}
+.eyebrow{font-size:12px}
+.intro p,.class-picker small,.efficiency-total>small,.health-total small,.item-no-results{font-size:12px}
+.button{font-size:13px}
+.gear-card-header h3{font-size:16px}
+.field input,.field select,.socket input,.socket select,.stat-edit input,.ritual-controls select,.class-picker select,.magic-select-field select,.import-panel textarea,.top-build-name input{font-size:14px}
+.item-result-name{font-size:13px}
+.item-result-clear span,.item-efficiency b{font-size:12px}
+.item-total-stats{font-size:12px}
+.total-stat span,.total-stat b{font-size:14px}
+.toast{font-size:14px}
+.top-build-name input{font-size:14px}
+.hero-banner .eyebrow{font-size:11px}
+.hero-banner .intro p{font-size:15px}
+.filter-chip{padding:5px 8px}
+.filter-chip input{width:14px;height:14px}
+.enhancement .field:first-child{grid-column:1 / -1}
+@media(max-width:700px){.layout{grid-template-columns:minmax(0,1fr)}.layout>*,.summary-column>*{min-width:0}}
+@media(max-width:460px){.section-heading{align-items:flex-start;flex-wrap:wrap}.equipment-heading{width:100%}.slot-count{margin-left:0}.clear-all-button{margin-left:auto}}
+
+.gear-snapshot{display:none}
+@media(max-width:999px){#toggle-screenshot{display:none}}
+@media(min-width:1000px){
+	body.screenshot-mode .app-shell{max-width:1600px;padding:0 20px}
+	body.screenshot-mode .topbar{height:64px;min-height:64px;padding:6px 0}
+	body.screenshot-mode .top-actions>*:not(#toggle-screenshot){display:none}
+	body.screenshot-mode .top-actions{margin-left:auto}
+	body.screenshot-mode main{padding-top:10px}
+	body.screenshot-mode .layout{grid-template-columns:minmax(0,1fr) 300px;gap:12px}
+	body.screenshot-mode .workshop,body.screenshot-mode .summary{padding:10px}
+	body.screenshot-mode .section-heading,body.screenshot-mode .summary-top{margin-bottom:8px}
+	body.screenshot-mode .global-filter,body.screenshot-mode .clear-all-button{display:none}
+	body.screenshot-mode .gear-grid{gap:8px}
+	body.screenshot-mode .gear-card-header{padding:8px 10px}
+	body.screenshot-mode .gear-card-header h3{font-size:14px}
+	body.screenshot-mode .item-type{margin-top:2px;font-size:10px}
+	body.screenshot-mode .clear-slot-button,body.screenshot-mode .gear-fields{display:none}
+	body.screenshot-mode .gear-snapshot{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;padding:8px 10px;min-width:0}
+	body.screenshot-mode .gear-snapshot-stats{grid-column:1/-1;min-width:0;color:#e3e7ed;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+	body.screenshot-mode .gear-snapshot-details{min-width:0;color:#aab8ca;font-size:10px;line-height:1.4;overflow-wrap:anywhere}
+	body.screenshot-mode .gear-snapshot-efficiency{color:#80c8ff;font:10px var(--mono);white-space:nowrap}
+	body.screenshot-mode .summary{position:static}
+	body.screenshot-mode .level-row{padding:6px 0}
+	body.screenshot-mode .stat-list{display:grid;grid-template-columns:1fr 1fr;column-gap:12px;padding:6px 0}
+	body.screenshot-mode .total-stat{padding:4px 0}
+	body.screenshot-mode .efficiency-total,body.screenshot-mode .health-total{margin:6px 0;padding:8px}
+	body.screenshot-mode .ritual-controls{gap:4px;padding:6px 0}
+	body.screenshot-mode .summary-column .class-picker,body.screenshot-mode footer{display:none}
+	body.screenshot-mode .button-wide{margin-top:8px}
+}

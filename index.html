@@ -15,6 +15,7 @@
         <span>ARCANE <b>ODYSSEY</b><small>GEAR WORKSHOP</small></span>
       </a>
       <div class="top-actions">
+        <button class="button button-quiet" id="toggle-screenshot" type="button" aria-pressed="false">Screenshot view</button>
         <label class="top-build-name" for="build-name"><span>BUILD NAME</span><input id="build-name" type="text" maxlength="40" placeholder="Untitled build"></label>
         <span class="save-state" id="save-state">Changes save locally</span>
         <div class="share-build-actions">
@@ -42,7 +43,6 @@
                 <button class="clear-filters" id="clear-filters" type="button">Clear</button>
               </div>
             </div>
-            <span class="slot-count" id="slot-count">0 / 5 EQUIPPED</span>
             <button class="clear-all-button" id="clear-all-gear" type="button">Clear all gear</button>
           </div>
           <div class="gear-grid" id="gear-grid"></div>
@@ -53,7 +53,7 @@
             <div class="summary-top"><div><span class="eyebrow">BUILD OVERVIEW</span><h2>Stat totals</h2></div><span class="live-pill"><i></i> LIVE</span></div>
             <div class="level-row">
               <label for="player-level">PLAYER LEVEL</label>
-              <div class="level-input"><span>LV</span><input id="player-level" type="number" min="1" max="300" value="175" inputmode="numeric"></div>
+              <div class="level-input"><span>LV</span><input id="player-level" type="number" min="1" max="175" value="175" inputmode="numeric"></div>
             </div>
             <div class="stat-list" id="stat-list"></div>
             <div class="efficiency-total"><span>EFFICIENCY POINTS</span><strong id="summary-efficiency-points">0</strong><small>Power × 3 · Defense ÷ 3 · Other stats × 1 (Dexterity excluded)</small></div>
@@ -66,9 +66,6 @@
               <span>TOTAL HEALTH</span><strong id="summary-total-health">1000</strong>
               <small>Base <b id="summary-base-health">1000</b> · Gear defense <b id="summary-gear-health">+0</b> · Ritual <b id="summary-ritual-health">+0</b></small>
             </div>
-            <div class="summary-foot"><span>Equipped gear</span><b id="summary-equipped">0 / 5</b></div>
-            <div class="summary-foot"><span>Jewel sockets filled</span><b id="summary-jewels">0</b></div>
-            <div class="summary-foot"><span>Selected enchantments</span><b id="summary-enchants">0</b></div>
             <button class="button button-wide" id="copy-summary" type="button">Copy stat summary <span>⧉</span></button>
           </aside>
           <div class="class-picker">
@@ -109,6 +106,8 @@
   <script src="item-catalog.js?v=amulets-fair-20261111"></script>
   <script src="magic-gear-catalog.js?v=arcanium-gear-20261111"></script>
   <script src="fighting-gear-catalog.js?v=fighting-gear-20261111"></script>
+  <script src="newer-armor-records.js"></script>
+  <script src="wiki-armor-records.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

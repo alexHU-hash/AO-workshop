@@ -1,4 +1,5 @@
 const STAT_KEYS = ["power", "defense", "range", "haste", "size", "speed", "dexterity", "regeneration", "pierce", "resistance", "warding", "drawback", "insanity"];
+const MAX_GAME_LEVEL = 175;
 const STAT_LABELS = { power:"Power", defense:"Defense", range:"Range", haste:"Haste", size:"Size", speed:"Speed", dexterity:"Dexterity", regeneration:"Regeneration", pierce:"Pierce", resistance:"Resistance", warding:"Warding", drawback:"Drawback", insanity:"Insanity" };
 const STAT_BUILDS = [
   ["savant","Savant","All four stats · 15%+ in three stats; no single stat at 50%+"],
@@ -68,27 +69,29 @@ const GEM_FUSION_MULTIPLIERS = {
   haste:2/3,
   drawback:0.5
 };
-const GEM_FUSION_RATIO = 0.55;
+const GEM_FUSION_RATIO = 0.6;
+const GEM_DEFENSE_DELTA = 1-Number.EPSILON;
+const GEM_DEFENSE_DELTA_IDS = new Set(["defense","defense-size"]);
 const GEMS = [
-  {id:"defense",name:"Amethyst",variants:["Diamond","Onyx"],stats:[{defense:6.5},{defense:13.1},{defense:19.6},{defense:26.2},{defense:32.8},{defense:39.3}]},
-  {id:"power",name:"Ruby",variants:["Sunstone","Zircon"],stats:[{power:1},{power:1.4},{power:2.1},{power:2.9},{power:3.6},{power:3.9}]},
-  {id:"dexterity",name:"Sapphire",variants:["Tanzanite"],stats:[{dexterity:2.1},{dexterity:4.3},{dexterity:6.5},{dexterity:8.7},{dexterity:10.9},{dexterity:13.1}]},
-  {id:"size",name:"Emerald",variants:["Peridot"],stats:[{size:2.1},{size:4.3},{size:6.5},{size:8.7},{size:10.9},{size:13.1}]},
-  {id:"range",name:"Aquamarine",variants:["Tourmaline"],stats:[{range:2.1},{range:4.3},{range:6.5},{range:8.7},{range:10.9},{range:13.1}]},
-  {id:"haste",name:"Citrine",variants:["Topaz"],stats:[{haste:2.1},{haste:4.3},{haste:6.5},{haste:8.7},{haste:10.9},{haste:13.1}]},
-  {id:"dexterity-range",name:"Lapis Lazuli",stats:[{dexterity:1.6,range:1.6},{dexterity:3.2,range:3.2},{dexterity:4.9,range:4.9},{dexterity:6.5,range:6.5},{dexterity:8.2,range:8.2},{dexterity:9.8,range:9.8}]},
-  {id:"dexterity-haste",name:"Larimar",stats:[{dexterity:1.6,haste:1.6},{dexterity:3.2,haste:3.2},{dexterity:4.9,haste:4.9},{dexterity:6.5,haste:6.5},{dexterity:8.2,haste:8.2},{dexterity:9.8,haste:9.8}]},
-  {id:"defense-size",name:"Agate",stats:[{size:1,defense:6.5},{size:2.1,defense:13.1},{size:3.2,defense:19.6},{size:4.3,defense:26.2},{size:5.4,defense:32.8},{size:6.5,defense:39.3}]},
-  {id:"power-size",name:"Malachite",stats:[{power:1,size:1},{power:1.4,size:2.1},{power:2.1,size:3.2},{power:2.9,size:4.3},{power:3.6,size:5.4},{power:3.9,size:6.5}]},
-  {id:"power-dexterity",name:"Candelaria",stats:[{power:1,dexterity:1},{power:1.4,dexterity:2.1},{power:2.1,dexterity:3.2},{power:2.9,dexterity:4.3},{power:3.6,dexterity:5.4},{power:3.9,dexterity:6.5}]},
-  {id:"power-range",name:"Morenci",stats:[{power:1,range:1},{power:1.4,range:2.1},{power:2.1,range:3.2},{power:2.9,range:4.3},{power:3.6,range:5.4},{power:3.9,range:6.5}]},
+  {id:"defense",name:"Amethyst",variants:["Diamond","Onyx"],stats:[{defense:6.5},{defense:13.1},{defense:19.6},{defense:26.2},{defense:32.8},{defense:39}]},
+  {id:"power",name:"Ruby",variants:["Sunstone","Zircon"],stats:[{power:1},{power:1.4},{power:2.1},{power:2.9},{power:3.6},{power:4}]},
+  {id:"dexterity",name:"Sapphire",variants:["Tanzanite"],stats:[{dexterity:2.1},{dexterity:4.3},{dexterity:6.5},{dexterity:8.7},{dexterity:10.9},{dexterity:13}]},
+  {id:"size",name:"Emerald",variants:["Peridot"],stats:[{size:2.1},{size:4.3},{size:6.5},{size:8.7},{size:10.9},{size:13}]},
+  {id:"range",name:"Aquamarine",variants:["Tourmaline"],stats:[{range:2.1},{range:4.3},{range:6.5},{range:8.7},{range:10.9},{range:13}]},
+  {id:"haste",name:"Citrine",variants:["Topaz"],stats:[{haste:2.1},{haste:4.3},{haste:6.5},{haste:8.7},{haste:10.9},{haste:13}]},
+  {id:"dexterity-range",name:"Lapis Lazuli",stats:[{dexterity:1.6,range:1.6},{dexterity:3.2,range:3.2},{dexterity:4.9,range:4.9},{dexterity:6.5,range:6.5},{dexterity:8.2,range:8.2},{dexterity:9,range:9}]},
+  {id:"dexterity-haste",name:"Larimar",stats:[{dexterity:1.6,haste:1.6},{dexterity:3.2,haste:3.2},{dexterity:4.9,haste:4.9},{dexterity:6.5,haste:6.5},{dexterity:8.2,haste:8.2},{dexterity:9,haste:9}]},
+  {id:"defense-size",name:"Agate",stats:[{size:1,defense:6.5},{size:2.1,defense:13.1},{size:3.2,defense:19.6},{size:4.3,defense:26.2},{size:5.4,defense:32.8},{size:6,defense:39}]},
+  {id:"power-size",name:"Malachite",stats:[{power:1,size:1},{power:1.4,size:2.1},{power:2.1,size:3.2},{power:2.9,size:4.3},{power:3.6,size:5.4},{power:4,size:6}]},
+  {id:"power-dexterity",name:"Candelaria",stats:[{power:1,dexterity:1},{power:1.4,dexterity:2.1},{power:2.1,dexterity:3.2},{power:2.9,dexterity:4.3},{power:3.6,dexterity:5.4},{power:4,dexterity:6}]},
+  {id:"power-range",name:"Morenci",stats:[{power:1,range:1},{power:1.4,range:2.1},{power:2.1,range:3.2},{power:2.9,range:4.3},{power:3.6,range:5.4},{power:4,range:6}]},
   {id:"double-effect",name:"Musgravite",stats:[{},{},{},{},{},{}]},
-  {id:"defense-drawback",name:"Painite",stats:[{drawback:1,defense:31.3},{drawback:1,defense:62.7},{drawback:1,defense:94},{drawback:1,defense:125.4},{drawback:1,defense:156.7},{drawback:1,defense:188.1}]},
-  {id:"range-haste",name:"Kyanite",stats:[{range:1.6,haste:1.6},{range:3.2,haste:3.2},{range:4.9,haste:4.9},{range:6.5,haste:6.5},{range:8.2,haste:8.2},{range:9.8,haste:9.8}]},
-  {id:"range-size",name:"Variscite",stats:[{range:1.6,size:1.6},{range:3.2,size:3.2},{range:4.9,size:4.9},{range:6.5,size:6.5},{range:8.2,size:8.2},{range:9.8,size:9.8}]},
-  {id:"resistance",name:"Azurite",stats:[{resistance:3.2},{resistance:6.5},{resistance:9.8},{resistance:13.1},{resistance:16.4},{resistance:19.6}]},
-  {id:"regeneration",name:"Aventurine",stats:[{regeneration:3.2},{regeneration:6.5},{regeneration:9.8},{regeneration:13.1},{regeneration:16.4},{regeneration:19.6}]},
-  {id:"pierce",name:"Fire Opal",stats:[{pierce:3.2},{pierce:6.5},{pierce:9.8},{pierce:13.1},{pierce:16.4},{pierce:19.6}]}
+  {id:"defense-drawback",name:"Painite",stats:[{drawback:1,defense:31.3},{drawback:1,defense:62.7},{drawback:1,defense:94},{drawback:1,defense:125.4},{drawback:1,defense:156.7},{drawback:1,defense:188}]},
+  {id:"range-haste",name:"Kyanite",stats:[{range:1.6,haste:1.6},{range:3.2,haste:3.2},{range:4.9,haste:4.9},{range:6.5,haste:6.5},{range:8.2,haste:8.2},{range:9,haste:9}]},
+  {id:"range-size",name:"Variscite",stats:[{range:1.6,size:1.6},{range:3.2,size:3.2},{range:4.9,size:4.9},{range:6.5,size:6.5},{range:8.2,size:8.2},{range:9,size:9}]},
+  {id:"resistance",name:"Azurite",stats:[{resistance:3.2},{resistance:6.5},{resistance:9.8},{resistance:13.1},{resistance:16.4},{resistance:19}]},
+  {id:"regeneration",name:"Aventurine",stats:[{regeneration:3.2},{regeneration:6.5},{regeneration:9.8},{regeneration:13.1},{regeneration:16.4},{regeneration:19}]},
+  {id:"pierce",name:"Fire Opal",stats:[{pierce:3.2},{pierce:6.5},{pierce:9.8},{pierce:13.1},{pierce:16.4},{pierce:19}]}
 ];
 const DRAGONBLOOD_RITUALS = [
   {tier:0,label:"None",healthMultiplier:0,beastDefensePercent:0},
@@ -101,19 +104,108 @@ const DRAGONBLOOD_RITUALS = [
   {tier:7,label:"Dragonblood Blessing VII",healthMultiplier:.2,beastDefensePercent:15}
 ];
 const CATEGORY_LABELS = {Amulet:"Amulet",Helmet:"Helmet",Accessory:"Accessory",Chestplate:"Chestpiece",Boots:"Leggings"};
-const ITEMS = [...BUILDER_ITEM_DATA,...BUILDER_MAGIC_GEAR_DATA,...BUILDER_FIGHTING_GEAR_DATA].map(item=>{
+const NEWER_ARMOR_RECORDS=window.BUILDER_NEW_ARMOR_DATA||[];
+const WIKI_ARMOR_RECORDS=window.BUILDER_WIKI_ARMOR_DATA||[];
+const NEWER_ARMOR_CATEGORY_BY_TYPE={Chestpiece:"Chestplate",Leggings:"Boots",Accessory:"Accessory",Helmet:"Helmet",Amulet:"Amulet"};
+const NEWER_ARMOR_SCALE_VALUES={power:3.5,defense:27,size:5,dexterity:5,range:5,haste:5,resistance:5,regeneration:5,pierce:5,warding:1,drawback:1,insanity:1};
+const NEWER_ARMOR_NONSCALING_STATS=new Set(["insanity","warding","drawback"]);
+const NEWER_ARMOR_EP_VALUES={power:1/3,defense:3,size:1,dexterity:1,range:1,haste:1,resistance:1,regeneration:1,pierce:1,warding:1.5,drawback:-2,insanity:-3};
+function getNewerArmorSourceForItem(item){
+  if(item.magicKey){
+    const name=(item.magicPiece||item.name.slice(item.magicKey.length)).trim();
+    const candidates=[name,name.startsWith("mancer")?`Arc${name}`:""];
+    return NEWER_ARMOR_RECORDS.find(record=>record.type.startsWith("Magic ")&&candidates.includes(record.name));
+  }
+  if(item.fightingStyle){
+    const name=item.fightingPiece||item.name;
+    return NEWER_ARMOR_RECORDS.find(record=>record.type.startsWith("Strength ")&&record.name===name);
+  }
+  return NEWER_ARMOR_RECORDS.find(record=>record.name===item.name&&(
+    NEWER_ARMOR_CATEGORY_BY_TYPE[record.type]||NEWER_ARMOR_CATEGORY_BY_TYPE[record.type.replace(/^(?:Magic|Strength|Spirit) /,"")]
+  ));
+}
+function getNewerArmorStatRows(record,item=null,tool=null){
+  const levels=Array.from({length:8},(_,index)=>100+index*10);
+  return levels.map(level=>{
+    const levelFactor=Math.floor(level/10);
+    const stats=Object.fromEntries(Object.entries(record.stats||{}).map(([key,value])=>[
+      key,NEWER_ARMOR_NONSCALING_STATS.has(key)?value:Math.floor(value*(NEWER_ARMOR_SCALE_VALUES[key]??1)*levelFactor)
+    ]));
+    if(tool?.["armor-stats"]){
+      const reduction=record.type.includes("Chestpiece")||record.name?.toLowerCase().includes("arcsphere")?1:.75;
+      for(const [key,value]of Object.entries(tool["armor-stats"])){
+        const factor=NEWER_ARMOR_EP_VALUES[key]*3||1;
+        stats[key]=(stats[key]||0)+Math.floor(value*levelFactor*factor)*reduction;
+      }
+    }
+    return {level,stats};
+  });
+}
+function updateItemFromNewerArmor(item){
+  const record=getNewerArmorSourceForItem(item);
+  const recordType=record?.type.replace(/^(?:Magic|Strength|Spirit) /,"");
+  const sourceCategory=NEWER_ARMOR_CATEGORY_BY_TYPE[recordType];
+  const category=sourceCategory||(item.subType==="Head"?"Accessory":item.category);
+  if(!record)return category===item.category?item:{...item,category};
+  const tool=item.magicKey
+    ?NEWER_ARMOR_RECORDS.find(entry=>entry.type==="Magic"&&entry.name===item.magicKey)
+    :item.fightingStyle?NEWER_ARMOR_RECORDS.find(entry=>entry.type==="Fighting Style"&&entry.name===item.fightingStyle):null;
+  return {...item,category,minLevel:record.min_level??item.minLevel,maxLevel:170,jewelSlots:record.jewels??item.jewelSlots,statRows:getNewerArmorStatRows(record,item,tool),modifierAllowed:false};
+}
+function updateItemFromWiki(item){
+  const magicPiece=(item.magicPiece||(item.magicKey?item.name.slice(item.magicKey.length):"")).trim();
+  const category=item.magicKey&&(magicPiece==="Arcanium Mage Hat"||magicPiece==="mancer Hat")?"Accessory":item.category;
+  const record=WIKI_ARMOR_RECORDS.find(entry=>entry.name===item.name&&entry.category===category);
+  return record?{...item,minLevel:record.minLevel,maxLevel:record.maxLevel,statRows:record.statRows}:item;
+}
+function createNewerArmorItem(record,dragonGear=false){
+  const type=dragonGear?record.type.replace(/^(?:Corrupted Dragon|Dragon) /,""):record.type;
+  const category=NEWER_ARMOR_CATEGORY_BY_TYPE[type];
+  return {
+    id:`newer-${record.type}-${record.name}`.toLowerCase().replace(/[^a-z0-9]+/g,"-"),
+    name:record.name,category,subType:type,minLevel:record.min_level??100,maxLevel:170,
+    jewelSlots:record.jewels??0,essenceLocked:false,modifierAllowed:dragonGear,dragonGear,
+    dragonCorrupted:record.type.startsWith("Corrupted Dragon "),dragonK:record.k,
+    dragonColorType:record.type.startsWith("Corrupted Dragon ")?"Corrupted Dragon Color":"Dragon Color",
+    statRows:getNewerArmorStatRows(record)
+  };
+}
+const UPDATED_CATALOG_ITEMS=[...BUILDER_ITEM_DATA,...BUILDER_MAGIC_GEAR_DATA,...BUILDER_FIGHTING_GEAR_DATA].map(item=>updateItemFromWiki(updateItemFromNewerArmor(item)));
+const UPDATED_ITEM_KEYS=new Set(UPDATED_CATALOG_ITEMS.map(item=>`${item.name}::${item.category}`));
+const ADDED_NEWER_ARMOR_ITEMS=NEWER_ARMOR_RECORDS.filter(record=>NEWER_ARMOR_CATEGORY_BY_TYPE[record.type])
+  .filter(record=>!UPDATED_ITEM_KEYS.has(`${record.name}::${NEWER_ARMOR_CATEGORY_BY_TYPE[record.type]}`))
+  .map(record=>updateItemFromWiki(createNewerArmorItem(record)));
+const ADDED_DRAGON_ARMOR_ITEMS=NEWER_ARMOR_RECORDS.filter(record=>/^(?:Corrupted Dragon|Dragon) (?:Chestpiece|Leggings|Accessory|Helmet|Amulet)$/.test(record.type))
+  .map(record=>updateItemFromWiki(createNewerArmorItem(record,true)));
+const ITEMS = [...UPDATED_CATALOG_ITEMS,...ADDED_NEWER_ARMOR_ITEMS,...ADDED_DRAGON_ARMOR_ITEMS].map(item=>{
   const latest=item.statRows.find(row=>row.level===item.maxLevel)||item.statRows[item.statRows.length-1];
   const magicPiece=(item.magicPiece||(item.magicKey?item.name.slice(item.magicKey.length):"")).trim();
-  const isMagicHat=item.magicKey&&(magicPiece==="Arcanium Mage Hat"||magicPiece==="mancer Hat");
-  const category=isMagicHat?"Accessory":item.category;
-  return {...item,magicPiece,category,subType:isMagicHat?"Hat":item.subType,type:CATEGORY_LABELS[category],level:latest.level,stats:{...latest.stats}};
+  const category=item.subType==="Head"?"Accessory":item.category;
+  return {...item,magicPiece,category,modifierAllowed:Boolean(item.dragonGear),type:CATEGORY_LABELS[category],level:latest.level,stats:{...latest.stats}};
 });
+function getDragonColorRecords(item){
+  return item?.dragonGear?NEWER_ARMOR_RECORDS.filter(record=>record.type===item.dragonColorType):[];
+}
+function getDragonColorBonusStats(item,colorName){
+  const color=getDragonColorRecords(item).find(record=>(record.name||"Base")===colorName);
+  if(!color?.["armor-stats"])return {};
+  const levelFactor=Math.floor((safeNumber(build.level)||175)/10);
+  const isChest=item.subType==="Chestpiece";
+  const isAmulet=item.subType==="Amulet";
+  const defaultK=item.dragonCorrupted?(isChest||isAmulet?4:3):(isChest?2:isAmulet?3.75:1.5);
+  const k=item.dragonK??defaultK;
+  return Object.fromEntries(Object.entries(color["armor-stats"]).map(([key,value])=>[
+    key,Math.floor(value*(NEWER_ARMOR_EP_VALUES[key]??1)*levelFactor*k)
+  ]));
+}
 function getItemStatsAtLevel(item,level){
   const row=item.statRows.find(entry=>entry.level===level)||item.statRows[item.statRows.length-1];
   return {...row.stats};
 }
 function normalizeItemLevel(item,level){
-  const requested=Math.max(item.minLevel,Math.min(item.maxLevel,safeNumber(level)||item.maxLevel));
+  const maxLevel=Math.min(MAX_GAME_LEVEL,item.maxLevel??MAX_GAME_LEVEL);
+  const minLevel=Math.min(maxLevel,item.minLevel??1);
+  const requested=Math.max(minLevel,Math.min(maxLevel,safeNumber(level)||maxLevel));
   return item.statRows.reduce((closest,row)=>Math.abs(row.level-requested)<Math.abs(closest.level-requested)?row:closest,item.statRows[0]).level;
 }
 const SLOTS = [
@@ -137,13 +229,14 @@ const statFilters = new Set();
 let saveTimer;
 let toastTimer;
 
-function blankGear(){return {name:"",level:175,stats:{},enchant:"",sockets:[]};}
+function blankGear(){return {name:"",level:175,stats:{},enchant:"",modifier:"",dragonColor:"",sockets:[]};}
 function safeNumber(value){const n=Number(value);return Number.isFinite(n)?n:0;}
+function clampGameLevel(value){return Math.max(1,Math.min(MAX_GAME_LEVEL,safeNumber(value)||MAX_GAME_LEVEL));}
 function esc(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function canUseModifier(gear,item){
-  const canApplyAtlantean=Boolean(item);
-  const canUse=gear.modifier===""?true:gear.modifier==="atlantean"?canApplyAtlantean:Boolean(item?.modifierAllowed);
-  return Boolean(item&&canUse&&MODIFIERS.some(([id])=>id===gear.modifier)&&!(gear.modifier==="atlantean"&&gear.enchant==="virtuous"));
+  const isKnownModifier=MODIFIERS.some(([id])=>id===gear.modifier);
+  const canUse=gear.modifier===""||(gear.modifier==="atlantean"?Boolean(item):Boolean(item?.dragonGear));
+  return Boolean(item&&canUse&&isKnownModifier&&!(gear.modifier==="atlantean"&&gear.enchant==="virtuous"));
 }
 function sanitizeStatBuild(buildState){
   if(!STAT_BUILDS.some(([id])=>id===buildState.statBuild))buildState.statBuild="";
@@ -176,10 +269,12 @@ function sanitizeGearModifiers(gearState){
       gear.level=normalizeItemLevel(item,gear.level);
       gear.stats=getItemStatsAtLevel(item,gear.level);
     }else{
-      gear.level=Math.max(1,Math.min(300,safeNumber(gear.level)||170));
+      gear.level=Math.max(1,Math.min(MAX_GAME_LEVEL,safeNumber(gear.level)||170));
     }
     gear.enchant=ENCHANT_UPGRADES[gear.enchant]||gear.enchant;
     if(!canUseModifier(gear,item))gear.modifier="";
+    const colorNames=getDragonColorRecords(item).map(color=>color.name||"Base");
+    if(!item?.dragonGear||!colorNames.includes(gear.dragonColor))gear.dragonColor="";
     const sockets=(gear.sockets||[]);
     gear.sockets=sockets.slice(0,(item?.jewelSlots||0)+(gear.modifier==="gilded"?1:0));
     for(const socket of gear.sockets){
@@ -203,17 +298,35 @@ function getGemStats(socket,key){
   const gem=GEMS.find(entry=>entry.id===socket?.[key]);
   return gem?.stats[5]||{};
 }
+function getScaledGemStats(gemId){
+  const gem=GEMS.find(entry=>entry.id===gemId);
+  const stats=gem?.stats[5]||{};
+  const level=Math.max(1,safeNumber(build.level)||175);
+  const scale=level/175;
+  return Object.fromEntries(Object.entries(stats).map(([key,value])=>{
+    if(key==="drawback")return [key,value];
+    if(key==="defense"&&gem?.name==="Painite"&&safeNumber(stats.drawback)>=0.5)return [key,Math.floor(188*level/175)];
+    const scaled=value*scale;
+    return [key,key==="power"?Math.round(scaled):Math.floor(scaled)];
+  }));
+}
 function getCombinedGemStats(socket){
-  const primary=getGemStats(socket,"gem");
-  const fusion=getGemStats(socket,"fusionGem");
-  if(!Object.keys(fusion).length)return Object.fromEntries(Object.entries(primary).map(([key,value])=>[key,Math.trunc(value)]));
+  const primaryBase=getGemStats(socket,"gem");
+  const fusionBase=getGemStats(socket,"fusionGem");
+  if(!Object.keys(fusionBase).length)return Object.fromEntries(Object.entries(primaryBase).map(([key,value])=>[key,Math.trunc(value)]));
+  const primary=getScaledGemStats(socket.gem);
+  const fusion=getScaledGemStats(socket.fusionGem);
   const combined={};
   for(const key of STAT_KEYS){
     const baseValue = primary[key] || 0;
     const fusionValue = fusion[key] || 0;
     const multiplier = GEM_FUSION_MULTIPLIERS[key] ?? GEM_FUSION_RATIO;
-    const value = (baseValue + fusionValue) * multiplier;
-    combined[key] = Math.trunc(value);
+    if(key==="drawback"){
+      combined[key]=(baseValue+fusionValue)*multiplier;
+      continue;
+    }
+    const delta=key==="power"?0.5:key==="defense"&&[socket.gem,socket.fusionGem].some(id=>GEM_DEFENSE_DELTA_IDS.has(id))?GEM_DEFENSE_DELTA:0;
+    combined[key]=Math.floor(baseValue*multiplier+delta)+Math.floor(fusionValue*multiplier+delta);
   }
   return combined;
 }
@@ -234,6 +347,7 @@ function getGearTotalStats(gear){
   const modifierScale=level/10;
   const item=ITEMS.find(entry=>entry.name===gear.name);
   for(const [key,value]of Object.entries(gear.stats||{}))if(key in total)total[key]+=safeNumber(value);
+  if(item?.dragonGear&&gear.dragonColor)for(const [key,value]of Object.entries(getDragonColorBonusStats(item,gear.dragonColor)))if(key in total)total[key]+=value;
   for(const [key,value]of Object.entries(ENCHANT_STATS[gear.enchant]||{}))total[key]+=value*scale;
   for(const [key,value]of Object.entries(ENCHANT_FLAT_STATS[gear.enchant]||{}))total[key]+=value;
   const modifier=gear.modifier;
@@ -300,6 +414,7 @@ function loadStoredBuild(){
     const saved=JSON.parse(localStorage.getItem("ao-gear-workshop-v1"));
     if(saved&&saved.gear&&typeof saved.gear==="object"){
       const result={...starter,...saved,gear:{...starter.gear,...saved.gear}};
+      result.level=clampGameLevel(result.level);
       result.dragonbloodTier=Math.max(0,Math.min(7,Math.floor(safeNumber(result.dragonbloodTier))));
       sanitizeStatBuild(result);
       for(const slot of SLOTS){const gear=result.gear[slot.id];if(gear&&!ITEMS.some(item=>item.name===gear.name&&slot.categories.includes(item.category)))result.gear[slot.id]=null;}
@@ -361,26 +476,30 @@ function renderCard(slot){
   const searchPlaceholder=gear?.name||"Search "+slot.name.toLowerCase()+"…";
   const itemPicker=`<div class="field item-picker"><label for="${slot.id}-search">ITEM <span class="item-count" data-item-count="${slot.id}">${slotItems.length} ITEMS</span></label><div class="item-search-wrap"><input id="${slot.id}-search" class="item-search" type="search" data-item-search="${slot.id}" value="${esc(itemSearches[slot.id])}" placeholder="${esc(searchPlaceholder)}" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="${slot.id}-results" aria-expanded="${itemDropdownOpen[slot.id]}" aria-label="Search ${esc(slot.name)} items"><span class="search-icon" aria-hidden="true">⌕</span><div class="item-results" id="${slot.id}-results" data-item-results="${slot.id}" role="listbox" hidden></div></div></div>`;
   const clearButton=`<button class="clear-slot-button" type="button" data-clear-slot="${slot.id}"${gear?"":" disabled"} aria-label="Clear ${esc(slot.name)}">Clear</button>`;
-  if(!gear) return `<article class="gear-card"><div class="gear-card-header"><div><span class="slot-label">${slot.label}</span><h3>Empty slot</h3></div>${clearButton}</div><div class="gear-fields">${itemPicker}</div></article>`;
+  if(!gear) return `<article class="gear-card"><div class="gear-card-header"><div><span class="slot-label">${slot.label}</span><h3>Empty slot</h3></div>${clearButton}</div><div class="gear-fields">${itemPicker}</div><div class="gear-snapshot"><span>No item selected</span></div></article>`;
   const jewelSlots=(selectedItem?.jewelSlots||0)+(gear.modifier==="gilded"?1:0);
   const sockets=Array.from({length:jewelSlots},(_,i)=>renderSocket(slot.id,i,gear.sockets?.[i])).join("");
   const socketSection=sockets?`<div class="socket-block"><div class="socket-block-head"><span class="socket-title">JEWEL SOCKETS</span><span class="socket-subtitle">${jewelSlots} AVAILABLE · GEM + COMBINED GEM</span></div>${sockets}</div>`:"";
   const modifierDescription=MODIFIER_DESCRIPTIONS[gear.modifier];
   const canUseAtlantean=Boolean(selectedItem);
   const modifierOptions=MODIFIERS.map(([value,label])=>{
-    const disabled=(value==="atlantean"&&(!canUseAtlantean||gear.enchant==="virtuous"))||(value!==""&&value!=="atlantean"&&!selectedItem?.modifierAllowed);
+    const disabled=(value==="atlantean"&&gear.enchant==="virtuous")||(value!==""&&value!=="atlantean"&&!selectedItem?.dragonGear);
     return `<option value="${esc(value)}"${value===(gear.modifier||"")?" selected":""}${disabled?" disabled":""}>${esc(label)}</option>`;
   }).join("");
-  const modifierHelp=modifierDescription||(gear.enchant==="virtuous"?"Virtuous removes Atlantean; Atlantean cannot be applied while Virtuous is selected.":canUseAtlantean&&!selectedItem?.modifierAllowed?"Atlantean is allowed on items without an existing modifier.":"");
-  const modifierControl=selectedItem?.modifierAllowed||canUseAtlantean?`<div class="field"><label>MODIFIER</label><select data-slot="${slot.id}" data-prop="modifier" aria-label="${slot.name} modifier">${modifierOptions}</select>${modifierHelp?`<span class="modifier-note">${esc(modifierHelp)}</span>`:""}</div>`:`<div class="field"><label>MODIFIER</label><select data-slot="${slot.id}" data-prop="modifier" disabled aria-label="${slot.name} cannot have a modifier"><option>Not available on this item</option></select></div>`;
+  const modifierHelp=modifierDescription||(gear.enchant==="virtuous"?"Virtuous removes Atlantean; Atlantean cannot be applied while Virtuous is selected.":"");
+  const modifierControl=selectedItem?`<div class="field"><label>MODIFIER</label><select data-slot="${slot.id}" data-prop="modifier" aria-label="${slot.name} modifier">${modifierOptions}</select>${modifierHelp?`<span class="modifier-note">${esc(modifierHelp)}</span>`:""}</div>`:"";
+  const dragonColorOptions=[["","No color"],...getDragonColorRecords(selectedItem).map(color=>{const name=color.name||"Base";const stats=Object.keys(getDragonColorBonusStats(selectedItem,name)).map(key=>STAT_LABELS[key]).join(", ");return [name,stats?`${name} · ${stats}`:name];})];
+  const dragonColorControl=selectedItem?.dragonGear?`<div class="field"><label>DRAGON COLOR</label><select data-slot="${slot.id}" data-prop="dragonColor" aria-label="${slot.name} Dragon color">${options(dragonColorOptions,gear.dragonColor||"")}</select></div>`:"";
   const baseStats=Object.entries(gear.stats||{}).map(([key,value])=>`${STAT_LABELS[key]} ${formatStat(value)}`).join(" · ")||"No base stats listed";
   const totalStats=getGearTotalStats(gear);
   const atlanteanKey=gear.modifier==="atlantean"?getAtlanteanBonusStat(gear,selectedItem)[0]:"";
   const totalStatText=formatGearStats(totalStats,atlanteanKey);
   const itemEfficiency=formatEfficiencyPoints(getEfficiencyPoints(totalStats));
-  const minLevel=selectedItem?.minLevel??1;
-  const maxLevel=selectedItem?.maxLevel??300;
-  return `<article class="gear-card"><div class="gear-card-header"><div><span class="slot-label">${slot.label}</span><h3>${esc(gear.name||"Unnamed gear")}</h3><span class="item-type">${esc(selectedItem?.type||"Custom item")} · Lv ${safeNumber(gear.level)||1}</span></div>${clearButton}</div><div class="gear-fields">${itemPicker}<div class="field item-level"><label>ITEM LEVEL</label><input data-slot="${slot.id}" data-prop="level" type="number" min="${minLevel}" max="${maxLevel}" step="10" value="${safeNumber(gear.level)||1}" aria-label="${slot.name} level"></div><div class="base-stat-readout">${esc(baseStats)}</div><div class="item-total-readout" data-item-total="${slot.id}"><span class="item-total-label">TOTAL ITEM STATS</span><span class="item-total-stats">${esc(totalStatText)}</span><span class="item-efficiency">EFFICIENCY POINTS <b>${itemEfficiency}</b></span></div><div class="enhancement"><div class="field"><label>ENCHANT SCROLL</label><select data-slot="${slot.id}" data-prop="enchant" aria-label="${slot.name} enchantment">${options(ENCHANTS,gear.enchant||"")}</select></div>${modifierControl}</div>${socketSection}</div></article>`;
+  const screenshotDetails=getScreenshotDetails(gear);
+  const screenshotSummary=`<div class="gear-snapshot" data-screenshot-summary="${slot.id}"><div class="gear-snapshot-stats">${formatGearStats(totalStats,atlanteanKey)}</div><div class="gear-snapshot-details"${screenshotDetails?"":" hidden"}>${esc(screenshotDetails)}</div><div class="gear-snapshot-efficiency">${itemEfficiency} EP</div></div>`;
+  const maxLevel=Math.min(MAX_GAME_LEVEL,selectedItem?.maxLevel??MAX_GAME_LEVEL);
+  const minLevel=Math.min(maxLevel,selectedItem?.minLevel??1);
+  return `<article class="gear-card"><div class="gear-card-header"><div><span class="slot-label">${slot.label}</span><h3>${esc(gear.name||"Unnamed gear")}</h3><span class="item-type">${esc(selectedItem?.type||"Custom item")} · Lv ${safeNumber(gear.level)||1}</span></div>${clearButton}</div><div class="gear-fields">${itemPicker}${dragonColorControl}<div class="field item-level"><label>ITEM LEVEL</label><input data-slot="${slot.id}" data-prop="level" type="number" min="${minLevel}" max="${maxLevel}" step="10" value="${safeNumber(gear.level)||1}" aria-label="${slot.name} level"></div><div class="base-stat-readout">${esc(baseStats)}</div><div class="item-total-readout" data-item-total="${slot.id}"><span class="item-total-label">TOTAL ITEM STATS</span><span class="item-total-stats">${esc(totalStatText)}</span><span class="item-efficiency">EFFICIENCY POINTS <b>${itemEfficiency}</b></span></div><div class="enhancement"><div class="field"><label>ENCHANT SCROLL</label><select data-slot="${slot.id}" data-prop="enchant" aria-label="${slot.name} enchantment">${options(ENCHANTS,gear.enchant||"")}</select></div>${modifierControl}</div>${socketSection}</div>${screenshotSummary}</article>`;
 }
 function renderSocket(slotId,index,socket={}){
   const gemOptions=[["","Choose gem"],...GEMS.map(gem=>[gem.id,[gem.name,...(gem.variants||[])].join(" / ")])];
@@ -440,7 +559,8 @@ function selectItem(slotId,itemName){
     if(item.fightingStyle&&!build.fightingStyles.includes(item.fightingStyle)){showToast("Select this item's fighting style before equipping it.");return;}
     const conflict=accessoryConflictForSlot(slotId,item);
     if(conflict){showToast(conflict);return;}
-    const nextGear={...blankGear(),name:item.name,level:item.maxLevel,stats:getItemStatsAtLevel(item,item.maxLevel),enchant:previous?.enchant||"",modifier:previous?.modifier||""};
+    const nextLevel=normalizeItemLevel(item,item.maxLevel);
+    const nextGear={...blankGear(),name:item.name,level:nextLevel,stats:getItemStatsAtLevel(item,nextLevel),enchant:previous?.enchant||"",modifier:previous?.modifier||""};
     if(!canUseModifier(nextGear,item))nextGear.modifier="";
     const jewelSlots=item.jewelSlots+(nextGear.modifier==="gilded"?1:0);
     nextGear.sockets=(previous?.sockets||[]).slice(0,jewelSlots);
@@ -459,12 +579,23 @@ function clearSlot(slotId){
   activeItemIndexes[slotId]=0;
   render();persist();
 }
+function getScreenshotDetails(gear){
+  const jewels=(gear.sockets||[]).filter(socket=>socket?.gem).map(socket=>{
+    const gem=GEMS.find(entry=>entry.id===socket.gem)?.name||"Unknown jewel";
+    const fusion=GEMS.find(entry=>entry.id===socket.fusionGem)?.name;
+    return fusion?`${gem}-${fusion}`:gem;
+  });
+  return [
+    gear.dragonColor,
+    ENCHANTS.find(([id])=>id===gear.enchant)?.[1],
+    MODIFIERS.find(([id])=>id===gear.modifier)?.[1],
+    jewels.length?`Jewels: ${jewels.join(", ")}`:""
+  ].filter(Boolean).join(" · ");
+}
 function updateSummary(){
   const total=Object.fromEntries(STAT_KEYS.map(k=>[k,0]));
-  let equipped=0,jewels=0,enchants=0;
   for(const [slotId,gear]of Object.entries(build.gear)){
     if(!gear)continue;
-    equipped++;
     const gearTotal=getGearTotalStats(gear);
     for(const [key,value]of Object.entries(gearTotal))total[key]+=value;
     const itemReadout=document.querySelector(`[data-item-total="${slotId}"]`);
@@ -474,19 +605,22 @@ function updateSummary(){
       itemReadout.querySelector(".item-total-stats").innerHTML=formatGearStats(gearTotal,atlanteanKey);
       itemReadout.querySelector(".item-efficiency b").textContent=formatEfficiencyPoints(getEfficiencyPoints(gearTotal));
     }
-    if(gear.enchant)enchants++;
-    const item=ITEMS.find(entry=>entry.name===gear.name);
-    const socketLimit=(item?.jewelSlots||0)+(gear.modifier==="gilded"?1:0);
-    jewels+=(gear.sockets||[]).slice(0,socketLimit).filter(socket=>socket?.gem).length;
+    const screenshotSummary=document.querySelector(`[data-screenshot-summary="${slotId}"]`);
+    if(screenshotSummary){
+      const item=ITEMS.find(entry=>entry.name===gear.name);
+      const atlanteanKey=gear.modifier==="atlantean"?getAtlanteanBonusStat(gear,item)[0]:"";
+      const details=getScreenshotDetails(gear);
+      screenshotSummary.querySelector(".gear-snapshot-stats").innerHTML=formatGearStats(gearTotal,atlanteanKey);
+      const detailsElement=screenshotSummary.querySelector(".gear-snapshot-details");
+      detailsElement.textContent=details;
+      detailsElement.hidden=!details;
+      screenshotSummary.querySelector(".gear-snapshot-efficiency").textContent=`${formatEfficiencyPoints(getEfficiencyPoints(gearTotal))} EP`;
+    }
   }
   document.getElementById("summary-efficiency-points").textContent=formatEfficiencyPoints(getEfficiencyPoints(total));
   const order=["power","defense","range","haste","size","speed","dexterity","regeneration","pierce","resistance","warding","drawback","insanity"];
   document.getElementById("stat-list").innerHTML=order.filter(key=>Math.abs(total[key])>1e-9).map(key=>`<div class="total-stat${key==="power"||key==="defense"?" primary":""}"><span>${STAT_LABELS[key]}</span><b>${formatStat(total[key])}</b></div>`).join("");
-  document.getElementById("slot-count").textContent=`${equipped} / 5 EQUIPPED`;
-  document.getElementById("summary-equipped").textContent=`${equipped} / 5`;
-  document.getElementById("summary-jewels").textContent=String(jewels);
-  document.getElementById("summary-enchants").textContent=String(enchants);
-  const level=Math.max(1,Math.min(300,safeNumber(build.level)||175));
+  const level=clampGameLevel(build.level);
   const baseHealth=Math.round(1000+(level-1)*3.83);
   const ritual=DRAGONBLOOD_RITUALS.find(entry=>entry.tier===Number(build.dragonbloodTier))||DRAGONBLOOD_RITUALS[0];
   const ritualHealth=Math.round(baseHealth*ritual.healthMultiplier);
@@ -582,6 +716,13 @@ document.getElementById("clear-all-gear").addEventListener("click",()=>{
 });
 document.getElementById("gear-grid").addEventListener("change",event=>{
   const el=event.target;
+  if(el.dataset.prop==="dragonColor"&&build.gear[el.dataset.slot]){
+    const gear=build.gear[el.dataset.slot];
+    const item=ITEMS.find(entry=>entry.name===gear.name);
+    const validColors=getDragonColorRecords(item).map(color=>color.name||"Base");
+    gear.dragonColor=validColors.includes(el.value)?el.value:"";
+    render();persist();return;
+  }
   if(el.dataset.prop==="enchant"&&build.gear[el.dataset.slot]){
     const gear=build.gear[el.dataset.slot];
     if(gear.enchant==="virtuous"&&gear.modifier==="atlantean")gear.modifier="";
@@ -599,7 +740,7 @@ document.getElementById("gear-grid").addEventListener("change",event=>{
   if(el.dataset.prop==="level"&&build.gear[el.dataset.slot]){
     const gear=build.gear[el.dataset.slot];
     const item=ITEMS.find(entry=>entry.name===gear.name);
-    gear.level=item?normalizeItemLevel(item,el.value):Math.max(1,Math.min(300,safeNumber(el.value)||1));
+    gear.level=item?normalizeItemLevel(item,el.value):Math.max(1,Math.min(MAX_GAME_LEVEL,safeNumber(el.value)||1));
     if(item)gear.stats=getItemStatsAtLevel(item,gear.level);
     render();persist();
   }
@@ -634,7 +775,7 @@ document.getElementById("fighting-style-selectors").addEventListener("change",ev
   sanitizeStatBuild(build);
   renderFightingStyleSelectors();persist();
 });
-document.getElementById("player-level").addEventListener("input",event=>{build.level=Math.max(1,Math.min(300,safeNumber(event.target.value)||1));event.target.value=build.level;updateSummary();persist();});
+document.getElementById("player-level").addEventListener("input",event=>{build.level=clampGameLevel(event.target.value);event.target.value=build.level;updateSummary();persist();});
 document.getElementById("dragonblood-ritual").addEventListener("change",event=>{build.dragonbloodTier=safeNumber(event.target.value);updateSummary();persist();});
 function encodeBase64Url(bytes){
   let binary="";
@@ -666,6 +807,7 @@ async function decodeBuildCode(value){
 function importBuildData(parsed){
   if(!parsed||!parsed.gear||typeof parsed.gear!=="object")throw new Error("This does not look like a valid build code.");
   const merged={...structuredClone(starter),...parsed,gear:{...structuredClone(starter.gear),...parsed.gear}};
+  merged.level=clampGameLevel(merged.level);
   merged.dragonbloodTier=Math.max(0,Math.min(7,Math.floor(safeNumber(merged.dragonbloodTier))));
   for(const slot of SLOTS)if(merged.gear[slot.id]!==null&&merged.gear[slot.id]!==undefined){
     const gear=merged.gear[slot.id];
@@ -699,5 +841,11 @@ document.getElementById("copy-summary").addEventListener("click",async()=>{
   const statBuild=STAT_BUILDS.find(([id])=>id===build.statBuild);
   const lines=[`${build.name||"Arcane Odyssey build"} · Level ${build.level||175}`,...(statBuild?[`Stat build: ${statBuild[1]}`,...(build.magics||[]).filter(Boolean).map((magic,index)=>`Magic ${index+1}: ${magic}`),...(build.fightingStyles||[]).filter(Boolean).map((style,index)=>`Fighting style ${index+1}: ${style}`)]:[]),`Total health: ${document.getElementById("summary-total-health").textContent}`,`Efficiency points: ${document.getElementById("summary-efficiency-points").textContent}`,`Dragonblood ritual: ${DRAGONBLOOD_RITUALS.find(ritual=>ritual.tier===Number(build.dragonbloodTier))?.label||"None"}`,...Array.from(document.querySelectorAll(".total-stat"),el=>`${el.querySelector("span").textContent}: ${el.querySelector("b").textContent}`)];
   try{await navigator.clipboard.writeText(lines.join("\n"));showToast("Stat summary copied.");}catch(error){console.error("Could not copy the summary.",error);showToast("Clipboard access is unavailable.");}
+});
+document.getElementById("toggle-screenshot").addEventListener("click",event=>{
+  const enabled=document.body.classList.toggle("screenshot-mode");
+  event.currentTarget.textContent=enabled?"Exit screenshot view":"Screenshot view";
+  event.currentTarget.setAttribute("aria-pressed",String(enabled));
+  window.scrollTo(0,0);
 });
 render();

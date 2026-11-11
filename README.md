@@ -27,6 +27,8 @@ The site uses relative asset and script paths, so it works both at a project URL
 - `styles.css` — layout and styling.
 - `app.js` — planner behavior, calculations, and build sharing.
 - `item-catalog.js`, `magic-gear-catalog.js`, `fighting-gear-catalog.js` — gear data.
+- `newer-armor-records.js` — newer armor, Dragon color, and Magic/Strength bonus records.
+- `wiki-armor-records.js` — per-level armor and accessory stats from matching item pages on the Arcane Odyssey Wiki.
 - `assets/` — app images.
 - `.github/workflows/pages.yml` — GitHub Pages deployment.
 
@@ -34,4 +36,4 @@ Builds are saved in the current browser's local storage. Use **Copy build code**
 
 ## Data and attribution
 
-Gear and game information is compiled from the [Arcane Odyssey Builder](https://arcaneodyssey.co/builder/) and the [Arcane Odyssey Wiki](https://roblox-arcane-odyssey.fandom.com/wiki/Armor). The planner is an independent fan project and is not affiliated with Arcane Odyssey or its developers.
+Gear and game information is compiled from the [Arcane Odyssey Armor Builder](https://arcane-odyssey-armor-builder.hexas.online/), the [Arcane Odyssey Builder](https://arcaneodyssey.co/builder/), the [Armor wiki](https://roblox-arcane-odyssey.fandom.com/wiki/Armor), the [Accessories wiki](https://roblox-arcane-odyssey.fandom.com/wiki/Accessories), and the [Jewelcrafting wiki](https://roblox-arcane-odyssey.fandom.com/wiki/Jewelcrafting). The planner is an independent fan project and is not affiliated with Arcane Odyssey or its developers.
