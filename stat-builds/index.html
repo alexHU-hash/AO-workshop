@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#09131d">
+  <title>Stat Build Planner · Arcane Odyssey</title>
+  <link rel="icon" type="image/png" href="../assets/everthel-4.2.png">
+  <link rel="apple-touch-icon" href="../assets/everthel-4.2.png">
+  <link rel="stylesheet" href="../styles.css?v=stat-planner-20261111">
+</head>
+<body>
+  <div class="planner-shell">
+    <header class="planner-topbar">
+      <a class="brand" href="../" aria-label="Gear Workshop home">
+        <img class="brand-mark-image" src="../assets/everthel-4.2.png" alt="">
+        <span>ARCANE <b>ODYSSEY</b><small>STAT BUILD PLANNER</small></span>
+      </a>
+      <a class="planner-back" href="../">← Gear Workshop</a>
+    </header>
+    <main class="planner-main">
+      <div class="planner-heading">
+        <div>
+          <span class="eyebrow">CLASS & ABILITY FORECAST</span>
+          <h1>Stat build planner</h1>
+          <p>Allocate level-up points across Magic, Weapons, Spirit, and Strength. Unlocks update as you invest.</p>
+        </div>
+        <label class="planner-level" for="planner-level">PLAYER LEVEL
+          <input id="planner-level" type="number" min="1" max="175" value="175" inputmode="numeric">
+        </label>
+      </div>
+      <div class="planner-layout">
+        <section class="planner-panel" aria-labelledby="allocation-title">
+          <div class="planner-panel-heading"><h2 id="allocation-title">Point allocation</h2><small>2 points per level</small></div>
+          <div class="planner-points"><span>SPENT / AVAILABLE</span><strong><span id="planner-spent">0</span> / <span id="planner-remaining">350</span></strong></div>
+          <div class="planner-stat-list" id="planner-stat-list"></div>
+          <div class="planner-class-result" aria-live="polite">
+            <span>ESTIMATED CLASS</span><strong id="planner-class-name">Savant</strong>
+            <p id="planner-class-note"></p>
+          </div>
+        </section>
+        <section class="planner-moves" aria-label="Ability unlocks">
+          <section class="planner-move-group" data-move-stat="magic">
+            <div class="planner-move-header"><h2>Magic spells & scrolls</h2><a href="https://roblox-arcane-odyssey.fandom.com/wiki/Lost_Spells" target="_blank" rel="noreferrer">Wiki ↗</a></div>
+            <p class="planner-move-note">Rare and Lost spells require their scrolls. A 2ND MAGIC badge marks eligible spells once the Mage secondary-slot requirement is met; other Rare Spells are first-Magic only.</p>
+            <div class="planner-move-list" id="planner-spells"></div>
+          </section>
+          <section class="planner-move-group" data-move-stat="strength">
+            <div class="planner-move-header"><h2>Strength techniques & scrolls</h2><a href="https://roblox-arcane-odyssey.fandom.com/wiki/Lost_Techniques" target="_blank" rel="noreferrer">Wiki ↗</a></div>
+            <p class="planner-move-note">Rare and Lost Techniques require scrolls. A 2ND STYLE badge marks techniques available on a Berserker's second style after its +90-point requirement is met.</p>
+            <div class="planner-move-list" id="planner-techniques"></div>
+          </section>
+          <section class="planner-move-group" data-move-stat="spirit">
+            <div class="planner-move-header"><h2>Spirit Rites</h2><a href="https://roblox-arcane-odyssey.fandom.com/wiki/Relics/Rites" target="_blank" rel="noreferrer">Wiki ↗</a></div>
+            <p class="planner-move-note">Spirit Rite Tomes grant five random rites. Relics also have exclusive rites with separate requirements.</p>
+            <div class="planner-move-list" id="planner-rites"></div>
+          </section>
+          <section class="planner-move-group" data-move-stat="weapons">
+            <div class="planner-move-header"><h2>Weapon skills</h2><a href="https://roblox-arcane-odyssey.fandom.com/wiki/Weapons/Skills" target="_blank" rel="noreferrer">Wiki ↗</a></div>
+            <p class="planner-move-note">Weapon skill notes are gained from bookshelves, quests, chests and trading. Requirements vary by weapon level and slot. Choose both to calculate them.</p>
+            <div class="planner-panel-heading">
+              <label class="planner-skill-level" for="planner-weapon-level">WEAPON LEVEL
+                <input id="planner-weapon-level" type="number" min="1" max="175" value="100" inputmode="numeric">
+              </label>
+              <label class="planner-skill-level" for="planner-weapon-slot">SKILL SLOT
+                <select id="planner-weapon-slot"><option value="standard">1-2</option><option value="advanced">3-4</option><option value="ultimate">Ultimate</option></select>
+              </label>
+              <small>Standard weapon</small>
+            </div>
+            <div class="planner-move-list" id="planner-weapons"></div>
+          </section>
+        </section>
+      </div>
+      <p class="planner-footer">Class thresholds and ability requirements are transcribed from the <a href="https://roblox-arcane-odyssey.fandom.com/wiki/Stat_Builds" target="_blank" rel="noreferrer">Arcane Odyssey Wiki</a>. Eligibility is point-based; owning the required scroll, compatible weapon/relic, and awakening may also be necessary.</p>
+    </main>
+  </div>
+  <script src="../stat-build.js?v=ten-point-cap-20261111"></script>
+</body>
+</html>

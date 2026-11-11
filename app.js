@@ -1,6 +1,20 @@
-const STAT_KEYS = ["power", "defense", "range", "haste", "size", "speed", "dexterity", "regeneration", "pierce", "resistance", "warding", "drawback", "insanity"];
+const STAT_KEYS = ["power", "defense", "range", "haste", "size", "dexterity", "regeneration", "pierce", "resistance", "warding", "drawback", "insanity"];
 const MAX_GAME_LEVEL = 175;
-const STAT_LABELS = { power:"Power", defense:"Defense", range:"Range", haste:"Haste", size:"Size", speed:"Speed", dexterity:"Dexterity", regeneration:"Regeneration", pierce:"Pierce", resistance:"Resistance", warding:"Warding", drawback:"Drawback", insanity:"Insanity" };
+const STAT_LABELS = { power:"Power", defense:"Defense", range:"Range", haste:"Haste", size:"Size", dexterity:"Dexterity", regeneration:"Regeneration", pierce:"Pierce", resistance:"Resistance", warding:"Warding", drawback:"Drawback", insanity:"Insanity" };
+const STAT_ICON_URLS = {
+  power:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/a/a3/Power.svg/revision/latest?cb=20240317050637",
+  defense:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/e/e4/Defense.svg/revision/latest?cb=20240317050627",
+  range:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/c/c5/Range.png/revision/latest?cb=20260104020327",
+  haste:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/3/35/Haste.png/revision/latest?cb=20260104020327",
+  size:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/a/ad/Attack_Size.svg/revision/latest?cb=20240317050622",
+  dexterity:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/3/39/Attack_Speed.svg/revision/latest?cb=20240317050624",
+  regeneration:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/e/e1/Regeneration.svg/revision/latest?cb=20240317050640",
+  pierce:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/4/4d/Armor_Piercing.svg/revision/latest?cb=20240317050650",
+  resistance:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/9/97/Resistance.svg/revision/latest?cb=20240317050643",
+  warding:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/9/90/Warding.svg/revision/latest?cb=20240317050645",
+  drawback:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/3/3f/Drawback.svg/revision/latest?cb=20240317050630",
+  insanity:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/3/3a/Insanity.svg/revision/latest?cb=20240317050632"
+};
 const STAT_BUILDS = [
   ["savant","Savant","All four stats · 15%+ in three stats; no single stat at 50%+"],
   ["oracle","Oracle","Full Spirit build · 60%+ Spirit"],
@@ -370,7 +384,7 @@ function getGearTotalStats(gear){
 }
 function getEfficiencyPoints(stats){
   return (stats.power||0)*3+(stats.defense||0)/3
-    +["range","haste","size","speed","regeneration","pierce","resistance","warding","drawback","insanity"]
+    +["range","haste","size","regeneration","pierce","resistance","warding","drawback","insanity"]
       .reduce((sum,key)=>sum+(stats[key]||0),0);
 }
 function formatEfficiencyPoints(value){
@@ -379,7 +393,7 @@ function formatEfficiencyPoints(value){
 }
 function formatGearStats(stats,atlanteanKey=""){
   return Object.entries(stats).filter(([,value])=>Math.abs(value)>1e-9).map(([key,value])=>{
-    const stat=`${esc(STAT_LABELS[key])} ${formatStat(value)}`;
+    const stat=renderStatValue(key,value);
     return key===atlanteanKey?`<span class="atlantean-stat" title="Atlantean bonus">${stat}</span>`:stat;
   }).join(" · ")||"No stats";
 }
@@ -460,8 +474,14 @@ function saveNamedGearBuild(){
   }catch(error){console.error("Could not save this gear set.",error);showToast("Could not save this gear set locally.");}
 }
 function formatStat(value){const rounded=Math.round(value*10)/10;return `${rounded>0?"+":""}${Number.isInteger(rounded)?rounded:rounded.toFixed(1)}`;}
+function renderStatIcon(key,{decorative=false}={}){
+  const label=STAT_LABELS[key]||key;
+  const source=STAT_ICON_URLS[key];
+  return source?`<img class="stat-icon" src="${source}" alt="${decorative?"":esc(label)}" title="${esc(label)}" loading="lazy">`:`<span class="stat-icon-fallback"${decorative?' aria-hidden="true"':` role="img" aria-label="${esc(label)}"`} title="${esc(label)}">${esc(label.slice(0,2).toUpperCase())}</span>`;
+}
+function renderStatValue(key,value){return `<span class="stat-value">${renderStatIcon(key)}<b>${formatStat(value)}</b></span>`;}
 function options(items,selected){return items.map(([value,label])=>`<option value="${esc(value)}"${value===selected?" selected":""}>${esc(label)}</option>`).join("");}
-function renderStatFilters(){return STAT_KEYS.map(key=>`<label class="filter-chip"><input type="checkbox" data-filter-stat="${key}"${statFilters.has(key)?" checked":""}><span>${STAT_LABELS[key]}</span></label>`).join("");}
+function renderStatFilters(){return STAT_KEYS.map(key=>`<label class="filter-chip" title="${esc(STAT_LABELS[key])}"><input type="checkbox" data-filter-stat="${key}"${statFilters.has(key)?" checked":""}>${renderStatIcon(key,{decorative:true})}<span class="visually-hidden">${esc(STAT_LABELS[key])}</span></label>`).join("");}
 function getAvailableItemsForSlot(slot){
   return ITEMS.filter(item=>slot.categories.includes(item.category)
     &&(!item.magicKey||build.magics.includes(item.magicKey))
@@ -483,9 +503,9 @@ function renderItemResults(slotId){
   const controls=[];
   if(!itemSearches[slotId]&&!statFilters.size&&build.gear[slotId])controls.push(`<button class="item-result item-result-clear" type="button" role="option" aria-selected="false" data-select-item="${slotId}" data-item-name="">× <span>Clear ${slot.name}</span></button>`);
   for(const [index,item] of filtered.entries()){
-    const stats=Object.entries(item.stats).map(([key,value])=>`${STAT_LABELS[key]} ${formatStat(value)}`).join(" · ");
+    const stats=Object.entries(item.stats).filter(([key])=>STAT_KEYS.includes(key)).map(([key,value])=>renderStatValue(key,value)).join(" ");
     const selected=build.gear[slotId]?.name===item.name;
-    controls.push(`<button id="${slotId}-result-${index}" class="item-result${selected?" is-equipped":""}" type="button" role="option" aria-selected="${selected}" data-select-item="${slotId}" data-item-name="${esc(item.name)}"><span class="item-result-main"><span class="item-result-name">${esc(item.name)}${selected?'<span class="equipped-tag">EQUIPPED</span>':""}</span><span class="item-result-stats">${esc(stats||"No base stats listed")}</span></span><span class="item-result-type">${esc(item.type)}</span></button>`);
+    controls.push(`<button id="${slotId}-result-${index}" class="item-result${selected?" is-equipped":""}" type="button" role="option" aria-selected="${selected}" data-select-item="${slotId}" data-item-name="${esc(item.name)}"><span class="item-result-main"><span class="item-result-name">${esc(item.name)}${selected?'<span class="equipped-tag">EQUIPPED</span>':""}</span><span class="item-result-stats">${stats||"No base stats listed"}</span></span><span class="item-result-type">${esc(item.type)}</span></button>`);
   }
   results.innerHTML=controls.length?controls.join(""):`<div class="item-no-results">${itemSearches[slotId]?"No matching items.":"No items match the selected stat filters."}</div>`;
   results.hidden=!itemDropdownOpen[slotId];
@@ -516,9 +536,9 @@ function renderCard(slot){
   }).join("");
   const modifierHelp=modifierDescription||(gear.enchant==="virtuous"?"Virtuous removes Atlantean; Atlantean cannot be applied while Virtuous is selected.":"");
   const modifierControl=selectedItem?`<div class="field"><label>MODIFIER</label><select data-slot="${slot.id}" data-prop="modifier" aria-label="${slot.name} modifier">${modifierOptions}</select>${modifierHelp?`<span class="modifier-note">${esc(modifierHelp)}</span>`:""}</div>`:"";
-  const dragonColorOptions=[["","No color"],...getDragonColorRecords(selectedItem).map(color=>{const name=color.name||"Base";const stats=Object.keys(getDragonColorBonusStats(selectedItem,name)).map(key=>STAT_LABELS[key]).join(", ");return [name,stats?`${name} · ${stats}`:name];})];
+  const dragonColorOptions=[["","No color"],...getDragonColorRecords(selectedItem).map(color=>{const name=color.name||"Base";const stats=Object.keys(getDragonColorBonusStats(selectedItem,name)).filter(key=>STAT_KEYS.includes(key)).map(key=>STAT_LABELS[key]).join(", ");return [name,stats?`${name} · ${stats}`:name];})];
   const dragonColorControl=selectedItem?.dragonGear?`<div class="field"><label>DRAGON COLOR</label><select data-slot="${slot.id}" data-prop="dragonColor" aria-label="${slot.name} Dragon color">${options(dragonColorOptions,gear.dragonColor||"")}</select></div>`:"";
-  const baseStats=Object.entries(gear.stats||{}).map(([key,value])=>`${STAT_LABELS[key]} ${formatStat(value)}`).join(" · ")||"No base stats listed";
+  const baseStats=Object.entries(gear.stats||{}).filter(([key])=>STAT_KEYS.includes(key)).map(([key,value])=>renderStatValue(key,value)).join(" ")||"No base stats listed";
   const totalStats=getGearTotalStats(gear);
   const atlanteanKey=gear.modifier==="atlantean"?getAtlanteanBonusStat(gear,selectedItem)[0]:"";
   const totalStatText=formatGearStats(totalStats,atlanteanKey);
@@ -527,7 +547,7 @@ function renderCard(slot){
   const screenshotSummary=`<div class="gear-snapshot" data-screenshot-summary="${slot.id}"><div class="gear-snapshot-stats">${formatGearStats(totalStats,atlanteanKey)}</div><div class="gear-snapshot-details"${screenshotDetails?"":" hidden"}>${esc(screenshotDetails)}</div><div class="gear-snapshot-efficiency">${itemEfficiency} EP</div></div>`;
   const maxLevel=Math.min(MAX_GAME_LEVEL,selectedItem?.maxLevel??MAX_GAME_LEVEL);
   const minLevel=Math.min(maxLevel,selectedItem?.minLevel??1);
-  return `<article class="gear-card"><div class="gear-card-header"><div><span class="slot-label">${slot.label}</span><h3>${esc(gear.name||"Unnamed gear")}</h3><span class="item-type">${esc(selectedItem?.type||"Custom item")} · Lv ${safeNumber(gear.level)||1}</span></div>${clearButton}</div><div class="gear-fields">${itemPicker}${dragonColorControl}<div class="field item-level"><label>ITEM LEVEL</label><input data-slot="${slot.id}" data-prop="level" type="number" min="${minLevel}" max="${maxLevel}" step="10" value="${safeNumber(gear.level)||1}" aria-label="${slot.name} level"></div><div class="base-stat-readout">${esc(baseStats)}</div><div class="item-total-readout" data-item-total="${slot.id}"><span class="item-total-label">TOTAL ITEM STATS</span><span class="item-total-stats">${esc(totalStatText)}</span><span class="item-efficiency">EFFICIENCY POINTS <b>${itemEfficiency}</b></span></div><div class="enhancement"><div class="field"><label>ENCHANT SCROLL</label><select data-slot="${slot.id}" data-prop="enchant" aria-label="${slot.name} enchantment">${options(ENCHANTS,gear.enchant||"")}</select></div>${modifierControl}</div>${socketSection}</div>${screenshotSummary}</article>`;
+    return `<article class="gear-card"><div class="gear-card-header"><div><span class="slot-label">${slot.label}</span><h3>${esc(gear.name||"Unnamed gear")}</h3><span class="item-type">${esc(selectedItem?.type||"Custom item")} · Lv ${safeNumber(gear.level)||1}</span></div>${clearButton}</div><div class="gear-fields">${itemPicker}${dragonColorControl}<div class="field item-level"><label>ITEM LEVEL</label><input data-slot="${slot.id}" data-prop="level" type="number" min="${minLevel}" max="${maxLevel}" step="10" value="${safeNumber(gear.level)||1}" aria-label="${slot.name} level"></div><div class="base-stat-readout">${baseStats}</div><div class="item-total-readout" data-item-total="${slot.id}"><span class="item-total-label">TOTAL ITEM STATS</span><span class="item-total-stats">${esc(totalStatText)}</span><span class="item-efficiency">EFFICIENCY POINTS <b>${itemEfficiency}</b></span></div><div class="enhancement"><div class="field"><label>ENCHANT SCROLL</label><select data-slot="${slot.id}" data-prop="enchant" aria-label="${slot.name} enchantment">${options(ENCHANTS,gear.enchant||"")}</select></div>${modifierControl}</div>${socketSection}</div>${screenshotSummary}</article>`;
 }
 function renderSocket(slotId,index,socket={}){
   const gemOptions=[["","Choose gem"],...GEMS.map(gem=>[gem.id,[gem.name,...(gem.variants||[])].join(" / ")])];
@@ -646,8 +666,8 @@ function updateSummary(){
     }
   }
   document.getElementById("summary-efficiency-points").textContent=formatEfficiencyPoints(getEfficiencyPoints(total));
-  const order=["power","defense","range","haste","size","speed","dexterity","regeneration","pierce","resistance","warding","drawback","insanity"];
-  document.getElementById("stat-list").innerHTML=order.filter(key=>Math.abs(total[key])>1e-9).map(key=>`<div class="total-stat${key==="power"||key==="defense"?" primary":""}"><span>${STAT_LABELS[key]}</span><b>${formatStat(total[key])}</b></div>`).join("");
+  const order=["power","defense","range","haste","size","dexterity","regeneration","pierce","resistance","warding","drawback","insanity"];
+  document.getElementById("stat-list").innerHTML=order.filter(key=>Math.abs(total[key])>1e-9).map(key=>`<div class="total-stat${key==="power"||key==="defense"?" primary":""}"><span class="stat-name">${renderStatIcon(key)}</span><b>${formatStat(total[key])}</b></div>`).join("");
   const level=clampGameLevel(build.level);
   const baseHealth=Math.round(1000+(level-1)*3.83);
   const ritual=DRAGONBLOOD_RITUALS.find(entry=>entry.tier===Number(build.dragonbloodTier))||DRAGONBLOOD_RITUALS[0];
