@@ -7,7 +7,7 @@
   <title>Stat Build Planner · Arcane Odyssey</title>
   <link rel="icon" type="image/png" href="../assets/everthel-4.2.png">
   <link rel="apple-touch-icon" href="../assets/everthel-4.2.png">
-  <link rel="stylesheet" href="../styles.css?v=weapon-skill-loadout-20261112">
+  <link rel="stylesheet" href="../styles.css?v=weapon-variant-scaling-20261112">
 </head>
 <body>
   <div class="planner-shell">
@@ -57,19 +57,20 @@
           </section>
           <section class="planner-move-group" data-move-stat="weapons">
             <div class="planner-move-header"><h2>Weapon skills</h2><a href="https://roblox-arcane-odyssey.fandom.com/wiki/Weapons/Skills" target="_blank" rel="noreferrer">Wiki ↗</a></div>
-            <p class="planner-move-note">Track three equipped weapons by type, variant, and level. The class list shows weapon skills; each weapon shows type-compatible skills and their requirements for slots 1-2.</p>
+            <p class="planner-move-note">Choose each weapon's type and a supported variant. Strength and Arcanium weapons use their separate wiki formulas; other weapons remain normal. Levels are automatic, using the lowest wiki-listed level for that variant, or the listed level for special weapons. Available moves appear first.</p>
             <div class="planner-weapon-config">
               <div class="planner-panel-heading"><h3>Equipped weapons</h3><small>3 slots</small></div>
               <div class="planner-weapon-inputs" id="planner-weapon-inputs"></div>
             </div>
-            <div class="planner-weapon-class" id="planner-weapon-class-skills"></div>
+            <div class="planner-weapon-available" id="planner-weapon-available"></div>
             <div class="planner-weapon-results" id="planner-weapon-results"></div>
+            <div class="planner-weapon-class" id="planner-weapon-class-skills"></div>
           </section>
         </section>
       </div>
       <p class="planner-footer">Class thresholds and ability requirements are transcribed from the <a href="https://roblox-arcane-odyssey.fandom.com/wiki/Stat_Builds" target="_blank" rel="noreferrer">Arcane Odyssey Wiki</a>. Weapon skill results cover slots 1-2 and use their listed requirements; Strength and Arcanium weapons also need their corresponding stat. Owning the required scroll, compatible weapon/relic, and awakening may also be necessary.</p>
     </main>
   </div>
-  <script src="../stat-build.js?v=weapon-skill-loadout-20261112"></script>
+  <script src="../stat-build.js?v=weapon-variant-scaling-20261112"></script>
 </body>
 </html>
