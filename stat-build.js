@@ -327,7 +327,7 @@ function renderWeaponSearchResults(index,classResult){
 }
 const planner=loadPlanner();
 const statList=document.getElementById("planner-stat-list");
-statList.innerHTML=STAT_ORDER.map(stat=>`<div class="planner-stat-row"><label class="planner-stat-label" for="stat-${stat}">${STAT_NAMES[stat]}</label><div class="planner-stepper"><button class="planner-step-button" type="button" data-stat="${stat}" data-stat-step="-10" aria-label="Decrease ${STAT_NAMES[stat]} by 10">-10</button><input class="planner-stat-input" id="stat-${stat}" data-stat="${stat}" type="number" min="0" max="${getPointTotal()}" step="1" value="${planner.stats[stat]||0}" inputmode="numeric"><button class="planner-step-button" type="button" data-stat="${stat}" data-stat-step="10" aria-label="Increase ${STAT_NAMES[stat]} by 10">+10</button></div><input class="planner-stat-slider" id="stat-slider-${stat}" data-stat="${stat}" type="range" min="0" max="${getPointTotal()}" step="1" value="${planner.stats[stat]||0}" aria-label="${STAT_NAMES[stat]} allocation"></div>`).join("");
+statList.innerHTML=STAT_ORDER.map(stat=>`<div class="planner-stat-row"><label class="planner-stat-label" for="stat-${stat}">${STAT_NAMES[stat]}</label><div class="planner-stepper"><button class="planner-step-button" type="button" data-stat="${stat}" data-stat-step="-10" aria-label="Decrease ${STAT_NAMES[stat]} by 10">-10</button><button class="planner-step-button" type="button" data-stat="${stat}" data-stat-step="-1" aria-label="Decrease ${STAT_NAMES[stat]} by 1">-1</button><input class="planner-stat-input" id="stat-${stat}" data-stat="${stat}" type="number" min="0" max="${getPointTotal()}" step="1" value="${planner.stats[stat]||0}" inputmode="numeric"><button class="planner-step-button" type="button" data-stat="${stat}" data-stat-step="1" aria-label="Increase ${STAT_NAMES[stat]} by 1">+1</button><button class="planner-step-button" type="button" data-stat="${stat}" data-stat-step="10" aria-label="Increase ${STAT_NAMES[stat]} by 10">+10</button></div><input class="planner-stat-slider" id="stat-slider-${stat}" data-stat="${stat}" type="range" min="0" max="${getPointTotal()}" step="1" value="${planner.stats[stat]||0}" aria-label="${STAT_NAMES[stat]} allocation"></div>`).join("");
 function loadPlanner(){
   try{
     const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -542,7 +542,10 @@ function render(){
     input.max=total;
     slider.value=planner.stats[stat];
     slider.max=total;
-    for(const button of statList.querySelectorAll(`[data-stat="${stat}"][data-stat-step]`))button.disabled=button.dataset.statStep==="-10"?planner.stats[stat]===0:available-planner.stats[stat]<10;
+    for(const button of statList.querySelectorAll(`[data-stat="${stat}"][data-stat-step]`)){
+      const step=Number(button.dataset.statStep);
+      button.disabled=step<0?planner.stats[stat]===0:available-planner.stats[stat]<step;
+    }
   }
   const classResult=getClass();
   normalizeWeaponSelections(classResult);
