@@ -393,6 +393,16 @@ h1 span{color:#ff8079}
 .planner-ultimate-art-badge{display:inline-flex;align-items:center;padding:3px 6px;border:1px solid #a87b35;border-radius:2px;background:#302716;color:#ffe0a0;font:10px var(--mono);white-space:nowrap}
 .planner-weapon-config{border-bottom:1px solid #552623}
 .planner-weapon-config .planner-panel-heading h3,.planner-weapon-result-heading h4{margin:0;color:#f5e6e5;font:500 17px var(--sans)}
+.planner-spirit-config{border-bottom:1px solid #552623}
+.planner-spirit-inputs{display:grid;gap:1px;background:#482321}
+.planner-spirit-row{display:grid;grid-template-columns:145px minmax(170px,1fr) minmax(120px,.5fr);align-items:end;gap:10px;padding:13px 14px;background:#210e0d}
+.planner-spirit-row>strong{padding-bottom:9px;color:#d3918e;font:13px var(--mono)}
+.planner-spirit-field{display:grid;gap:7px;min-width:0;color:#dab7b5;font:12px var(--mono)}
+.planner-spirit-field select,.planner-spirit-field input{width:100%;min-width:0;padding:10px;border:1px solid #723936;border-radius:2px;background:#130908;color:#f8efef;font:16px var(--sans)}
+.planner-spirit-field select:focus,.planner-spirit-field input:focus{border-color:#ef4f47;outline:none;box-shadow:0 0 0 2px #ea3d3422}
+.planner-spirit-field input:disabled{opacity:.6;cursor:not-allowed}
+.planner-spirit-results{padding:14px;border-bottom:1px solid #602e2b}
+.planner-move.is-unavailable .planner-move-status{font-weight:600}
 .planner-weapon-inputs{display:grid;gap:1px;background:#482321}
 .planner-weapon-row{display:grid;grid-template-columns:72px minmax(170px,1.35fr) minmax(125px,.9fr) minmax(155px,1fr) minmax(140px,.8fr);align-items:end;gap:10px;padding:13px 14px;background:#210e0d}
 .planner-weapon-row>strong{padding-bottom:9px;color:#d3918e;font:13px var(--mono)}
@@ -456,8 +466,8 @@ h1 span{color:#ff8079}
 .planner-footer a{color:#d3918e}
 @media(max-width:1220px){.planner-layout{grid-template-columns:1fr}}
 @media(max-width:1100px){.planner-weapon-available-cards,.planner-weapon-results{grid-template-columns:1fr}}
-@media(max-width:760px){.planner-shell{padding:0 16px}.planner-heading{align-items:flex-start;flex-direction:column}.planner-level{align-self:flex-end}.planner-layout{grid-template-columns:1fr}.planner-move-list{grid-template-columns:1fr}.planner-weapon-row{grid-template-columns:1fr 1fr}.planner-weapon-row>strong{grid-column:1/-1;padding:0}}
-@media(max-width:560px){.planner-weapon-row{grid-template-columns:1fr 1fr}.planner-weapon-row>strong{grid-column:1/-1;padding:0}.planner-weapon-available-cards{grid-template-columns:1fr}.planner-weapon-section-heading{align-items:flex-start;flex-direction:column}.planner-weapon-result-heading{align-items:flex-start;flex-direction:column}}
+@media(max-width:760px){.planner-shell{padding:0 16px}.planner-heading{align-items:flex-start;flex-direction:column}.planner-level{align-self:flex-end}.planner-layout{grid-template-columns:1fr}.planner-move-list{grid-template-columns:1fr}.planner-weapon-row{grid-template-columns:1fr 1fr}.planner-weapon-row>strong{grid-column:1/-1;padding:0}.planner-spirit-row{grid-template-columns:1fr 1fr}.planner-spirit-row>strong{grid-column:1/-1;padding:0}}
+@media(max-width:560px){.planner-weapon-row{grid-template-columns:1fr 1fr}.planner-weapon-row>strong{grid-column:1/-1;padding:0}.planner-spirit-row{grid-template-columns:1fr}.planner-weapon-available-cards{grid-template-columns:1fr}.planner-weapon-section-heading{align-items:flex-start;flex-direction:column}.planner-weapon-result-heading{align-items:flex-start;flex-direction:column}}
 @media(max-width:460px){.stat-planner-link{align-items:flex-start;flex-direction:column}.planner-stat-row{grid-template-columns:minmax(54px,.75fr) minmax(138px,1.7fr) minmax(58px,1.15fr);gap:4px;padding:0 8px}.planner-stepper{grid-template-columns:23px 23px minmax(38px,1fr) 23px 23px;gap:2px}.planner-step-button{font-size:8px}.planner-panel-heading{align-items:flex-start;flex-direction:column}.planner-move-header{flex-direction:column}.planner-move{align-items:flex-start}.planner-move-status{max-width:84px;line-height:1.5}.planner-weapon-result .planner-move-status{max-width:64%;text-align:left}}
 .summary-column{grid-column:2;grid-row:1;display:flex;flex-direction:column;gap:12px;align-self:start;position:static}
 .summary-column .summary{position:static}
@@ -847,6 +857,13 @@ html[data-theme="blue"] .planner-weapon-tab:focus-visible{outline-color:#65b8ef}
 html[data-theme="blue"] .planner-weapon-result .planner-move-list{background:#203b55}
 html[data-theme="blue"] .planner-move.is-locked .planner-move-name,html[data-theme="blue"] .planner-move.is-locked .planner-move-kind,html[data-theme="blue"] .planner-move.is-locked .planner-move-status,html[data-theme="blue"] .planner-move.is-available .planner-weapon-slot5-status.is-locked{color:#91a9bf}
 html[data-theme="blue"] .planner-class-result span{color:#91b5d5}
+html[data-theme="blue"] .planner-spirit-config,html[data-theme="blue"] .planner-spirit-results{border-color:#294867}
+html[data-theme="blue"] .planner-spirit-inputs,html[data-theme="blue"] .planner-spirit-results .planner-move-list{background:#203b55}
+html[data-theme="blue"] .planner-spirit-row{background:#112235}
+html[data-theme="blue"] .planner-spirit-row>strong{color:#80c8ff}
+html[data-theme="blue"] .planner-spirit-field{color:#b5c9dc}
+html[data-theme="blue"] .planner-spirit-field select,html[data-theme="blue"] .planner-spirit-field input{border-color:#365b7d;background:#112235;color:#bfd0e0}
+html[data-theme="blue"] .planner-spirit-field select:focus,html[data-theme="blue"] .planner-spirit-field input:focus{border-color:#65b8ef;box-shadow:0 0 0 2px #65b8ef25}
 
 html[data-theme="dark"] .planner-weapon-config,html[data-theme="dark"] .planner-weapon-available,html[data-theme="dark"] .planner-weapon-tabs,html[data-theme="dark"] .planner-weapon-results{border-color:#3d4349}
 html[data-theme="dark"] .planner-weapon-inputs,html[data-theme="dark"] .planner-weapon-results .planner-move-list{background:#343a3f}
@@ -863,6 +880,13 @@ html[data-theme="dark"] .planner-weapon-tab:focus-visible{outline-color:#aeb5bc}
 html[data-theme="dark"] .planner-weapon-result .planner-move-list{background:#343a3f}
 html[data-theme="dark"] .planner-move.is-locked .planner-move-name,html[data-theme="dark"] .planner-move.is-locked .planner-move-kind,html[data-theme="dark"] .planner-move.is-locked .planner-move-status,html[data-theme="dark"] .planner-move.is-available .planner-weapon-slot5-status.is-locked{color:#aab1b7}
 html[data-theme="dark"] .planner-class-result span{color:#b5bbc1}
+html[data-theme="dark"] .planner-spirit-config,html[data-theme="dark"] .planner-spirit-results{border-color:#3d4349}
+html[data-theme="dark"] .planner-spirit-inputs,html[data-theme="dark"] .planner-spirit-results .planner-move-list{background:#343a3f}
+html[data-theme="dark"] .planner-spirit-row{background:#1e2225}
+html[data-theme="dark"] .planner-spirit-row>strong{color:#d1d5d9}
+html[data-theme="dark"] .planner-spirit-field{color:#b5bbc1}
+html[data-theme="dark"] .planner-spirit-field select,html[data-theme="dark"] .planner-spirit-field input{border-color:#4b5259;background:#1e2225;color:#c3c8cd}
+html[data-theme="dark"] .planner-spirit-field select:focus,html[data-theme="dark"] .planner-spirit-field input:focus{border-color:#aeb5bc;box-shadow:0 0 0 2px #aeb5bc22}
 html[data-theme="blue"] .planner-secondary-badge{border-color:#3979a9;color:#73d0bc}
 html[data-theme="blue"] .planner-footer a{color:#80c8ff}
 html[data-theme="dark"] .planner-secondary-badge{border-color:#4f7568;color:#81b4a1}

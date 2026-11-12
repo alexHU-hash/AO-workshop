@@ -36,14 +36,6 @@ const MOVES={
     {name:"Crescendo",points:300,kind:"Lost scroll"},{name:"Torrent",points:300,kind:"Lost scroll"},
     {name:"Acumen",points:340,kind:"Lost scroll"},{name:"Aftershock",points:340,kind:"Lost scroll"}
   ],
-  rites:[
-    {name:"Spirit Barrage",points:0,kind:"Default"},{name:"Spirit Blast",points:0,kind:"Default"},
-    {name:"Spirit Burst",points:0,kind:"Default"},{name:"Spirit Hound",points:0,kind:"Default"},
-    {name:"Spirit Rain",points:40,kind:"Default"},{name:"Spirit Shockwave",points:40,kind:"Default"},
-    {name:"Spirit Wall",points:40,kind:"Default"},{name:"Spirit Drain",points:160,kind:"Default"},
-    {name:"Spirit Flight",points:160,kind:"Default"},{name:"Spirit Rise",points:160,kind:"Default"},
-    {name:"Spirit Walk",points:160,kind:"Default"}
-  ],
   weapons:[
     [30,"Axe Throw / Cheap Shot / Devastate / Gun Draw: Rapid Fire / Knocking Blitz / Light Bladed Throw / Onslaught / Piercing Strikes / Polearm Throw / Primal Swipe / Raging Impact / Rain of Arrows / Shield Throw / Stronghold Slam / Sword Draw: Flash Strike / Tempest / Twin Crescents / Whirlwind"],
     [60,"Beast Instinct / Brutal Rush / Flying Slash / Impaling Strike / Multi Shot / Piercing Gale / Piercing Shot / Quickdraw / Quick Combo / Shield Bash / Shining Cycle / Skull Crusher / Sky Breaker / Spiraling Fury / Sword Draw: Mirrored River / Sword Draw: Mountain Wind / Striking Gale / Tiger Rush"],
@@ -54,6 +46,20 @@ const MOVES={
     [220,"Crushing Judgement / Ethereal Flash / Gun Draw: Power Shot"],[240,"Anavos Technique / Raging Chaser / Roar of Glory"]
   ]
 };
+const RELIC_ULTIMATE_EXTRA_POINTS=100;
+const SPIRIT_RITES=[
+  {name:"Spirit Barrage",points:0},{name:"Spirit Blast",points:0},{name:"Spirit Burst",points:0},{name:"Spirit Hound",points:0},
+  {name:"Spirit Rain",points:40},{name:"Spirit Shockwave",points:40},{name:"Spirit Wall",points:40},
+  {name:"Spirit Drain",points:160},{name:"Spirit Flight",points:160,movement:true},{name:"Spirit Rise",points:160,movement:true},{name:"Spirit Walk",points:160,movement:true}
+];
+const SPIRIT_RELICS=[
+  {value:"eagle-patrimony",name:"Eagle Patrimony",level:0,uniqueRites:[{name:"Astrapikis",points:100,unique:true},{name:"Astropos",points:220,ultimate:true,unique:true}]},
+  {value:"tidestone-band",name:"Tidestone Band",level:20,uniqueRites:[{name:"Thakrousi",points:100,unique:true},{name:"Thalakyma",points:220,ultimate:true,unique:true}]},
+  {value:"staff-of-night",name:"Staff of Night",level:40,uniqueRites:[{name:"Nichtetheis",points:100,unique:true},{name:"Nichtaplia",points:220,ultimate:true,unique:true}]},
+  {value:"crystal-orb",name:"Crystal Orb",level:80,uniqueRites:[{name:"Aithoro",points:100,unique:true},{name:"Aithiraki",points:220,ultimate:true,unique:true,usable:false}]},
+  {value:"ember-staff",name:"Ember Staff",level:80,uniqueRites:[{name:"Flomva",points:100,unique:true},{name:"Floganymai",points:220,ultimate:true,unique:true,usable:false}]}
+];
+const DEFAULT_RELICS=Array.from({length:3},()=>({type:"",level:0}));
 const NAMED_WEAPON_DATA=[
   ["Poison Tooth Dagger","Light Bladed","unique","good",50],
   ["Sanguine","Light Bladed","unique","good",50],
@@ -351,8 +357,16 @@ function loadPlanner(){
         quality
       };
     });
-    return {level,stats,weapons};
-  }catch{return {level:MAX_LEVEL,stats:{magic:0,weapons:0,spirit:0,strength:0},weapons:DEFAULT_WEAPONS.map(weapon=>({...weapon}))};}
+    const savedRelics=Array.isArray(saved?.relics)?saved.relics:[];
+    const relics=DEFAULT_RELICS.map((defaultRelic,index)=>{
+      const savedRelic=savedRelics[index];
+      const type=SPIRIT_RELICS.some(relic=>relic.value===savedRelic?.type)?savedRelic.type:"";
+      const relicType=SPIRIT_RELICS.find(relic=>relic.value===type);
+      const relicLevel=relicType?Math.max(relicType.level,Math.min(level,Math.floor(Number(savedRelic?.level)||relicType.level))):0;
+      return {type,level:relicLevel};
+    });
+    return {level,stats,weapons,relics};
+  }catch{return {level:MAX_LEVEL,stats:{magic:0,weapons:0,spirit:0,strength:0},weapons:DEFAULT_WEAPONS.map(weapon=>({...weapon})),relics:DEFAULT_RELICS.map(relic=>({...relic}))};}
 }
 function savePlanner(){localStorage.setItem(STORAGE_KEY,JSON.stringify(planner));}
 function getPointTotal(){return planner.level*2;}
@@ -509,6 +523,75 @@ function renderWeapons(points,classResult){
   document.getElementById("planner-weapon-available").innerHTML=renderAvailableWeaponSkills(points,classResult);
   document.getElementById("planner-weapon-results").innerHTML=`<div class="planner-weapon-section-heading"><h3>All compatible moves</h3><p>Usable and locked moves, with their full stat and class requirements.</p></div>${planner.weapons.map((weapon,index)=>renderWeaponSkills(weapon,index,points,classResult)).join("")}`;
 }
+function getSpiritRiteRequirement(rite,relic){
+  return relic.level*2+rite.points+(rite.ultimate&&!rite.movement?RELIC_ULTIMATE_EXTRA_POINTS:0);
+}
+function getSpiritRiteUltimateArtRequirement(rite,relic){
+  if(rite.movement)return null;
+  const requirement=getSpiritRiteRequirement(rite,relic);
+  return rite.ultimate?requirement:requirement+RELIC_ULTIMATE_EXTRA_POINTS;
+}
+function getCompatibleSpiritRites(relic){
+  return [...SPIRIT_RITES,...relic.uniqueRites];
+}
+function renderSpiritRiteRows(relic,usableOnly){
+  return getCompatibleSpiritRites(relic).map(rite=>{
+    const required=getSpiritRiteRequirement(rite,relic);
+    const meetsRequirement=planner.stats.spirit>=required;
+    const usable=meetsRequirement&&rite.usable!==false;
+    if(usableOnly&&!usable)return "";
+    const kind=rite.unique?(rite.ultimate?"Unique · Ultimate Rite":"Unique Rite"):"Default Rite";
+    const status=rite.usable===false?`Currently unusable · ${meetsRequirement?`Spirit ${required} met`:`needs Spirit ${required}`}`:usable?`Spirit ${required} · Ready`:`Locked · needs Spirit ${required}`;
+    const ultimateArtRequirement=getSpiritRiteUltimateArtRequirement(rite,relic);
+    const ultimateArtAvailable=rite.usable!==false&&ultimateArtRequirement!==null&&planner.stats.spirit>=ultimateArtRequirement;
+    const ultimateArtBadge=ultimateArtAvailable?`<span class="planner-ultimate-art-badge" title="Ultimate Art slot requires Spirit ${ultimateArtRequirement}">ULTIMATE ART</span>`:"";
+    return `<div class="planner-move${usable?" is-available":" is-locked"}${rite.usable===false?" is-unavailable":""}"><div class="planner-move-main"><strong class="planner-move-name">${rite.name}</strong><small class="planner-move-kind">${kind}</small>${ultimateArtBadge}</div><small class="planner-move-status">${status}</small></div>`;
+  }).join("");
+}
+function renderSpiritRiteCards(usableOnly){
+  return planner.relics.map((selected,index)=>{
+    const relic=SPIRIT_RELICS.find(item=>item.value===selected.type);
+    if(!relic)return `<article class="planner-weapon-available-card"><h4>SPIRIT WEAPON ${index+1}</h4><p>Choose a relic to list its compatible rites.</p></article>`;
+    const level=Math.max(relic.level,Math.min(planner.level,Math.floor(Number(selected.level)||relic.level)));
+    const rites=getCompatibleSpiritRites({...relic,level});
+    const usable=rites.filter(rite=>rite.usable!==false&&planner.stats.spirit>=getSpiritRiteRequirement(rite,{...relic,level})).length;
+    const rows=renderSpiritRiteRows({...relic,level},usableOnly);
+    const summary=`${usable} usable · ${rites.length} compatible`;
+    const emptyMessage=usableOnly?"No rites meet the current Spirit requirement.":"No compatible rites are listed.";
+    return `<article class="planner-weapon-available-card"><h4>SPIRIT WEAPON ${index+1} · ${relic.name} · LV ${level}</h4><small class="planner-weapon-quality-summary">${summary}</small>${rows?`<div class="planner-move-list">${rows}</div>`:`<p>${emptyMessage}</p>`}</article>`;
+  }).join("");
+}
+function renderSpiritRites(){
+  document.getElementById("planner-spirit-available").innerHTML=`<div class="planner-weapon-section-heading"><h3>Usable rites</h3><p>Rites available at your current Spirit investment and selected relic levels.</p></div><div class="planner-weapon-available-cards">${renderSpiritRiteCards(true)}</div>`;
+  document.getElementById("planner-spirit-results").innerHTML=`<div class="planner-weapon-section-heading"><h3>All compatible rites</h3><p>Unique rites are exclusive to their relic. The Ultimate Art slot needs 100 extra Spirit; Movement Rites gain no Ultimate Art effect.</p></div><div class="planner-weapon-available-cards">${renderSpiritRiteCards(false)}</div>`;
+}
+const spiritInputs=document.getElementById("planner-spirit-inputs");
+function renderSpiritInputs(){
+  spiritInputs.innerHTML=planner.relics.map((selected,index)=>{
+    const relic=SPIRIT_RELICS.find(item=>item.value===selected.type);
+    const options=SPIRIT_RELICS.map(item=>`<option value="${item.value}"${item.value===selected.type?" selected":""}>${item.name}</option>`).join("");
+    const level=relic?Math.max(relic.level,Math.min(planner.level,Math.floor(Number(selected.level)||relic.level))):"";
+    const maxLevel=relic?Math.max(relic.level,planner.level):"";
+    return `<div class="planner-spirit-row"><strong>SPIRIT WEAPON ${index+1}</strong><label class="planner-spirit-field">RELIC<select data-spirit-index="${index}" data-spirit-property="type" aria-label="Spirit weapon ${index+1} relic"><option value="">Select a relic</option>${options}</select></label><label class="planner-spirit-field">LEVEL<input data-spirit-index="${index}" data-spirit-property="level" type="number" min="${relic?relic.level:0}" max="${maxLevel}" value="${level}" inputmode="numeric" aria-label="Spirit weapon ${index+1} relic level"${relic?"":" disabled"}></label></div>`;
+  }).join("");
+}
+spiritInputs.addEventListener("change",event=>{
+  const index=Number(event.target.dataset.spiritIndex);
+  const property=event.target.dataset.spiritProperty;
+  const selected=planner.relics[index];
+  if(!selected)return;
+  if(property==="type"){
+    const relic=SPIRIT_RELICS.find(item=>item.value===event.target.value);
+    selected.type=relic?.value||"";
+    selected.level=relic?relic.level:0;
+  }else if(property==="level"){
+    const relic=SPIRIT_RELICS.find(item=>item.value===selected.type);
+    if(!relic)return;
+    selected.level=Math.max(relic.level,Math.min(Math.max(relic.level,planner.level),Math.floor(Number(event.target.value)||relic.level)));
+  }else return;
+  savePlanner();
+  render();
+});
 function renderMoveList(id,moves,stat,points,classResult,secondarySlot=null){
   document.getElementById(id).innerHTML=moves.map(move=>{
     const requirement=move.points;
@@ -555,8 +638,9 @@ function render(){
   renderWeaponInputs(classResult);
   renderMoveList("planner-spells",MOVES.spells,"magic",planner.stats.magic,classResult,classResult.name==="Mage"?{kind:"magic",label:"2ND MAGIC",bonus:120}:null);
   renderMoveList("planner-techniques",MOVES.techniques,"strength",planner.stats.strength,classResult,classResult.name==="Berserker"?{kind:"strength",label:"2ND STYLE",bonus:90}:null);
-  renderMoveList("planner-rites",MOVES.rites,"spirit",planner.stats.spirit,classResult);
   renderWeapons(planner.stats.weapons,classResult);
+  renderSpiritInputs();
+  renderSpiritRites();
 }
 document.getElementById("planner-level").addEventListener("input",event=>{
   planner.level=Math.max(1,Math.min(MAX_LEVEL,Math.floor(Number(event.target.value)||1)));
@@ -579,34 +663,37 @@ statList.addEventListener("input",event=>{
   if(!STAT_ORDER.includes(stat))return;
   setStatValue(stat,event.target.value);
 });
-const weaponTabs=document.getElementById("planner-weapon-tabs");
-function activateWeaponTab(tab,focus=false){
-  const tabs=Array.from(weaponTabs.querySelectorAll('[role="tab"]'));
-  for(const item of tabs){
-    const active=item===tab;
-    item.setAttribute("aria-selected",String(active));
-    item.tabIndex=active?0:-1;
-    document.getElementById(item.getAttribute("aria-controls")).hidden=!active;
+function bindPlannerTabs(tablist){
+  function activate(tab,focus=false){
+    const tabs=Array.from(tablist.querySelectorAll('[role="tab"]'));
+    for(const item of tabs){
+      const active=item===tab;
+      item.setAttribute("aria-selected",String(active));
+      item.tabIndex=active?0:-1;
+      document.getElementById(item.getAttribute("aria-controls")).hidden=!active;
+    }
+    if(focus)tab.focus();
   }
-  if(focus)tab.focus();
+  tablist.addEventListener("click",event=>{
+    const tab=event.target.closest('[role="tab"]');
+    if(tab)activate(tab);
+  });
+  tablist.addEventListener("keydown",event=>{
+    const tabs=Array.from(tablist.querySelectorAll('[role="tab"]'));
+    const current=tabs.indexOf(event.target);
+    if(current<0)return;
+    let next=current;
+    if(event.key==="ArrowRight")next=(current+1)%tabs.length;
+    else if(event.key==="ArrowLeft")next=(current+tabs.length-1)%tabs.length;
+    else if(event.key==="Home")next=0;
+    else if(event.key==="End")next=tabs.length-1;
+    else return;
+    event.preventDefault();
+    activate(tabs[next],true);
+  });
 }
-weaponTabs.addEventListener("click",event=>{
-  const tab=event.target.closest('[role="tab"]');
-  if(tab)activateWeaponTab(tab);
-});
-weaponTabs.addEventListener("keydown",event=>{
-  const tabs=Array.from(weaponTabs.querySelectorAll('[role="tab"]'));
-  const current=tabs.indexOf(event.target);
-  if(current<0)return;
-  let next=current;
-  if(event.key==="ArrowRight")next=(current+1)%tabs.length;
-  else if(event.key==="ArrowLeft")next=(current+tabs.length-1)%tabs.length;
-  else if(event.key==="Home")next=0;
-  else if(event.key==="End")next=tabs.length-1;
-  else return;
-  event.preventDefault();
-  activateWeaponTab(tabs[next],true);
-});
+bindPlannerTabs(document.getElementById("planner-weapon-tabs"));
+bindPlannerTabs(document.getElementById("planner-spirit-tabs"));
 const weaponInputs=document.getElementById("planner-weapon-inputs");
 function selectWeaponType(index,value){
   const weapon=planner.weapons[index];

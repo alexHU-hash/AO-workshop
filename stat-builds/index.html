@@ -7,7 +7,7 @@
   <title>Stat Build Planner · Arcane Odyssey</title>
   <link rel="icon" type="image/png" href="../assets/everthel-4.2.png">
   <link rel="apple-touch-icon" href="../assets/everthel-4.2.png">
-  <link rel="stylesheet" href="../styles.css?v=planner-stat-row-inset-20261112">
+  <link rel="stylesheet" href="../styles.css?v=planner-spirit-relics-20261113">
   <script src="../theme.js?v=color-themes-readable-20261112" defer></script>
 </head>
 <body>
@@ -79,15 +79,27 @@
           <p class="planner-move-note">Locked moves show whether their stat points or class are missing. The ULTIMATE ART badge appears 200 Strength points above a technique's normal unlock requirement. Rare and Lost Techniques require scrolls; a 2ND STYLE badge marks moves meeting the secondary-slot requirement.</p>
           <div class="planner-move-list" id="planner-techniques"></div>
         </section>
-        <section class="planner-move-group" data-move-stat="spirit">
-          <div class="planner-move-header"><h2>Spirit Rites</h2></div>
-          <p class="planner-move-note">Spirit Rite Tomes grant five random rites. Relics also have exclusive rites with separate requirements. The wiki currently lists no Ultimate Art options for Rites.</p>
-          <div class="planner-move-list" id="planner-rites"></div>
+        <section class="planner-move-group planner-spirit-group" aria-label="Spirit weapons and rites" data-move-stat="spirit">
+          <div class="planner-move-header"><h2>Spirit weapons (Relics)</h2></div>
+          <div class="planner-spirit-config">
+            <div class="planner-panel-heading"><h3>Equipped relics</h3><small>3 slots</small></div>
+            <div class="planner-spirit-inputs" id="planner-spirit-inputs"></div>
+          </div>
+          <div class="planner-weapon-tabs" id="planner-spirit-tabs" role="tablist" aria-label="Spirit rite views">
+            <button class="planner-weapon-tab" id="planner-spirit-tab-usable" type="button" role="tab" aria-selected="true" aria-controls="planner-spirit-panel-usable" tabindex="0">Usable rites</button>
+            <button class="planner-weapon-tab" id="planner-spirit-tab-all" type="button" role="tab" aria-selected="false" aria-controls="planner-spirit-panel-all" tabindex="-1">All compatible rites</button>
+          </div>
+          <div class="planner-weapon-tab-panel" id="planner-spirit-panel-usable" role="tabpanel" aria-labelledby="planner-spirit-tab-usable">
+            <div class="planner-spirit-results planner-spirit-available" id="planner-spirit-available"></div>
+          </div>
+          <div class="planner-weapon-tab-panel" id="planner-spirit-panel-all" role="tabpanel" aria-labelledby="planner-spirit-tab-all" hidden>
+            <div class="planner-spirit-results planner-spirit-all" id="planner-spirit-results"></div>
+          </div>
         </section>
       </section>
-      <p class="planner-footer">Class thresholds and ability requirements are transcribed from the <a href="https://roblox-arcane-odyssey.fandom.com/wiki/Stat_Builds" target="_blank" rel="noreferrer">Arcane Odyssey Wiki</a>. Weapon skill results cover slots 1-2 and use their listed requirements; Strength and Arcanium weapons also need their corresponding stat. Owning the required scroll, compatible weapon/relic, and awakening may also be necessary.</p>
+      <p class="planner-footer">Class thresholds and ability requirements are transcribed from the <a href="https://roblox-arcane-odyssey.fandom.com/wiki/Stat_Builds" target="_blank" rel="noreferrer">Arcane Odyssey Wiki</a>, including its <a href="https://roblox-arcane-odyssey.fandom.com/wiki/Relics/Rites" target="_blank" rel="noreferrer">Relics and Rites</a> pages. Weapon skill results cover slots 1-2 and use their listed requirements; relic rite requirements use relic level × 2 plus rite cost. The Ultimate Art slot adds 100 Spirit for non-movement rites; movement rites use the normal requirement but gain no Ultimate Art effect. Owning the required scroll, compatible weapon/relic, and awakening may also be necessary.</p>
     </main>
   </div>
-  <script src="../stat-build.js?v=stat-stepper-controls-20261112"></script>
+  <script src="../stat-build.js?v=spirit-rite-slot-five-20261112"></script>
 </body>
 </html>
