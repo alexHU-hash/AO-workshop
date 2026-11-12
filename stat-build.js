@@ -83,9 +83,8 @@ function renderMoveList(id,moves,points,secondarySlot=null){
   document.getElementById(id).innerHTML=moves.map(move=>{
     const requirement=move.points;
     const available=points>=requirement;
-    const canUseSecondary=secondarySlot&&(secondarySlot.kind!=="magic"||move.kind!=="Rare scroll"||["Cannon","Javelin"].includes(move.name));
     const secondaryRequirement=requirement+(secondarySlot?.bonus||0);
-    const secondaryAvailable=Boolean(canUseSecondary&&points>=secondaryRequirement);
+    const secondaryAvailable=Boolean(secondarySlot&&points>=secondaryRequirement);
     const badge=secondaryAvailable?`<span class="planner-secondary-badge" title="Meets the secondary-slot stat requirement">${secondarySlot.label}</span>`:"";
     return `<div class="planner-move${available?" is-available":" is-locked"}"><div class="planner-move-main"><strong class="planner-move-name">${move.name}</strong><small class="planner-move-kind">${move.kind}</small>${badge}</div><small class="planner-move-status">${requirement} pts ${available?"· available":"· locked"}</small></div>`;
   }).join("");
