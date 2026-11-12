@@ -7,7 +7,7 @@
   <title>Stat Build Planner · Arcane Odyssey</title>
   <link rel="icon" type="image/png" href="../assets/everthel-4.2.png">
   <link rel="apple-touch-icon" href="../assets/everthel-4.2.png">
-  <link rel="stylesheet" href="../styles.css?v=stat-planner-20261111">
+  <link rel="stylesheet" href="../styles.css?v=weapon-skill-loadout-20261112">
 </head>
 <body>
   <div class="planner-shell">
@@ -57,23 +57,19 @@
           </section>
           <section class="planner-move-group" data-move-stat="weapons">
             <div class="planner-move-header"><h2>Weapon skills</h2><a href="https://roblox-arcane-odyssey.fandom.com/wiki/Weapons/Skills" target="_blank" rel="noreferrer">Wiki ↗</a></div>
-            <p class="planner-move-note">Weapon skill notes are gained from bookshelves, quests, chests and trading. Requirements vary by weapon level and slot. Choose both to calculate them.</p>
-            <div class="planner-panel-heading">
-              <label class="planner-skill-level" for="planner-weapon-level">WEAPON LEVEL
-                <input id="planner-weapon-level" type="number" min="1" max="175" value="100" inputmode="numeric">
-              </label>
-              <label class="planner-skill-level" for="planner-weapon-slot">SKILL SLOT
-                <select id="planner-weapon-slot"><option value="standard">1-2</option><option value="advanced">3-4</option><option value="ultimate">Ultimate</option></select>
-              </label>
-              <small>Standard weapon</small>
+            <p class="planner-move-note">Track three equipped weapons by type, variant, and level. The class list shows weapon skills; each weapon shows type-compatible skills and their requirements for slots 1-2.</p>
+            <div class="planner-weapon-config">
+              <div class="planner-panel-heading"><h3>Equipped weapons</h3><small>3 slots</small></div>
+              <div class="planner-weapon-inputs" id="planner-weapon-inputs"></div>
             </div>
-            <div class="planner-move-list" id="planner-weapons"></div>
+            <div class="planner-weapon-class" id="planner-weapon-class-skills"></div>
+            <div class="planner-weapon-results" id="planner-weapon-results"></div>
           </section>
         </section>
       </div>
-      <p class="planner-footer">Class thresholds and ability requirements are transcribed from the <a href="https://roblox-arcane-odyssey.fandom.com/wiki/Stat_Builds" target="_blank" rel="noreferrer">Arcane Odyssey Wiki</a>. Eligibility is point-based; owning the required scroll, compatible weapon/relic, and awakening may also be necessary.</p>
+      <p class="planner-footer">Class thresholds and ability requirements are transcribed from the <a href="https://roblox-arcane-odyssey.fandom.com/wiki/Stat_Builds" target="_blank" rel="noreferrer">Arcane Odyssey Wiki</a>. Weapon skill results cover slots 1-2 and use their listed requirements; Strength and Arcanium weapons also need their corresponding stat. Owning the required scroll, compatible weapon/relic, and awakening may also be necessary.</p>
     </main>
   </div>
-  <script src="../stat-build.js?v=secondary-magic-spells-20261112"></script>
+  <script src="../stat-build.js?v=weapon-skill-loadout-20261112"></script>
 </body>
 </html>

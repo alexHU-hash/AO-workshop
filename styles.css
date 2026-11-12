@@ -388,13 +388,29 @@ h1 span{color:#79c9ff}
 .planner-move.is-available{background:#10231f}
 .planner-move.is-available .planner-move-status{color:#88d2b2}
 .planner-secondary-badge{display:inline-flex;align-items:center;padding:2px 4px;border:1px solid #3b8c76;border-radius:2px;color:#8ce0bc;font:8px var(--mono);white-space:nowrap}
-.planner-skill-level{display:flex;align-items:center;gap:7px;color:#a9c5e1;font:9px var(--mono)}
-.planner-skill-level input{width:62px;padding:5px;border:1px solid #2a4163;border-radius:2px;background:#080c13;color:#eff2f8;font:11px var(--sans);text-align:center}
-.planner-skill-level select{padding:6px;border:1px solid #2a4163;border-radius:2px;background:#080c13;color:#eff2f8;font:11px var(--sans)}
+.planner-weapon-config{border-bottom:1px solid #233b55}
+.planner-weapon-config .planner-panel-heading h3,.planner-weapon-result-heading h3{margin:0;color:#dce7ef;font:500 12px var(--mono)}
+.planner-weapon-inputs{display:grid;gap:1px;background:#213448}
+.planner-weapon-row{display:grid;grid-template-columns:62px minmax(150px,1.5fr) minmax(110px,1fr) 76px;align-items:end;gap:10px;padding:10px 14px;background:#0d1621}
+.planner-weapon-row>strong{padding-bottom:8px;color:#8ed2d3;font:10px var(--mono)}
+.planner-weapon-field{display:grid;gap:5px;color:#91aac0;font:9px var(--mono)}
+.planner-weapon-field input,.planner-weapon-field select{width:100%;min-width:0;padding:6px;border:1px solid #2a4163;border-radius:2px;background:#080c13;color:#eff2f8;font:11px var(--sans)}
+.planner-weapon-class{padding:12px 14px;border-bottom:1px solid #233b55}
+.planner-weapon-class-note{margin:0 0 8px;color:#a8b7c8;font-size:10px;line-height:1.5}
+.planner-weapon-skill-pool{display:flex;flex-wrap:wrap;gap:4px}
+.planner-weapon-skill-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 6px;border:1px solid #2a4163;border-radius:2px;background:#0b141f;color:#c5d5e3;font-size:9px}
+.planner-weapon-skill-chip small{color:#8ed2d3;font:8px var(--mono)}
+.planner-weapon-results{display:grid;gap:8px;padding:10px}
+.planner-weapon-result{min-width:0;border:1px solid #233b55;border-radius:2px;overflow:hidden}
+.planner-weapon-result-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;background:#142b36}
+.planner-weapon-result-heading strong{color:#8ed2b2;font:9px var(--mono);white-space:nowrap}
+.planner-weapon-result .planner-move-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+.planner-weapon-result .planner-move-status{max-width:180px}
 .planner-footer{margin:20px 0 0;color:#8296ab;font-size:10px;line-height:1.6}
 .planner-footer a{color:#8ed2d3}
 @media(max-width:760px){.planner-shell{padding:0 16px}.planner-heading{align-items:flex-start;flex-direction:column}.planner-level{align-self:flex-end}.planner-layout{grid-template-columns:1fr}.planner-move-list{grid-template-columns:1fr}}
-@media(max-width:460px){.stat-planner-link{align-items:flex-start;flex-direction:column}.planner-stat-row{grid-template-columns:minmax(58px,.8fr) minmax(112px,1.1fr) minmax(64px,1.15fr);gap:6px}.planner-stepper{grid-template-columns:21px minmax(48px,1fr) 21px;gap:3px}.planner-step-button{font-size:8px}.planner-panel-heading{align-items:flex-start;flex-direction:column}.planner-move-header{flex-direction:column}.planner-move{align-items:flex-start}.planner-move-status{max-width:84px;line-height:1.5}}
+@media(max-width:560px){.planner-weapon-row{grid-template-columns:1fr 1fr}.planner-weapon-row>strong{grid-column:1/-1;padding:0}.planner-weapon-result .planner-move-list{grid-template-columns:1fr}}
+@media(max-width:460px){.stat-planner-link{align-items:flex-start;flex-direction:column}.planner-stat-row{grid-template-columns:minmax(58px,.8fr) minmax(112px,1.1fr) minmax(64px,1.15fr);gap:6px}.planner-stepper{grid-template-columns:21px minmax(48px,1fr) 21px;gap:3px}.planner-step-button{font-size:8px}.planner-panel-heading{align-items:flex-start;flex-direction:column}.planner-move-header{flex-direction:column}.planner-move{align-items:flex-start}.planner-move-status{max-width:84px;line-height:1.5}.planner-weapon-result-heading{align-items:flex-start;flex-direction:column}}
 .summary-column{grid-column:2;grid-row:1;display:flex;flex-direction:column;gap:12px;align-self:start;position:static}
 .summary-column .summary{position:static}
 .summary-column .class-picker{margin:0}

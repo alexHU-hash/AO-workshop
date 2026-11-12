@@ -44,15 +44,83 @@ const MOVES={
     {name:"Spirit Walk",points:160,kind:"Default"}
   ],
   weapons:[
-    [30,"Axe Throw / Cheap Shot / Devastate / Gun Draw: Rapid Fire / Knocking Blitz / Light Bladed Throw / Onslaught / Piercing Strikes / Polearm Throw / Primal Swipe / Raging Impact / Rain of Arrows / Shield Throw / Stronghold Slam / Sword Draw / Flash Strike / Tempest / Twin Crescents / Whirlwind"],
+    [30,"Axe Throw / Cheap Shot / Devastate / Gun Draw: Rapid Fire / Knocking Blitz / Light Bladed Throw / Onslaught / Piercing Strikes / Polearm Throw / Primal Swipe / Raging Impact / Rain of Arrows / Shield Throw / Stronghold Slam / Sword Draw: Flash Strike / Tempest / Twin Crescents / Whirlwind"],
     [60,"Beast Instinct / Brutal Rush / Flying Slash / Impaling Strike / Multi Shot / Piercing Gale / Piercing Shot / Quickdraw / Quick Combo / Shield Bash / Shining Cycle / Skull Crusher / Sky Breaker / Spiraling Fury / Sword Draw: Mirrored River / Sword Draw: Mountain Wind / Striking Gale / Tiger Rush"],
-    [90,"Ardent Rise / Flying Phoenix / Hunter's Delta / Iron Will / Ravage / Sleight of Hand / Soaring Eagle / Sparrow Thrust / Sword Step / Towering Impact / Whirling Cyclone"],
-    [100,"Rising Tide"],[120,"Keen Vision / Savage Thrash / Sky Splitter / Storm of Arrows / Strong Force / Sword Dance / Sword Draw: Dragon Song / Vault"],
+    [90,"Ardent Rise / Flying Phoenix / Guard Rush / Hunter's Delta / Iron Will / Ravage / Sleight of Hand / Soaring Eagle / Sparrow Thrust / Sword Step / Towering Impact / Whirling Cyclone"],
+    [100,"Rising Tide / Colossal Cleave"],[120,"Keen Vision / Savage Thrash / Sky Splitter / Storm of Arrows / Strong Force / Sword Dance / Sword Draw: Dragon Song / Vault"],
     [150,"Bow Breaker / Demonic Focus / Dragon's Fury / Fatal Claw / Incision / Raging Will / Seismic Rift / Serene Diligence"],
     [160,"Seismic Slash"],[200,"Fury of the Sea"],
     [220,"Crushing Judgement / Ethereal Flash / Gun Draw: Power Shot"],[240,"Anavos Technique / Raging Chaser / Roar of Glory"]
   ]
 };
+const WEAPON_TYPES=[
+  {value:"Light Bladed",label:"Light Bladed",baseType:"Light Bladed"},
+  {value:"Dual Light Bladed",label:"Dual Light Bladed",baseType:"Dual Light Bladed"},
+  {value:"Bladed",label:"Bladed",baseType:"Bladed"},
+  {value:"Dual Bladed",label:"Dual Bladed",baseType:"Dual Bladed"},
+  {value:"Heavy Bladed",label:"Heavy Bladed",baseType:"Heavy Bladed"},
+  {value:"Long Bladed",label:"Long Bladed",baseType:"Long Bladed"},
+  {value:"Heavy Cleaver",label:"Heavy Cleaver",baseType:"Heavy Cleaver"},
+  {value:"Claws",label:"Claws",baseType:"Claws"},
+  {value:"Colossal Claws",label:"Colossal Claws",baseType:"Colossal Claws"},
+  {value:"Axes",label:"Axes",baseType:"Axes"},
+  {value:"Thrusting",label:"Thrusting",baseType:"Thrusting"},
+  {value:"Bludgeon",label:"Bludgeon",baseType:"Bludgeon"},
+  {value:"Blunt",label:"Blunt",baseType:"Blunt"},
+  {value:"Heavy Blunt",label:"Heavy Blunt",baseType:"Heavy Blunt"},
+  {value:"Polearm",label:"Polearm",baseType:"Polearm"},
+  {value:"Staff",label:"Staff",baseType:"Staff"},
+  {value:"Shield",label:"Shield",baseType:"Shield"},
+  {value:"Greatshield",label:"Greatshield",baseType:"Greatshield"},
+  {value:"Bow",label:"Bow",baseType:"Bow"},
+  {value:"Heavy Bow",label:"Heavy Bow",baseType:"Heavy Bow"},
+  {value:"Pistol",label:"Pistol",baseType:"Pistol"},
+  {value:"Multi Pistols",label:"Multi Pistols",baseType:"Multi Pistols"},
+  {value:"Rifle",label:"Rifle",baseType:"Rifle"},
+  {value:"Colossal Cleaver",label:"Colossal Cleaver",baseType:"Colossal Cleaver"},
+  {value:"Colossal Thrusting",label:"Colossal Thrusting",baseType:"Colossal Thrusting"},
+  {value:"Colossal Bladed",label:"Colossal Bladed",baseType:"Colossal Bladed"},
+  {value:"Dual Heavy Bladed",label:"Dual Heavy Bladed",baseType:"Dual Heavy Bladed"},
+  {value:"Colossal Blunt",label:"Colossal Blunt",baseType:"Colossal Blunt"},
+  {value:"Sunken Sword",label:"Bladed · Sunken Sword",baseType:"Bladed",exclusiveSkill:"Rising Tide"},
+  {value:"Sunken Staff",label:"Staff · Sunken Staff",baseType:"Staff",exclusiveSkill:"Fury of the Sea"},
+  {value:"Triasta of Bronze",label:"Polearm · Triasta of Bronze",baseType:"Polearm",exclusiveSkill:"Ethereal Flash"},
+  {value:"Lion's Halberd",label:"Colossal Cleaver · Lion's Halberd",baseType:"Colossal Cleaver",exclusiveSkill:"Seismic Slash"}
+];
+const WEAPON_VARIANTS=[["normal","Normal"],["strength","Strength"],["arcanium","Arcanium"]];
+const WEAPON_COMPATIBILITY={
+  "Light Bladed":"Light Bladed Throw|Sword Draw: Flash Strike|Whirlwind|Flying Slash|Spiraling Fury|Sword Step|Anavos Technique|Roar of Glory",
+  "Dual Light Bladed":"Light Bladed Throw|Sword Draw: Flash Strike|Whirlwind|Twin Crescents|Flying Slash|Spiraling Fury|Sword Draw: Mirrored River|Sword Step|Soaring Eagle|Sword Dance|Demonic Focus|Anavos Technique|Roar of Glory",
+  "Bladed":"Sword Draw: Flash Strike|Whirlwind|Flying Slash|Shining Cycle|Tiger Rush|Flying Phoenix|Sword Step|Sword Draw: Dragon Song|Sky Splitter|Incision|Dragon's Fury|Raging Will|Roar of Glory",
+  "Dual Bladed":"Twin Crescents|Whirlwind|Shining Cycle|Sword Draw: Mirrored River|Tiger Rush|Flying Phoenix|Soaring Eagle|Sword Dance|Sky Splitter|Incision|Demonic Focus|Roar of Glory",
+  "Heavy Bladed":"Devastate|Sword Draw: Flash Strike|Tempest|Whirlwind|Raging Impact|Flying Slash|Sword Draw: Mountain Wind|Striking Gale|Tiger Rush|Flying Phoenix|Towering Impact|Sword Step|Sword Draw: Dragon Song|Strong Force|Sky Splitter|Seismic Rift|Roar of Glory|Raging Chaser",
+  "Long Bladed":"Sword Draw: Flash Strike|Whirlwind|Flying Slash|Shining Cycle|Tiger Rush|Flying Phoenix|Sword Step|Sword Draw: Dragon Song|Sky Splitter|Incision|Dragon's Fury|Roar of Glory",
+  "Heavy Cleaver":"Devastate|Tempest|Whirlwind|Raging Impact|Flying Slash|Skull Crusher|Striking Gale|Sword Draw: Mountain Wind|Sky Breaker|Towering Impact|Strong Force|Seismic Rift|Crushing Judgement|Roar of Glory|Raging Chaser",
+  "Claws":"Primal Swipe|Spiraling Fury|Beast Instinct|Ravage|Savage Thrash|Fatal Claw|Roar of Glory",
+  "Colossal Claws":"Primal Swipe|Spiraling Fury|Beast Instinct|Ravage|Savage Thrash|Fatal Claw|Roar of Glory",
+  "Axes":"Whirlwind|Axe Throw|Raging Impact|Brutal Rush|Strong Force|Raging Will|Roar of Glory|Raging Chaser",
+  "Thrusting":"Piercing Strikes|Shining Cycle|Spiraling Fury|Piercing Gale|Ardent Rise|Sparrow Thrust|Incision|Roar of Glory",
+  "Bludgeon":"Raging Impact|Brutal Rush|Strong Force|Raging Will|Crushing Judgement|Roar of Glory|Raging Chaser",
+  "Blunt":"Raging Impact|Brutal Rush|Strong Force|Raging Will|Crushing Judgement|Roar of Glory|Raging Chaser",
+  "Heavy Blunt":"Raging Impact|Devastate|Skull Crusher|Sky Breaker|Strong Force|Seismic Rift|Crushing Judgement|Roar of Glory|Raging Chaser",
+  "Polearm":"Polearm Throw|Knocking Blitz|Impaling Strike|Piercing Gale|Sparrow Thrust|Whirling Cyclone|Vault|Roar of Glory",
+  "Staff":"Knocking Blitz|Piercing Gale|Sparrow Thrust|Whirling Cyclone|Vault|Serene Diligence|Roar of Glory",
+  "Shield":"Shield Throw|Shield Bash|Guard Rush|Iron Will|Roar of Glory",
+  "Greatshield":"Stronghold Slam|Shield Bash|Iron Will|Roar of Glory",
+  "Bow":"Rain of Arrows|Quickdraw|Hunter's Delta|Keen Vision|Bow Breaker|Storm of Arrows",
+  "Heavy Bow":"Rain of Arrows|Quickdraw|Hunter's Delta|Keen Vision|Bow Breaker|Storm of Arrows",
+  "Pistol":"Cheap Shot|Multi Shot",
+  "Multi Pistols":"Cheap Shot|Gun Draw: Rapid Fire|Multi Shot|Quick Combo|Gun Draw: Power Shot",
+  "Rifle":"Onslaught|Piercing Shot|Sleight of Hand",
+  "Colossal Cleaver":"Whirlwind|Tempest|Devastate|Raging Impact|Flying Slash|Sword Draw: Mountain Wind|Striking Gale|Skull Crusher|Sky Breaker|Towering Impact|Strong Force|Seismic Rift|Crushing Judgement|Roar of Glory|Raging Chaser",
+  "Colossal Thrusting":"Piercing Strikes|Devastate|Raging Impact|Shining Cycle|Spiraling Fury|Piercing Gale|Ardent Rise|Sparrow Thrust|Strong Force|Seismic Rift|Incision|Roar of Glory|Raging Chaser",
+  "Colossal Bladed":"Devastate|Sword Draw: Flash Strike|Tempest|Whirlwind|Raging Impact|Flying Slash|Sword Draw: Mountain Wind|Striking Gale|Sky Breaker|Tiger Rush|Skull Crusher|Towering Impact|Sword Step|Sword Draw: Dragon Song|Strong Force|Seismic Rift|Colossal Cleave|Roar of Glory|Raging Chaser",
+  "Dual Heavy Bladed":"Devastate|Twin Crescents|Whirlwind|Tempest|Sword Draw: Mirrored River|Shining Cycle|Striking Gale|Sword Draw: Mountain Wind|Soaring Eagle|Towering Impact|Sword Dance|Seismic Rift|Roar of Glory",
+  "Colossal Blunt":"Devastate|Raging Impact|Skull Crusher|Sky Breaker|Strong Force|Seismic Rift|Crushing Judgement|Roar of Glory|Raging Chaser"
+};
+const RARE_WEAPON_SKILLS=new Set(["Rising Tide","Storm of Arrows","Seismic Slash","Fury of the Sea","Crushing Judgement","Ethereal Flash","Gun Draw: Power Shot","Anavos Technique","Raging Chaser","Roar of Glory"]);
+const WEAPON_SKILLS=MOVES.weapons.flatMap(([points,names])=>names.split(" / ").map(name=>({name,points})));
+const DEFAULT_WEAPONS=Array.from({length:3},()=>({type:"",variant:"normal",level:100}));
 const planner=loadPlanner();
 const statList=document.getElementById("planner-stat-list");
 statList.innerHTML=STAT_ORDER.map(stat=>`<div class="planner-stat-row"><label class="planner-stat-label" for="stat-${stat}">${STAT_NAMES[stat]}</label><div class="planner-stepper"><button class="planner-step-button" type="button" data-stat="${stat}" data-stat-step="-10" aria-label="Decrease ${STAT_NAMES[stat]} by 10">-10</button><input class="planner-stat-input" id="stat-${stat}" data-stat="${stat}" type="number" min="0" max="${getPointTotal()}" step="10" value="${planner.stats[stat]||0}" inputmode="numeric"><button class="planner-step-button" type="button" data-stat="${stat}" data-stat-step="10" aria-label="Increase ${STAT_NAMES[stat]} by 10">+10</button></div><input class="planner-stat-slider" id="stat-slider-${stat}" data-stat="${stat}" type="range" min="0" max="${getPointTotal()}" step="10" value="${planner.stats[stat]||0}" aria-label="${STAT_NAMES[stat]} allocation"></div>`).join("");
@@ -63,8 +131,18 @@ function loadPlanner(){
     const stats=Object.fromEntries(STAT_ORDER.map(stat=>[stat,Math.max(0,Math.floor(Number(saved?.stats?.[stat])||0))]));
     let remaining=level*2;
     for(const stat of STAT_ORDER){stats[stat]=Math.min(stats[stat],remaining);remaining-=stats[stat];}
-    return {level,stats};
-  }catch{return {level:MAX_LEVEL,stats:{magic:0,weapons:0,spirit:0,strength:0}};}
+    const savedWeapons=Array.isArray(saved?.weapons)?saved.weapons:[];
+    const weapons=DEFAULT_WEAPONS.map((defaultWeapon,index)=>{
+      const savedWeapon=savedWeapons[index];
+      const weapon=savedWeapon&&typeof savedWeapon==="object"?savedWeapon:defaultWeapon;
+      return {
+        type:WEAPON_TYPES.some(type=>type.value===weapon.type)?weapon.type:"",
+        variant:WEAPON_VARIANTS.some(([variant])=>variant===weapon.variant)?weapon.variant:"normal",
+        level:Math.max(1,Math.min(MAX_LEVEL,Math.floor(Number(weapon.level)||defaultWeapon.level)))
+      };
+    });
+    return {level,stats,weapons};
+  }catch{return {level:MAX_LEVEL,stats:{magic:0,weapons:0,spirit:0,strength:0},weapons:DEFAULT_WEAPONS.map(weapon=>({...weapon}))};}
 }
 function savePlanner(){localStorage.setItem(STORAGE_KEY,JSON.stringify(planner));}
 function getPointTotal(){return planner.level*2;}
@@ -79,6 +157,59 @@ function getClass(){
   if(getSpent()===total)return {name:"Savant",stats:STAT_ORDER,note:"The wiki classifies allocations that meet no full-build or hybrid threshold as Savant."};
   return {name:"Not determined",stats:null,note:`Spend the remaining ${total-getSpent()} points to complete the allocation and confirm a class.`};
 }
+function renderWeaponInputs(){
+  const typeOptions=[["","Choose weapon type"],...WEAPON_TYPES.map(type=>[type.value,type.label])];
+  const variantOptions=WEAPON_VARIANTS;
+  document.getElementById("planner-weapon-inputs").innerHTML=planner.weapons.map((weapon,index)=>{
+    const typeHtml=typeOptions.map(([value,label])=>`<option value="${value}"${weapon.type===value?" selected":""}>${label}</option>`).join("");
+    const variantHtml=variantOptions.map(([value,label])=>`<option value="${value}"${weapon.variant===value?" selected":""}>${label}</option>`).join("");
+    return `<div class="planner-weapon-row"><strong>WEAPON ${index+1}</strong><label class="planner-weapon-field">TYPE<select data-weapon-index="${index}" data-weapon-prop="type" aria-label="Weapon ${index+1} type">${typeHtml}</select></label><label class="planner-weapon-field">VARIANT<select data-weapon-index="${index}" data-weapon-prop="variant" aria-label="Weapon ${index+1} variant">${variantHtml}</select></label><label class="planner-weapon-field">LEVEL<input data-weapon-index="${index}" data-weapon-prop="level" type="number" min="1" max="${MAX_LEVEL}" value="${weapon.level}" aria-label="Weapon ${index+1} level"></label></div>`;
+  }).join("");
+}
+function renderClassWeaponSkills(points,classResult){
+  const classCanUseWeapons=classResult.stats?classResult.stats.includes("weapons"):points>0;
+  const skills=classCanUseWeapons?WEAPON_SKILLS:[];
+  const list=skills.map(skill=>`<span class="planner-weapon-skill-chip">${skill.name}<small>${skill.points} pts</small></span>`).join("");
+  const className=classResult.name==="Not determined"?"Your current build has Weapons investment.":`${classResult.name} has access to weapon skills.`;
+  document.getElementById("planner-weapon-class-skills").innerHTML=classCanUseWeapons
+    ?`<p class="planner-weapon-class-note">${className} Compatibility and weapon-level requirements are checked per weapon below.</p><div class="planner-weapon-skill-pool">${list}</div>`
+    :`<p class="planner-weapon-class-note">Weapon skills become class-eligible when your build invests in the Weapons stat.</p>`;
+}
+function getWeaponSkillRequirements(skill,weapon){
+  const weaponBase=weapon.variant==="normal"?weapon.level*2:weapon.level;
+  const weapons=RARE_WEAPON_SKILLS.has(skill.name)?Math.max(skill.points,weaponBase):weaponBase+skill.points-30;
+  return {
+    weapons,
+    strength:weapon.variant==="strength"?weapon.level:0,
+    magic:weapon.variant==="arcanium"?weapon.level:0
+  };
+}
+function renderWeaponSkills(weapon,index,points){
+  const selectedType=WEAPON_TYPES.find(type=>type.value===weapon.type);
+  if(!selectedType)return `<section class="planner-weapon-result"><div class="planner-weapon-result-heading"><h3>WEAPON ${index+1}</h3></div><p class="planner-weapon-class-note">Choose a weapon type to see its compatible skills.</p></section>`;
+  const compatibility=new Set((WEAPON_COMPATIBILITY[selectedType.baseType]||"").split("|"));
+  const skills=WEAPON_SKILLS.filter(skill=>compatibility.has(skill.name)||selectedType.exclusiveSkill===skill.name);
+  const rows=skills.map(skill=>{
+    const required=getWeaponSkillRequirements(skill,weapon);
+    const missing=[];
+    if(points<required.weapons)missing.push(`Weapons ${required.weapons}`);
+    if(required.strength&&planner.stats.strength<required.strength)missing.push(`Strength ${required.strength}`);
+    if(required.magic&&planner.stats.magic<required.magic)missing.push(`Magic ${required.magic}`);
+    const canUse=missing.length===0;
+    const requirement=[`Weapons ${required.weapons}`,required.strength?`Strength ${required.strength}`:"",required.magic?`Magic ${required.magic}`:""].filter(Boolean).join(" + ");
+    const status=canUse?"Usable":`Needs ${missing.join(" + ")}`;
+    return `<div class="planner-move${canUse?" is-available":" is-locked"}"><div class="planner-move-main"><strong class="planner-move-name">${skill.name}</strong><small class="planner-move-kind">Skill cost ${skill.points}</small></div><small class="planner-move-status">${requirement} · ${status}</small></div>`;
+  }).join("");
+  const usable=skills.filter(skill=>{
+    const required=getWeaponSkillRequirements(skill,weapon);
+    return points>=required.weapons&&planner.stats.strength>=required.strength&&planner.stats.magic>=required.magic;
+  }).length;
+  return `<section class="planner-weapon-result"><div class="planner-weapon-result-heading"><h3>WEAPON ${index+1} · ${selectedType.label} · LV ${weapon.level}</h3><strong>${usable} / ${skills.length} USABLE</strong></div><div class="planner-move-list">${rows||'<p class="planner-weapon-class-note">No skill compatibility data is available for this type.</p>'}</div></section>`;
+}
+function renderWeapons(points,classResult){
+  renderClassWeaponSkills(points,classResult);
+  document.getElementById("planner-weapon-results").innerHTML=planner.weapons.map((weapon,index)=>renderWeaponSkills(weapon,index,points)).join("");
+}
 function renderMoveList(id,moves,points,secondarySlot=null){
   document.getElementById(id).innerHTML=moves.map(move=>{
     const requirement=move.points;
@@ -87,15 +218,6 @@ function renderMoveList(id,moves,points,secondarySlot=null){
     const secondaryAvailable=Boolean(secondarySlot&&points>=secondaryRequirement);
     const badge=secondaryAvailable?`<span class="planner-secondary-badge" title="Meets the secondary-slot stat requirement">${secondarySlot.label}</span>`:"";
     return `<div class="planner-move${available?" is-available":" is-locked"}"><div class="planner-move-main"><strong class="planner-move-name">${move.name}</strong><small class="planner-move-kind">${move.kind}</small>${badge}</div><small class="planner-move-status">${requirement} pts ${available?"· available":"· locked"}</small></div>`;
-  }).join("");
-}
-function renderWeapons(points){
-  const level=Math.max(1,Math.min(MAX_LEVEL,Math.floor(Number(document.getElementById("planner-weapon-level").value)||1)));
-  document.getElementById("planner-weapon-level").value=level;
-  const slotSurcharge={standard:0,advanced:10,ultimate:80}[document.getElementById("planner-weapon-slot").value]||0;
-  document.getElementById("planner-weapons").innerHTML=MOVES.weapons.flatMap(([skillCost,names])=>{
-    const required=level*2+skillCost-30+slotSurcharge;
-    return names.split(" / ").map(name=>`<div class="planner-move${points>=required?" is-available":" is-locked"}"><div class="planner-move-main"><strong class="planner-move-name">${name}</strong><small class="planner-move-kind">Skill cost ${skillCost}</small></div><small class="planner-move-status">${required} pts ${points>=required?"· available":"· locked"}</small></div>`);
   }).join("");
 }
 function render(){
@@ -118,10 +240,11 @@ function render(){
   document.getElementById("planner-class-name").textContent=classResult.name;
   document.getElementById("planner-class-note").textContent=classResult.note;
   for(const group of document.querySelectorAll("[data-move-stat]"))group.hidden=Boolean(classResult.stats&&!classResult.stats.includes(group.dataset.moveStat));
+  renderWeaponInputs();
   renderMoveList("planner-spells",MOVES.spells,planner.stats.magic,classResult.name==="Mage"?{kind:"magic",label:"2ND MAGIC",bonus:120}:null);
   renderMoveList("planner-techniques",MOVES.techniques,planner.stats.strength,classResult.name==="Berserker"?{kind:"strength",label:"2ND STYLE",bonus:90}:null);
   renderMoveList("planner-rites",MOVES.rites,planner.stats.spirit);
-  renderWeapons(planner.stats.weapons);
+  renderWeapons(planner.stats.weapons,classResult);
 }
 document.getElementById("planner-level").addEventListener("input",event=>{
   planner.level=Math.max(1,Math.min(MAX_LEVEL,Math.floor(Number(event.target.value)||1)));
@@ -144,6 +267,21 @@ statList.addEventListener("input",event=>{
   if(!STAT_ORDER.includes(stat))return;
   setStatValue(stat,event.target.value);
 });
-document.getElementById("planner-weapon-level").addEventListener("input",()=>renderWeapons(planner.stats.weapons));
-document.getElementById("planner-weapon-slot").addEventListener("change",()=>renderWeapons(planner.stats.weapons));
+document.getElementById("planner-weapon-inputs").addEventListener("input",event=>{
+  if(event.target.dataset.weaponProp!=="level")return;
+  const weapon=planner.weapons[Number(event.target.dataset.weaponIndex)];
+  if(!weapon)return;
+  weapon.level=Math.max(1,Math.min(MAX_LEVEL,Math.floor(Number(event.target.value)||1)));
+  event.target.value=weapon.level;
+  savePlanner();renderWeapons(planner.stats.weapons,getClass());
+});
+document.getElementById("planner-weapon-inputs").addEventListener("change",event=>{
+  const prop=event.target.dataset.weaponProp;
+  if(prop!=="type"&&prop!=="variant")return;
+  const weapon=planner.weapons[Number(event.target.dataset.weaponIndex)];
+  if(!weapon)return;
+  if(prop==="type"&&WEAPON_TYPES.some(type=>type.value===event.target.value))weapon.type=event.target.value;
+  if(prop==="variant"&&WEAPON_VARIANTS.some(([value])=>value===event.target.value))weapon.variant=event.target.value;
+  savePlanner();renderWeapons(planner.stats.weapons,getClass());
+});
 render();
