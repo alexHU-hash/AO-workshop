@@ -33,11 +33,11 @@ const MAGICS = ["Acid","Ash","Crystal","Earth","Explosion","Fire","Glass","Ice",
 const FIGHTING_BUILDS = {savant:1,juggernaut:1,warlock:1,berserker:2,warlord:1};
 const FIGHTING_STYLES = ["Basic Combat","Boxing","Cannon Fist","Iron Leg","Sailor Style","Thermo Fist","Powder Fist","Vanishing Style"];
 const ENCHANTS = [
-  ["", "No enchant"], ["powerful", "Powerful · Power"], ["armored", "Armored · Defense"], ["deadeye", "Deadeye · Range"],
-  ["enhanced", "Enhanced · Haste"], ["explosive", "Explosive · Size"], ["brisk", "Brisk · Dexterity"],
-  ["charged", "Charged · Power + Haste"], ["tracking", "Tracking · Dexterity + Range"],
-  ["healing", "Healing · Regeneration"],
-  ["resilient", "Resilient · Resistance"], ["piercing", "Piercing · Pierce"], ["virtuous", "Virtuous · Defense + Warding"]
+  ["", "No enchant"], ["powerful", "Powerful"], ["armored", "Armored"], ["deadeye", "Deadeye"],
+  ["enhanced", "Enhanced"], ["explosive", "Explosive"], ["brisk", "Brisk"],
+  ["charged", "Charged"], ["tracking", "Tracking"],
+  ["healing", "Healing"],
+  ["resilient", "Resilient"], ["piercing", "Piercing"], ["virtuous", "Virtuous"]
 ];
 const ENCHANT_STATS = {
   powerful:{power:.9764705882}, armored:{defense:8}, brisk:{dexterity:2.625}, charged:{power:.529411765,haste:1.40625},
@@ -122,6 +122,7 @@ const CATEGORY_LABELS = {Amulet:"Amulet",Helmet:"Helmet",Accessory:"Accessory",C
 const NEWER_ARMOR_RECORDS=window.BUILDER_NEW_ARMOR_DATA||[];
 const WIKI_ARMOR_RECORDS=window.BUILDER_WIKI_ARMOR_DATA||[];
 const NEWER_ARMOR_CATEGORY_BY_TYPE={Chestpiece:"Chestplate",Leggings:"Boots",Accessory:"Accessory",Helmet:"Helmet",Amulet:"Amulet"};
+const ITEM_CATEGORY_BY_SUBTYPE={Head:"Accessory",Leggings:"Boots"};
 const NEWER_ARMOR_SCALE_VALUES={power:3.5,defense:27,size:5,dexterity:5,range:5,haste:5,resistance:5,regeneration:5,pierce:5,warding:1,drawback:1,insanity:1};
 const NEWER_ARMOR_NONSCALING_STATS=new Set(["insanity","warding","drawback"]);
 const NEWER_ARMOR_EP_VALUES={power:1/3,defense:3,size:1,dexterity:1,range:1,haste:1,resistance:1,regeneration:1,pierce:1,warding:1.5,drawback:-2,insanity:-3};
@@ -160,7 +161,7 @@ function updateItemFromNewerArmor(item){
   const record=getNewerArmorSourceForItem(item);
   const recordType=record?.type.replace(/^(?:Magic|Strength|Spirit) /,"");
   const sourceCategory=NEWER_ARMOR_CATEGORY_BY_TYPE[recordType];
-  const category=sourceCategory||(item.subType==="Head"?"Accessory":item.category);
+  const category=ITEM_CATEGORY_BY_SUBTYPE[item.subType]||sourceCategory||item.category;
   if(!record)return category===item.category?item:{...item,category};
   const tool=item.magicKey
     ?NEWER_ARMOR_RECORDS.find(entry=>entry.type==="Magic"&&entry.name===item.magicKey)
@@ -178,24 +179,42 @@ function createNewerArmorItem(record,dragonGear=false){
   const category=NEWER_ARMOR_CATEGORY_BY_TYPE[type];
   return {
     id:`newer-${record.type}-${record.name}`.toLowerCase().replace(/[^a-z0-9]+/g,"-"),
-    name:record.name,category,subType:type,minLevel:record.min_level??100,maxLevel:170,
+    name:record.name,category,subType:type.replace(/^Magic /,""),minLevel:record.min_level??100,maxLevel:170,
     jewelSlots:record.jewels??0,essenceLocked:false,dragonGear,
     dragonCorrupted:record.type.startsWith("Corrupted Dragon "),dragonK:record.k,
     dragonColorType:record.type.startsWith("Corrupted Dragon ")?"Corrupted Dragon Color":"Dragon Color",
     statRows:getNewerArmorStatRows(record)
   };
 }
+function createArcaniumArcsphereItems(){
+  const record=NEWER_ARMOR_RECORDS.find(entry=>entry.name==="Arcanium Arcsphere"&&entry.type==="Magic Accessory");
+  if(!record)throw new Error("Missing Arcanium Arcsphere source record.");
+  return MAGICS.map(magic=>{
+    const magicRecord=NEWER_ARMOR_RECORDS.find(entry=>entry.type==="Magic"&&entry.name===magic);
+    if(!magicRecord)throw new Error(`Missing Arcanium stat data for ${magic}.`);
+    return {
+      id:`arcanium-arcsphere-${magic.toLowerCase()}`,
+      name:`${magic} Arcanium Arcsphere`,magicKey:magic,magicPiece:" Arcanium Arcsphere",
+      category:"Accessory",subType:"Accessory",minLevel:record.min_level??100,maxLevel:170,
+      jewelSlots:record.jewels??0,essenceLocked:false,
+      statRows:getNewerArmorStatRows(record,null,magicRecord)
+    };
+  });
+}
 const UPDATED_CATALOG_ITEMS=[...BUILDER_ITEM_DATA,...BUILDER_MAGIC_GEAR_DATA,...BUILDER_FIGHTING_GEAR_DATA].map(item=>updateItemFromWiki(updateItemFromNewerArmor(item)));
 const UPDATED_ITEM_KEYS=new Set(UPDATED_CATALOG_ITEMS.map(item=>`${item.name}::${item.category}`));
 const ADDED_NEWER_ARMOR_ITEMS=NEWER_ARMOR_RECORDS.filter(record=>NEWER_ARMOR_CATEGORY_BY_TYPE[record.type])
   .filter(record=>!UPDATED_ITEM_KEYS.has(`${record.name}::${NEWER_ARMOR_CATEGORY_BY_TYPE[record.type]}`))
   .map(record=>updateItemFromWiki(createNewerArmorItem(record)));
+const ADDED_ARCANIUM_ARCSPHERE_ITEMS=createArcaniumArcsphereItems()
+  .filter(item=>!UPDATED_ITEM_KEYS.has(`${item.name}::${item.category}`))
+  .map(item=>updateItemFromWiki(updateItemFromNewerArmor(item)));
 const ADDED_DRAGON_ARMOR_ITEMS=NEWER_ARMOR_RECORDS.filter(record=>/^(?:Corrupted Dragon|Dragon) (?:Chestpiece|Leggings|Accessory|Helmet|Amulet)$/.test(record.type))
   .map(record=>updateItemFromWiki(createNewerArmorItem(record,true)));
-const ITEMS = [...UPDATED_CATALOG_ITEMS,...ADDED_NEWER_ARMOR_ITEMS,...ADDED_DRAGON_ARMOR_ITEMS].map(item=>{
+const ITEMS = [...UPDATED_CATALOG_ITEMS,...ADDED_NEWER_ARMOR_ITEMS,...ADDED_ARCANIUM_ARCSPHERE_ITEMS,...ADDED_DRAGON_ARMOR_ITEMS].map(item=>{
   const latest=item.statRows.find(row=>row.level===item.maxLevel)||item.statRows[item.statRows.length-1];
   const magicPiece=(item.magicPiece||(item.magicKey?item.name.slice(item.magicKey.length):"")).trim();
-  const category=item.subType==="Head"?"Accessory":item.category;
+  const category=ITEM_CATEGORY_BY_SUBTYPE[item.subType]||item.category;
   return {...item,magicPiece,category,type:CATEGORY_LABELS[category],level:latest.level,stats:{...latest.stats}};
 });
 function getDragonColorRecords(item){
@@ -242,6 +261,9 @@ let savedGearBuilds = loadSavedGearBuilds();
 const itemSearches = Object.fromEntries(SLOTS.map(slot=>[slot.id,""]));
 const itemDropdownOpen = Object.fromEntries(SLOTS.map(slot=>[slot.id,false]));
 const activeItemIndexes = Object.fromEntries(SLOTS.map(slot=>[slot.id,0]));
+const pickerSearches = {};
+const pickerDropdownOpen = {};
+const activePickerIndexes = {};
 const statFilters = new Set();
 let saveTimer;
 let toastTimer;
@@ -353,37 +375,48 @@ function getCombinedGemStats(socket){
   }
   return combined;
 }
+function getEnchantBonusStats(gear,enchant){
+  const scale=(safeNumber(gear.level)||1)/10*(safeNumber(gear.enchantFactor)||1);
+  const stats={};
+  for(const [key,value]of Object.entries(ENCHANT_STATS[enchant]||{}))stats[key]=value*scale;
+  for(const [key,value]of Object.entries(ENCHANT_FLAT_STATS[enchant]||{}))stats[key]=(stats[key]||0)+value;
+  return stats;
+}
 function getAtlanteanBonusStat(gear,item){
   const scale=(safeNumber(gear.level)||1)/10;
   const present=new Set(Object.entries(gear.stats||{}).filter(([,value])=>safeNumber(value)!==0).map(([key])=>key));
   for(const [key,value]of Object.entries(ENCHANT_STATS[gear.enchant]||{}))if(value*scale!==0)present.add(key);
   for(const [key,value]of Object.entries(ENCHANT_FLAT_STATS[gear.enchant]||{}))if(value!==0)present.add(key);
   for(const socket of (gear.sockets||[]).slice(0,(item?.jewelSlots||0)+(gear.modifier==="gilded"?1:0))){
-    for(const key of Object.keys(getCombinedGemStats(socket)))present.add(key);
+    for(const [key,value]of Object.entries(getCombinedGemStats(socket)))if(safeNumber(value)!==0)present.add(key);
   }
   return ATLANTEAN_STATS.find(([key])=>!present.has(key))||ATLANTEAN_STATS[0];
 }
-function getGearTotalStats(gear){
-  const total=Object.fromEntries(STAT_KEYS.map(key=>[key,0]));
-  const level=safeNumber(gear.level)||1;
-  const scale=level/10*(safeNumber(gear.enchantFactor)||1);
-  const modifierScale=level/10;
-  const item=ITEMS.find(entry=>entry.name===gear.name);
-  for(const [key,value]of Object.entries(gear.stats||{}))if(key in total)total[key]+=safeNumber(value);
-  if(item?.dragonGear&&gear.dragonColor)for(const [key,value]of Object.entries(getDragonColorBonusStats(item,gear.dragonColor)))if(key in total)total[key]+=value;
-  for(const [key,value]of Object.entries(ENCHANT_STATS[gear.enchant]||{}))total[key]+=value*scale;
-  for(const [key,value]of Object.entries(ENCHANT_FLAT_STATS[gear.enchant]||{}))total[key]+=value;
-  const modifier=gear.modifier;
-  for(const [key,value]of Object.entries(MODIFIER_STATS[modifier]||{}))total[key]+=value*modifierScale;
+function getModifierBonusStats(gear,item,modifier=gear.modifier){
+  const stats={};
+  const modifierScale=(safeNumber(gear.level)||1)/10;
+  for(const [key,value]of Object.entries(MODIFIER_STATS[modifier]||{}))stats[key]=value*modifierScale;
+  let atlanteanKey="";
   if(modifier==="atlantean"){
-    total.insanity+=1;
-    const [key,value]=getAtlanteanBonusStat(gear,item);
-    total[key]+=value*modifierScale;
+    stats.insanity=(stats.insanity||0)+1;
+    const [key,value]=getAtlanteanBonusStat({...gear,modifier},item);
+    stats[key]=(stats[key]||0)+value*modifierScale;
+    atlanteanKey=key;
   }
   if(modifier==="imbued"){
     const baseKeys=Object.keys(gear.stats||{}).filter(key=>safeNumber(gear.stats[key])>0&&key!=="warding"&&key!=="insanity"&&key!=="drawback");
-    for(const key of new Set(baseKeys))total[key]+=(key==="power"?.23625:key==="defense"?2.2353:.7059)*modifierScale;
+    for(const key of new Set(baseKeys))stats[key]=(stats[key]||0)+(key==="power"?.23625:key==="defense"?2.2353:.7059)*modifierScale;
   }
+  return {stats,atlanteanKey};
+}
+function getGearTotalStats(gear){
+  const total=Object.fromEntries(STAT_KEYS.map(key=>[key,0]));
+  const item=ITEMS.find(entry=>entry.name===gear.name);
+  for(const [key,value]of Object.entries(gear.stats||{}))if(key in total)total[key]+=safeNumber(value);
+  if(item?.dragonGear&&gear.dragonColor)for(const [key,value]of Object.entries(getDragonColorBonusStats(item,gear.dragonColor)))if(key in total)total[key]+=value;
+  for(const [key,value]of Object.entries(getEnchantBonusStats(gear,gear.enchant)))total[key]+=value;
+  const modifier=gear.modifier;
+  for(const [key,value]of Object.entries(getModifierBonusStats(gear,item).stats))total[key]+=value;
   for(const socket of (gear.sockets||[]).slice(0,(item?.jewelSlots||0)+(modifier==="gilded"?1:0))){
     for(const [key,value]of Object.entries(getCombinedGemStats(socket)))if(key in total)total[key]+=value;
   }
@@ -391,7 +424,7 @@ function getGearTotalStats(gear){
 }
 function getEfficiencyPoints(stats){
   return (stats.power||0)*3+(stats.defense||0)/3
-    +["range","haste","size","regeneration","pierce","resistance","warding","drawback","insanity"]
+    +["range","haste","size","dexterity","regeneration","pierce","resistance","warding","drawback","insanity"]
       .reduce((sum,key)=>sum+(stats[key]||0),0);
 }
 function formatEfficiencyPoints(value){
@@ -465,7 +498,11 @@ function renderSavedGearBuilds(selectedName=""){
   const sorted=[...savedGearBuilds].sort((a,b)=>a.name.localeCompare(b.name));
   select.innerHTML=`<option value="">${sorted.length?"Choose a saved gear set":"No saved sets"}</option>${sorted.map(entry=>`<option value="${esc(entry.name)}">${esc(entry.name)}</option>`).join("")}`;
   select.value=sorted.some(entry=>entry.name===selectedName)?selectedName:"";
-  document.getElementById("load-named-build").disabled=!select.value;
+  syncSavedGearBuildButtons();
+}
+function syncSavedGearBuildButtons(){
+  const disabled=!document.getElementById("saved-build-select").value;
+  for(const id of ["load-named-build","update-named-build","delete-named-build"])document.getElementById(id).disabled=disabled;
 }
 function saveNamedGearBuild(){
   const name=String(build.name||"").trim();
@@ -480,6 +517,33 @@ function saveNamedGearBuild(){
     showToast(existingIndex<0?"Gear set saved.":"Saved gear set updated.");
   }catch(error){console.error("Could not save this gear set.",error);showToast("Could not save this gear set locally.");}
 }
+function updateSavedGearBuild(){
+  const selectedName=document.getElementById("saved-build-select").value;
+  const selectedIndex=savedGearBuilds.findIndex(entry=>entry.name===selectedName);
+  if(selectedIndex<0)return;
+  const updated=[...savedGearBuilds];
+  const selectedSet=updated[selectedIndex];
+  updated[selectedIndex]={...selectedSet,build:{...structuredClone(build),name:selectedSet.name}};
+  try{
+    localStorage.setItem(SAVED_GEAR_BUILDS_KEY,JSON.stringify(updated));
+    savedGearBuilds=updated;
+    renderSavedGearBuilds(selectedSet.name);
+    showToast("Saved gear set updated.");
+  }catch(error){console.error("Could not update the saved gear set.",error);showToast("Could not update this gear set locally.");}
+}
+function deleteSavedGearBuild(){
+  const selectedName=document.getElementById("saved-build-select").value;
+  const selectedIndex=savedGearBuilds.findIndex(entry=>entry.name===selectedName);
+  if(selectedIndex<0)return;
+  if(!confirm(`Delete the saved gear set "${selectedName}"?`))return;
+  const remaining=savedGearBuilds.filter((_,index)=>index!==selectedIndex);
+  try{
+    localStorage.setItem(SAVED_GEAR_BUILDS_KEY,JSON.stringify(remaining));
+    savedGearBuilds=remaining;
+    renderSavedGearBuilds();
+    showToast("Saved gear set deleted.");
+  }catch(error){console.error("Could not delete the saved gear set.",error);showToast("Could not delete this gear set locally.");}
+}
 function formatStat(value){const rounded=Math.round(value*10)/10;return `${rounded>0?"+":""}${Number.isInteger(rounded)?rounded:rounded.toFixed(1)}`;}
 function renderStatIcon(key,{decorative=false}={}){
   const label=STAT_LABELS[key]||key;
@@ -489,6 +553,117 @@ function renderStatIcon(key,{decorative=false}={}){
 function renderStatValue(key,value){return `<span class="stat-value">${renderStatIcon(key)}<b>${formatStat(value)}</b></span>`;}
 function options(items,selected){return items.map(([value,label])=>`<option value="${esc(value)}"${value===selected?" selected":""}>${esc(label)}</option>`).join("");}
 function renderStatFilters(){return STAT_KEYS.map(key=>`<label class="filter-chip" title="${esc(STAT_LABELS[key])}"><input type="checkbox" data-filter-stat="${key}"${statFilters.has(key)?" checked":""}>${renderStatIcon(key,{decorative:true})}<span class="visually-hidden">${esc(STAT_LABELS[key])}</span></label>`).join("");}
+function pickerKey(slotId,kind,index=""){return index===""?`${slotId}:${kind}`:`${slotId}:${kind}:${index}`;}
+function getPickerBaseChoices(slotId,kind,index=""){
+  const gear=build.gear[slotId];
+  const item=ITEMS.find(entry=>entry.name===gear?.name);
+  if(!gear)return [];
+  if(kind==="enchant")return ENCHANTS.map(([value,label])=>({value,label}));
+  if(kind==="modifier")return MODIFIERS.filter(([value])=>canUseModifier({...gear,modifier:value},item)).map(([value,label])=>({value,label}));
+  if(kind==="fusionGem"&&!gear.sockets?.[Number(index)]?.gem)return [];
+  if(kind==="gem"||kind==="fusionGem")return GEMS.map(gem=>({value:gem.id,label:[gem.name,...(gem.variants||[])].join(" / ")}));
+  return [];
+}
+function getPickerPreview(slotId,kind,index,value){
+  const gear=build.gear[slotId];
+  const item=ITEMS.find(entry=>entry.name===gear?.name);
+  if(!gear)return {stats:{}};
+  if(kind==="enchant")return {stats:getEnchantBonusStats(gear,value)};
+  if(kind==="modifier")return getModifierBonusStats(gear,item,value);
+  const socket={...(gear.sockets?.[Number(index)]||{}),[kind]:value};
+  return {stats:getCombinedGemStats(socket)};
+}
+function getPickerCandidates(slotId,kind,index="",query=""){
+  const search=query.trim().toLowerCase();
+  return getPickerBaseChoices(slotId,kind,index).filter(choice=>{
+    const preview=getPickerPreview(slotId,kind,index,choice.value);
+    return [...statFilters].every(key=>safeNumber(preview.stats[key])!==0)
+      &&(!search||choice.label.toLowerCase().includes(search));
+  }).map(choice=>({...choice,preview:getPickerPreview(slotId,kind,index,choice.value)}));
+}
+function renderPickerPreview(stats,title,atlanteanKey="",emptyText="",key="",hasSelection=false){
+  const formatted=Object.keys(stats).length?formatGearStats(stats,atlanteanKey):"No stats";
+  const values=formatted!=="No stats"?formatted:`<span class="option-preview-empty">${esc(hasSelection?"No stat bonus.":emptyText)}</span>`;
+  const atlanteanNote=atlanteanKey?`<span class="option-preview-note">ATLANTEAN · ${esc((STAT_LABELS[atlanteanKey]||atlanteanKey).toUpperCase())}</span>`:"";
+  return `<div class="option-preview" data-picker-preview="${key}"><span class="option-preview-label">${esc(title)}</span>${atlanteanNote}<div class="option-preview-stats">${values}</div></div>`;
+}
+function renderPickerInput({slotId,kind,index="",label,placeholder,selectedValue="",previewStats={},previewTitle="",previewAtlanteanKey="",previewEmptyText="",disabled=false}){
+  const key=pickerKey(slotId,kind,index);
+  const pickerType=kind==="gem"?" primary-gem-picker":kind==="fusionGem"?" combined-gem-picker":"";
+  const choices=getPickerBaseChoices(slotId,kind,index);
+  const selectedLabel=choices.find(choice=>choice.value===selectedValue)?.label||"";
+  const id=`${slotId}-${kind}${index===""?"":`-${index}`}-search`;
+  const count=getPickerCandidates(slotId,kind,index).length;
+  return `<div class="field option-picker${pickerType}" data-option-picker="${key}"><label for="${id}">${esc(label)} <span class="item-count" data-picker-count="${key}">${count} / ${choices.length}</span></label><div class="item-search-wrap"><input id="${id}" class="item-search" type="search" data-picker-search="${key}" data-picker-slot="${slotId}" data-picker-kind="${kind}" data-picker-index="${index}" value="${esc(pickerSearches[key]||"")}" placeholder="${esc(selectedLabel||placeholder)}" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="${id}-results" aria-expanded="${Boolean(pickerDropdownOpen[key])}" aria-label="Search ${esc(label.toLowerCase())}"${disabled?" disabled":""}><span class="search-icon" aria-hidden="true">⌕</span><div class="item-results" id="${id}-results" data-picker-results="${key}" role="listbox" hidden></div></div>${previewTitle?renderPickerPreview(previewStats,previewTitle,previewAtlanteanKey,previewEmptyText,key,Boolean(selectedValue)):""}</div>`;
+}
+function renderPickerResults(slotId,kind,index=""){
+  const key=pickerKey(slotId,kind,index);
+  const results=document.querySelector(`[data-picker-results="${key}"]`);
+  if(!results)return;
+  const search=pickerSearches[key]||"";
+  const candidates=getPickerCandidates(slotId,kind,index,search);
+  const current=kind==="gem"||kind==="fusionGem"
+    ?build.gear[slotId]?.sockets?.[Number(index)]?.[kind]||""
+    :build.gear[slotId]?.[kind]||"";
+  const controls=[];
+  if(!search&&!statFilters.size&&current)controls.push(`<button id="${key.replace(/:/g,"-")}-clear" class="item-result item-result-clear" type="button" role="option" aria-selected="false" data-select-picker data-picker-slot="${slotId}" data-picker-kind="${kind}" data-picker-index="${index}" data-picker-value="">× <span>Clear selection</span></button>`);
+  for(const [candidateIndex,candidate]of candidates.entries()){
+    const selected=current===candidate.value;
+    const note=candidate.preview.atlanteanKey?`<span class="option-result-note">Adds ${esc(STAT_LABELS[candidate.preview.atlanteanKey]||candidate.preview.atlanteanKey)}</span>`:"";
+    controls.push(`<button id="${key.replace(/:/g,"-")}-result-${candidateIndex}" class="item-result${selected?" is-equipped":""}" type="button" role="option" aria-selected="${selected}" data-select-picker data-picker-slot="${slotId}" data-picker-kind="${kind}" data-picker-index="${index}" data-picker-value="${esc(candidate.value)}"><span class="item-result-main"><span class="item-result-name">${esc(candidate.label)}${selected?'<span class="equipped-tag">SELECTED</span>':""}</span><span class="item-result-stats">${formatGearStats(candidate.preview.stats,candidate.preview.atlanteanKey)}</span>${note}</span></button>`);
+  }
+  results.innerHTML=controls.length?controls.join(""):`<div class="item-no-results">${search?"No matching options.":"No options match the selected stat filters."}</div>`;
+  results.hidden=!pickerDropdownOpen[key];
+  const count=document.querySelector(`[data-picker-count="${key}"]`);
+  const total=getPickerBaseChoices(slotId,kind,index).filter(choice=>{
+    const preview=getPickerPreview(slotId,kind,index,choice.value);
+    return [...statFilters].every(stat=>safeNumber(preview.stats[stat])!==0);
+  }).length;
+  if(count)count.textContent=`${getPickerCandidates(slotId,kind,index,search).length} / ${total}`;
+  const input=document.querySelector(`[data-picker-search="${key}"]`);
+  input?.setAttribute("aria-expanded",String(pickerDropdownOpen[key]));
+  const active=Math.min(activePickerIndexes[key]||0,controls.length-1);
+  results.querySelectorAll(".item-result").forEach((button,buttonIndex)=>button.classList.toggle("is-active",buttonIndex===active));
+  const activeButton=results.querySelectorAll(".item-result")[active];
+  if(pickerDropdownOpen[key]&&activeButton?.id)input?.setAttribute("aria-activedescendant",activeButton.id);
+  else input?.removeAttribute("aria-activedescendant");
+}
+function renderGearPickers(slotId){
+  const gear=build.gear[slotId];
+  if(!gear){resetSlotPickerState(slotId);return;}
+  renderPickerResults(slotId,"enchant");
+  if(ITEMS.some(entry=>entry.name===gear.name))renderPickerResults(slotId,"modifier");
+  for(const [index]of (gear.sockets||[]).entries()){
+    renderPickerResults(slotId,"gem",index);
+    renderPickerResults(slotId,"fusionGem",index);
+  }
+}
+function refreshPickerPreviews(slotId){
+  const gear=build.gear[slotId];
+  if(!gear)return;
+  const replacePreview=(kind,index,title,preview,emptyText="")=>{
+    const key=pickerKey(slotId,kind,index);
+    const element=document.querySelector(`[data-picker-preview="${key}"]`);
+    const selected=kind==="gem"||kind==="fusionGem"?gear.sockets?.[Number(index)]?.[kind]:gear[kind];
+    if(element)element.outerHTML=renderPickerPreview(preview.stats,title,preview.atlanteanKey||"",emptyText,key,Boolean(selected));
+  };
+  replacePreview("enchant","","ENCHANT",getPickerPreview(slotId,"enchant","",gear.enchant||""),"Choose an enchant.");
+  replacePreview("modifier","","MODIFIER",getPickerPreview(slotId,"modifier","",gear.modifier||""),"Choose a modifier.");
+  for(const [index,socket]of (gear.sockets||[]).entries()){
+    replacePreview("gem",index,"SOCKET TOTAL",{stats:socket.gem?getCombinedGemStats(socket):{}},"Select a gem to preview.");
+  }
+  renderGearPickers(slotId);
+}
+function resetPickerState(key){
+  delete pickerSearches[key];
+  delete pickerDropdownOpen[key];
+  delete activePickerIndexes[key];
+}
+function resetSlotPickerState(slotId){
+  for(const key of Object.keys(pickerSearches))if(key.startsWith(`${slotId}:`))resetPickerState(key);
+  for(const key of Object.keys(pickerDropdownOpen))if(key.startsWith(`${slotId}:`))resetPickerState(key);
+  for(const key of Object.keys(activePickerIndexes))if(key.startsWith(`${slotId}:`))resetPickerState(key);
+}
 function getAvailableItemsForSlot(slot){
   return ITEMS.filter(item=>slot.categories.includes(item.category)
     &&(!item.magicKey||build.magics.includes(item.magicKey))
@@ -496,9 +671,13 @@ function getAvailableItemsForSlot(slot){
 }
 function getFilteredItems(slot,query=""){
   const search=query.trim().toLowerCase();
-  return getAvailableItemsForSlot(slot).filter(item=>!accessoryConflictForSlot(slot.id,item)
-    &&[...statFilters].every(key=>safeNumber(item.stats[key])!==0)
-    &&(!search||item.name.toLowerCase().includes(search)));
+  return getAvailableItemsForSlot(slot).filter(item=>{
+    const arcsphereAlias=item.magicPiece?.trim()==="Arcanium Arcsphere"
+      ?item.name.replace("Arcsphere","Archsphere").toLowerCase():"";
+    return !accessoryConflictForSlot(slot.id,item)
+      &&[...statFilters].every(key=>safeNumber(item.stats[key])!==0)
+      &&(!search||item.name.toLowerCase().includes(search)||arcsphereAlias.includes(search));
+  });
 }
 function renderItemResults(slotId){
   const slot=SLOTS.find(entry=>entry.id===slotId);
@@ -534,14 +713,11 @@ function renderCard(slot){
   if(!gear) return `<article class="gear-card"><div class="gear-card-header"><div><span class="slot-label">${slot.label}</span><h3>Empty slot</h3></div>${clearButton}</div><div class="gear-fields">${itemPicker}</div><div class="gear-snapshot"><span>No item selected</span></div></article>`;
   const jewelSlots=(selectedItem?.jewelSlots||0)+(gear.modifier==="gilded"?1:0);
   const sockets=Array.from({length:jewelSlots},(_,i)=>renderSocket(slot.id,i,gear.sockets?.[i])).join("");
-  const socketSection=sockets?`<div class="socket-block"><div class="socket-block-head"><span class="socket-title">JEWEL SOCKETS</span><span class="socket-subtitle">${jewelSlots} AVAILABLE · GEM + COMBINED GEM</span></div>${sockets}</div>`:"";
+  const socketSection=sockets?`<div class="socket-block"><div class="socket-block-head"><span class="socket-title">JEWEL SOCKETS</span><span class="socket-subtitle">${jewelSlots} SOCKETS</span></div>${sockets}</div>`:"";
   const modifierDescription=MODIFIER_DESCRIPTIONS[gear.modifier];
-  const modifierOptions=MODIFIERS.map(([value,label])=>{
-    const disabled=!canUseModifier({...gear,modifier:value},selectedItem);
-    return `<option value="${esc(value)}"${value===(gear.modifier||"")?" selected":""}${disabled?" disabled":""}>${esc(label)}</option>`;
-  }).join("");
   const modifierHelp=modifierDescription||(gear.enchant==="virtuous"?"Virtuous removes Atlantean; Atlantean cannot be applied while Virtuous is selected.":"");
-  const modifierControl=selectedItem?`<div class="field"><label>MODIFIER</label><select data-slot="${slot.id}" data-prop="modifier" aria-label="${slot.name} modifier">${modifierOptions}</select>${modifierHelp?`<span class="modifier-note">${esc(modifierHelp)}</span>`:""}</div>`:"";
+  const modifierPreview=getModifierBonusStats(gear,selectedItem);
+  const modifierControl=selectedItem?`<div class="modifier-picker-group">${renderPickerInput({slotId:slot.id,kind:"modifier",label:"MODIFIER",placeholder:"Search modifiers…",selectedValue:gear.modifier||"",previewStats:modifierPreview.stats,previewTitle:"MODIFIER",previewAtlanteanKey:modifierPreview.atlanteanKey,previewEmptyText:"Choose a modifier."})}${modifierHelp?`<span class="modifier-note">${esc(modifierHelp)}</span>`:""}</div>`:"";
   const dragonColorOptions=[["","No color"],...getDragonColorRecords(selectedItem).map(color=>{const name=color.name||"Base";const stats=Object.keys(getDragonColorBonusStats(selectedItem,name)).filter(key=>STAT_KEYS.includes(key)).map(key=>STAT_LABELS[key]).join(", ");return [name,stats?`${name} · ${stats}`:name];})];
   const dragonColorControl=selectedItem?.dragonGear?`<div class="field"><label>DRAGON COLOR</label><select data-slot="${slot.id}" data-prop="dragonColor" aria-label="${slot.name} Dragon color">${options(dragonColorOptions,gear.dragonColor||"")}</select></div>`:"";
   const baseStats=Object.entries(gear.stats||{}).filter(([key])=>STAT_KEYS.includes(key)).map(([key,value])=>renderStatValue(key,value)).join(" ")||"No base stats listed";
@@ -553,11 +729,13 @@ function renderCard(slot){
   const screenshotSummary=`<div class="gear-snapshot" data-screenshot-summary="${slot.id}"><div class="gear-snapshot-stats">${formatGearStats(totalStats,atlanteanKey)}</div><div class="gear-snapshot-details"${screenshotDetails?"":" hidden"}>${esc(screenshotDetails)}</div><div class="gear-snapshot-efficiency">${itemEfficiency} EP</div></div>`;
   const maxLevel=Math.min(MAX_GAME_LEVEL,selectedItem?.maxLevel??MAX_GAME_LEVEL);
   const minLevel=Math.min(maxLevel,selectedItem?.minLevel??1);
-    return `<article class="gear-card"><div class="gear-card-header"><div><span class="slot-label">${slot.label}</span><h3>${esc(gear.name||"Unnamed gear")}</h3><span class="item-type">${esc(selectedItem?.type||"Custom item")} · Lv ${safeNumber(gear.level)||1}</span></div>${clearButton}</div><div class="gear-fields">${itemPicker}${dragonColorControl}<div class="field item-level"><label>ITEM LEVEL</label><input data-slot="${slot.id}" data-prop="level" type="number" min="${minLevel}" max="${maxLevel}" step="10" value="${safeNumber(gear.level)||1}" aria-label="${slot.name} level"></div><div class="base-stat-readout">${baseStats}</div><div class="item-total-readout" data-item-total="${slot.id}"><span class="item-total-label">TOTAL ITEM STATS</span><span class="item-total-stats">${esc(totalStatText)}</span><span class="item-efficiency">EFFICIENCY POINTS <b>${itemEfficiency}</b></span></div><div class="enhancement"><div class="field"><label>ENCHANT SCROLL</label><select data-slot="${slot.id}" data-prop="enchant" aria-label="${slot.name} enchantment">${options(ENCHANTS,gear.enchant||"")}</select></div>${modifierControl}</div>${socketSection}</div>${screenshotSummary}</article>`;
+    const enchantPreview=getPickerPreview(slot.id,"enchant","",gear.enchant||"");
+    const enchantControl=renderPickerInput({slotId:slot.id,kind:"enchant",label:"ENCHANT",placeholder:"Search enchants…",selectedValue:gear.enchant||"",previewStats:enchantPreview.stats,previewTitle:"ENCHANT",previewEmptyText:"Choose an enchant."});
+    return `<article class="gear-card"><div class="gear-card-header"><div><span class="slot-label">${slot.label}</span><h3>${esc(gear.name||"Unnamed gear")}</h3><span class="item-type">${esc(selectedItem?.type||"Custom item")} · Lv ${safeNumber(gear.level)||1}</span></div>${clearButton}</div><div class="gear-fields">${itemPicker}${dragonColorControl}<div class="field item-level"><label>ITEM LEVEL</label><input data-slot="${slot.id}" data-prop="level" type="number" min="${minLevel}" max="${maxLevel}" step="10" value="${safeNumber(gear.level)||1}" aria-label="${slot.name} level"></div><div class="base-stat-readout">${baseStats}</div><div class="item-total-readout" data-item-total="${slot.id}"><span class="item-total-label">TOTAL ITEM STATS</span><span class="item-total-stats">${esc(totalStatText)}</span><span class="item-efficiency">EFFICIENCY POINTS <b>${itemEfficiency}</b></span></div><div class="enhancement">${enchantControl}${modifierControl}</div>${socketSection}</div>${screenshotSummary}</article>`;
 }
 function renderSocket(slotId,index,socket={}){
-  const gemOptions=[["","Choose gem"],...GEMS.map(gem=>[gem.id,[gem.name,...(gem.variants||[])].join(" / ")])];
-  return `<div class="socket"><span class="socket-label">GEM · PERFECT</span><select data-slot="${slotId}" data-socket="${index}" data-socket-prop="gem" aria-label="Socket ${index+1} gem">${options(gemOptions,socket.gem||"")}</select><span class="socket-label">COMBINED GEM · PERFECT</span><select data-slot="${slotId}" data-socket="${index}" data-socket-prop="fusionGem" aria-label="Socket ${index+1} combined gem" ${socket.gem?"":"disabled"}>${options(gemOptions,socket.fusionGem||"")}</select></div>`;
+  const combinedStats=socket.gem?getCombinedGemStats(socket):{};
+  return `<div class="socket">${renderPickerInput({slotId,kind:"gem",index,label:"PRIMARY GEM",placeholder:"Search…",selectedValue:socket.gem||"",previewStats:combinedStats,previewTitle:socket.gem?"SOCKET TOTAL":"",previewEmptyText:"Select a gem to preview."})}${renderPickerInput({slotId,kind:"fusionGem",index,label:"COMBINED GEM",placeholder:"Search…",selectedValue:socket.fusionGem||"",disabled:!socket.gem})}</div>`;
 }
 function render(){
   document.getElementById("build-name").value=build.name||"";
@@ -570,7 +748,7 @@ function render(){
   document.getElementById("dragonblood-ritual").value=String(build.dragonbloodTier||0);
   document.getElementById("stat-filter-list").innerHTML=renderStatFilters();
   document.getElementById("gear-grid").innerHTML=SLOTS.map(renderCard).join("");
-  for(const slot of SLOTS)renderItemResults(slot.id);
+  for(const slot of SLOTS){renderItemResults(slot.id);renderGearPickers(slot.id);}
   updateSummary();
 }
 function updateStatBuildDescription(){
@@ -623,6 +801,7 @@ function selectItem(slotId,itemName){
   itemSearches[slotId]="";
   itemDropdownOpen[slotId]=false;
   activeItemIndexes[slotId]=0;
+  resetSlotPickerState(slotId);
   render();persist();
 }
 function clearSlot(slotId){
@@ -631,6 +810,7 @@ function clearSlot(slotId){
   itemSearches[slotId]="";
   itemDropdownOpen[slotId]=false;
   activeItemIndexes[slotId]=0;
+  resetSlotPickerState(slotId);
   render();persist();
 }
 function getScreenshotDetails(gear){
@@ -650,6 +830,7 @@ function updateSummary(){
   const total=Object.fromEntries(STAT_KEYS.map(k=>[k,0]));
   for(const [slotId,gear]of Object.entries(build.gear)){
     if(!gear)continue;
+    refreshPickerPreviews(slotId);
     const gearTotal=getGearTotalStats(gear);
     for(const [key,value]of Object.entries(gearTotal))total[key]+=value;
     const itemReadout=document.querySelector(`[data-item-total="${slotId}"]`);
@@ -685,13 +866,51 @@ function updateSummary(){
   document.getElementById("dragonblood-effect").textContent=ritual.beastDefensePercent?`+${ritual.beastDefensePercent}% Beast Defense · +${ritualHealth} HP`:"No ritual bonuses selected";
 }
 function showToast(message){const el=document.getElementById("toast");el.textContent=message;el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2200);}
-function setSocketValue(slotId,index,key,value){const gear=build.gear[slotId];if(!gear)return;gear.sockets??=[];gear.sockets[index]??={};gear.sockets[index][key]=value;}
+function setSocketValue(slotId,index,key,value){
+  const gear=build.gear[slotId];
+  if(!gear)return;
+  gear.sockets??=[];
+  while(gear.sockets.length<=index)gear.sockets.push({});
+  gear.sockets[index][key]=value;
+}
+function selectPickerOption(slotId,kind,index,value){
+  const gear=build.gear[slotId];
+  if(!gear)return;
+  if(kind==="enchant"){
+    gear.enchant=ENCHANT_UPGRADES[value]||value;
+    if(gear.enchant==="virtuous"&&gear.modifier==="atlantean")gear.modifier="";
+  }else if(kind==="modifier"){
+    const item=ITEMS.find(entry=>entry.name===gear.name);
+    if(!canUseModifier({...gear,modifier:value},item)){showToast("This modifier cannot be used on this item or with its current enchantment.");return;}
+    gear.modifier=value;
+  }else{
+    const socketIndex=Number(index);
+    if(kind==="fusionGem"&&!gear.sockets?.[socketIndex]?.gem)return;
+    setSocketValue(slotId,socketIndex,kind,value);
+    if(kind==="gem"){
+      if(!value)gear.sockets[socketIndex].fusionGem="";
+      resetPickerState(pickerKey(slotId,"fusionGem",index));
+    }
+  }
+  if(kind==="enchant"||kind==="modifier"){
+    const item=ITEMS.find(entry=>entry.name===gear.name);
+    gear.sockets=(gear.sockets||[]).slice(0,(item?.jewelSlots||0)+(gear.modifier==="gilded"?1:0));
+  }
+  resetPickerState(pickerKey(slotId,kind,index));
+  render();persist();
+}
 document.getElementById("gear-grid").addEventListener("focusin",event=>{
-  if(!event.target.matches("[data-item-search]"))return;
-  const slotId=event.target.dataset.itemSearch;
-  itemDropdownOpen[slotId]=true;
-  activeItemIndexes[slotId]=0;
-  renderItemResults(slotId);
+  if(event.target.matches("[data-item-search]")){
+    const slotId=event.target.dataset.itemSearch;
+    itemDropdownOpen[slotId]=true;
+    activeItemIndexes[slotId]=0;
+    renderItemResults(slotId);
+  }else if(event.target.matches("[data-picker-search]")){
+    const key=event.target.dataset.pickerSearch;
+    pickerDropdownOpen[key]=true;
+    activePickerIndexes[key]=0;
+    renderPickerResults(event.target.dataset.pickerSlot,event.target.dataset.pickerKind,event.target.dataset.pickerIndex);
+  }
 });
 document.getElementById("gear-grid").addEventListener("input",event=>{
   if(event.target.matches("[data-item-search]")){
@@ -701,29 +920,45 @@ document.getElementById("gear-grid").addEventListener("input",event=>{
     updateSlotItems(event.target.dataset.itemSearch);
     return;
   }
+  if(event.target.matches("[data-picker-search]")){
+    const key=event.target.dataset.pickerSearch;
+    pickerSearches[key]=event.target.value;
+    pickerDropdownOpen[key]=true;
+    activePickerIndexes[key]=0;
+    renderPickerResults(event.target.dataset.pickerSlot,event.target.dataset.pickerKind,event.target.dataset.pickerIndex);
+    return;
+  }
   const el=event.target;const gear=build.gear[el.dataset.slot];if(!gear)return;
-  if(el.dataset.prop&&el.dataset.prop!=="item"){
-    if(el.dataset.prop!=="level")gear[el.dataset.prop]=el.value;
-    if(el.dataset.prop==="modifier"){
-      const item=ITEMS.find(entry=>entry.name===gear.name);
-      if(!canUseModifier(gear,item)){gear.modifier="";showToast("This modifier cannot be used on this item or with its current enchantment.");}
-    }
-    if(el.dataset.prop==="enchant"&&gear.enchant==="virtuous"&&gear.modifier==="atlantean")gear.modifier="";
-  }
-  if(el.dataset.socketProp){
-    const index=Number(el.dataset.socket);
-    setSocketValue(el.dataset.slot,index,el.dataset.socketProp,el.value);
-    const socket=gear.sockets[index];
-    if(el.dataset.socketProp==="gem"){
-      const fusion=el.closest(".socket").querySelector('[data-socket-prop="fusionGem"]');
-      if(!el.value){socket.fusionGem="";fusion.value="";}
-      fusion.disabled=!el.value;
-    }
-  }
   updateSummary();persist();
 });
 document.getElementById("gear-grid").addEventListener("keydown",event=>{
   const input=event.target;
+  if(input.matches("[data-picker-search]")){
+    const key=input.dataset.pickerSearch;
+    const {pickerSlot:slotId,pickerKind:kind,pickerIndex:index}=input.dataset;
+    const search=pickerSearches[key]||"";
+    const current=kind==="gem"||kind==="fusionGem"
+      ?build.gear[slotId]?.sockets?.[Number(index)]?.[kind]||""
+      :build.gear[slotId]?.[kind]||"";
+    const hasClear=!search&&!statFilters.size&&Boolean(current);
+    const candidates=getPickerCandidates(slotId,kind,index,search);
+    const count=candidates.length+(hasClear?1:0);
+    if(event.key==="ArrowDown"||event.key==="ArrowUp"){
+      event.preventDefault();
+      pickerDropdownOpen[key]=true;
+      if(count)activePickerIndexes[key]=((activePickerIndexes[key]||0)+(event.key==="ArrowDown"?1:-1)+count)%count;
+      renderPickerResults(slotId,kind,index);
+    }else if(event.key==="Enter"&&pickerDropdownOpen[key]){
+      event.preventDefault();
+      const active=Math.min(activePickerIndexes[key]||0,Math.max(0,count-1));
+      if(hasClear&&active===0)selectPickerOption(slotId,kind,index,"");
+      else if(candidates.length)selectPickerOption(slotId,kind,index,candidates[active-(hasClear?1:0)]?.value||"");
+    }else if(event.key==="Escape"&&pickerDropdownOpen[key]){
+      pickerDropdownOpen[key]=false;
+      renderPickerResults(slotId,kind,index);
+    }
+    return;
+  }
   if(!input.matches("[data-item-search]"))return;
   const slotId=input.dataset.itemSearch;
   const filtered=getFilteredItems(SLOTS.find(slot=>slot.id===slotId),itemSearches[slotId]);
@@ -744,12 +979,21 @@ document.getElementById("gear-grid").addEventListener("keydown",event=>{
 document.getElementById("gear-grid").addEventListener("click",event=>{
   const clearButton=event.target.closest("[data-clear-slot]");
   if(clearButton&&!clearButton.disabled){clearSlot(clearButton.dataset.clearSlot);return;}
+  const pickerResult=event.target.closest("[data-select-picker]");
+  if(pickerResult){selectPickerOption(pickerResult.dataset.pickerSlot,pickerResult.dataset.pickerKind,pickerResult.dataset.pickerIndex,pickerResult.dataset.pickerValue);return;}
   const result=event.target.closest("[data-select-item]");
   if(result){selectItem(result.dataset.selectItem,result.dataset.itemName);return;}
 });
 document.addEventListener("click",event=>{
-  if(event.target.closest(".item-picker"))return;
-  for(const slot of SLOTS)if(itemDropdownOpen[slot.id]){itemDropdownOpen[slot.id]=false;renderItemResults(slot.id);}
+  const itemPicker=event.target.closest(".item-picker");
+  const optionPicker=event.target.closest("[data-option-picker]");
+  if(!itemPicker)for(const slot of SLOTS)if(itemDropdownOpen[slot.id]){itemDropdownOpen[slot.id]=false;renderItemResults(slot.id);}
+  for(const key of Object.keys(pickerDropdownOpen)){
+    if(!pickerDropdownOpen[key]||optionPicker?.dataset.optionPicker===key)continue;
+    pickerDropdownOpen[key]=false;
+    const [slotId,kind,index]=key.split(":");
+    renderPickerResults(slotId,kind,index||"");
+  }
 });
 document.getElementById("stat-filter-list").addEventListener("change",event=>{
   const input=event.target.closest("[data-filter-stat]");
@@ -764,7 +1008,7 @@ document.getElementById("clear-filters").addEventListener("click",()=>{
 document.getElementById("clear-all-gear").addEventListener("click",()=>{
   if(!Object.values(build.gear).some(Boolean))return;
   if(!confirm("Clear all equipped items, enchants, and jewels?"))return;
-  for(const slot of SLOTS){build.gear[slot.id]=null;itemSearches[slot.id]="";itemDropdownOpen[slot.id]=false;activeItemIndexes[slot.id]=0;}
+  for(const slot of SLOTS){build.gear[slot.id]=null;itemSearches[slot.id]="";itemDropdownOpen[slot.id]=false;activeItemIndexes[slot.id]=0;resetSlotPickerState(slot.id);}
   render();persist();
   showToast("All equipment cleared.");
 });
@@ -777,20 +1021,6 @@ document.getElementById("gear-grid").addEventListener("change",event=>{
     gear.dragonColor=validColors.includes(el.value)?el.value:"";
     render();persist();return;
   }
-  if(el.dataset.prop==="enchant"&&build.gear[el.dataset.slot]){
-    const gear=build.gear[el.dataset.slot];
-    if(gear.enchant==="virtuous"&&gear.modifier==="atlantean")gear.modifier="";
-    const item=ITEMS.find(entry=>entry.name===gear.name);
-    gear.sockets=(gear.sockets||[]).slice(0,(item?.jewelSlots||0)+(gear.modifier==="gilded"?1:0));
-    render();persist();return;
-  }
-  if(el.dataset.prop==="modifier"&&build.gear[el.dataset.slot]){
-    const gear=build.gear[el.dataset.slot];
-    const item=ITEMS.find(entry=>entry.name===gear.name);
-    if(!canUseModifier(gear,item)){gear.modifier="";showToast("This modifier cannot be used on this item or with its current enchantment.");}
-    gear.sockets=(gear.sockets||[]).slice(0,(item?.jewelSlots||0)+(gear.modifier==="gilded"?1:0));
-    render();persist();return;
-  }
   if(el.dataset.prop==="level"&&build.gear[el.dataset.slot]){
     const gear=build.gear[el.dataset.slot];
     const item=ITEMS.find(entry=>entry.name===gear.name);
@@ -801,13 +1031,15 @@ document.getElementById("gear-grid").addEventListener("change",event=>{
 });
 document.getElementById("build-name").addEventListener("input",event=>{build.name=event.target.value;persist();});
 document.getElementById("save-named-build").addEventListener("click",saveNamedGearBuild);
-document.getElementById("saved-build-select").addEventListener("change",event=>{document.getElementById("load-named-build").disabled=!event.target.value;});
+document.getElementById("saved-build-select").addEventListener("change",syncSavedGearBuildButtons);
 document.getElementById("load-named-build").addEventListener("click",()=>{
   const savedSet=savedGearBuilds.find(entry=>entry.name===document.getElementById("saved-build-select").value);
   if(!savedSet)return;
   try{importBuildData(savedSet.build,{toast:"Saved gear set loaded.",closeImport:false});}
   catch(error){console.error("Could not load the saved gear set.",error);showToast(error.message||"Could not load saved gear set.");}
 });
+document.getElementById("update-named-build").addEventListener("click",updateSavedGearBuild);
+document.getElementById("delete-named-build").addEventListener("click",deleteSavedGearBuild);
 document.getElementById("stat-build").addEventListener("change",event=>{
   build.statBuild=STAT_BUILDS.some(([id])=>id===event.target.value)?event.target.value:"";
   sanitizeStatBuild(build);

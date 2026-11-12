@@ -7,14 +7,14 @@
   <title>Arcane Odyssey · Gear Workshop</title>
   <link rel="icon" type="image/png" href="assets/everthel-4.2.png">
   <link rel="apple-touch-icon" href="assets/everthel-4.2.png">
-  <link rel="stylesheet" href="styles.css?v=gear-stat-filters-20261111">
+  <link rel="stylesheet" href="styles.css?v=game-version-label-20261112">
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="Gear Workshop home">
         <img class="brand-mark-image" src="assets/everthel-4.2.png" alt="Everthel 4.2">
-        <span>ARCANE <b>ODYSSEY</b><small>GEAR WORKSHOP</small></span>
+        <span>ARCANE <b>ODYSSEY</b><small>GEAR WORKSHOP</small><small class="game-version">V1.21.25.2</small></span>
       </a>
       <div class="top-actions">
         <button class="button button-quiet" id="toggle-screenshot" type="button" aria-pressed="false">Screenshot view</button>
@@ -33,6 +33,8 @@
         <select id="saved-build-select" aria-label="Choose a saved gear set"><option value="">No saved sets</option></select>
         <button class="button button-accent" id="save-named-build" type="button">Save named build</button>
         <button class="button button-quiet" id="load-named-build" type="button" disabled>Load set</button>
+        <button class="button button-quiet" id="update-named-build" type="button" disabled title="Update the selected set with the current build">Update set</button>
+        <button class="button button-quiet" id="delete-named-build" type="button" disabled title="Delete the selected saved set">Delete set</button>
       </div>
     </section>
     <section class="import-panel" id="import-panel" hidden aria-label="Import build">
@@ -48,8 +50,8 @@
             <div class="equipment-heading">
               <div><span class="eyebrow">YOUR LOADOUT</span><h2>Equipment</h2></div>
               <div class="global-filter">
-                <span class="filter-label">ONLY SHOW ITEMS WITH</span>
-                <div class="filter-options" id="stat-filter-list" aria-label="Filter items by stats"></div>
+                <span class="filter-label">ONLY SHOW GEAR &amp; ENHANCEMENTS WITH</span>
+                <div class="filter-options" id="stat-filter-list" aria-label="Filter gear, gems, enchants, and modifiers by stats"></div>
                 <button class="clear-filters" id="clear-filters" type="button">Clear</button>
               </div>
             </div>
@@ -60,13 +62,13 @@
 
         <div class="summary-column">
           <aside class="summary">
-            <div class="summary-top"><div><span class="eyebrow">BUILD OVERVIEW</span><h2>Stat totals</h2></div><span class="live-pill"><i></i> LIVE</span></div>
+            <div class="summary-top"><div><span class="eyebrow">BUILD OVERVIEW</span><h2>Stat totals</h2></div></div>
             <div class="level-row">
               <label for="player-level">PLAYER LEVEL</label>
               <div class="level-input"><span>LV</span><input id="player-level" type="number" min="1" max="175" value="175" inputmode="numeric"></div>
             </div>
             <div class="stat-list" id="stat-list"></div>
-            <div class="efficiency-total"><span>EFFICIENCY POINTS</span><strong id="summary-efficiency-points">0</strong><small>Power × 3 · Defense ÷ 3 · Other stats × 1 (Dexterity excluded)</small></div>
+            <div class="efficiency-total"><span>EFFICIENCY POINTS</span><strong id="summary-efficiency-points">0</strong><small>Power × 3 · Defense ÷ 3 · Other stats × 1</small></div>
             <div class="ritual-controls">
               <label for="dragonblood-ritual">DRAGONBLOOD RITUAL</label>
               <select id="dragonblood-ritual"></select>
@@ -95,16 +97,13 @@
               <option value="warrior">Warrior</option>
             </select>
             <small id="stat-build-description">Choose your stat build to see its focus and wiki requirements.</small>
-            <a href="https://roblox-arcane-odyssey.fandom.com/wiki/Stat_Builds" target="_blank" rel="noreferrer">View Stat Builds on the wiki ↗</a>
             <div class="magic-controls" id="magic-controls" hidden>
               <div class="magic-selectors" id="magic-selectors"></div>
               <small class="magic-wiki-note">Mage builds can choose a second Magic after the first Awakening.</small>
-              <a class="magic-wiki-link" href="https://roblox-arcane-odyssey.fandom.com/wiki/Magics" target="_blank" rel="noreferrer">View Magics on the wiki ↗</a>
             </div>
             <div class="magic-controls" id="fighting-style-controls" hidden>
               <div class="magic-selectors" id="fighting-style-selectors"></div>
               <small class="magic-wiki-note">Strength builds can choose a fighting style; Berserker can choose a second after Awakening.</small>
-              <a class="magic-wiki-link" href="https://roblox-arcane-odyssey.fandom.com/wiki/Fighting_Styles" target="_blank" rel="noreferrer">View Fighting Styles on the wiki ↗</a>
             </div>
             <a class="stat-planner-link" href="stat-builds/"><strong>Plan stat investments</strong><span>Open planner ↗</span></a>
           </div>
@@ -119,6 +118,6 @@
   <script src="fighting-gear-catalog.js?v=fighting-gear-20261111"></script>
   <script src="newer-armor-records.js"></script>
   <script src="wiki-armor-records.js"></script>
-  <script src="app.js?v=filter-checkbox-state-20261111"></script>
+  <script src="app.js?v=saved-build-management-20261112"></script>
 </body>
 </html>
