@@ -577,3 +577,255 @@ h1 span{color:#ff8079}
 .enhancement{grid-template-columns:1fr}
 .modifier-picker-group{display:flex;flex-direction:column;gap:6px;min-width:0}
 .modifier-picker-group>.modifier-note{display:block}
+
+.color-theme-bar{display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:8px 0;color:#d09693}
+.color-theme-bar label{font:9px var(--mono);letter-spacing:1px}
+.color-theme-bar select{min-width:145px;padding:6px 9px;border:1px solid #6a2c29;border-radius:2px;background:#130908;color:#f8efef;font:12px var(--sans)}
+.color-theme-bar select:focus{border-color:#f55d55;outline:none;box-shadow:0 0 0 2px #ea3d3422}
+.planner-shell>.color-theme-bar{padding:8px 0 0}
+@media(max-width:700px){.color-theme-bar{padding:7px 0}}
+
+html[data-theme="blue"]{color-scheme:dark;--bg:#081321;--panel:#111f30;--panel2:#182b40;--border:#294867;--muted:#9bb1c8;--text:#e5edf5;--lime:#65b8ef;--green:#73d0bc;--orange:#80c8ff;--red:#ef8da7}
+html[data-theme="blue"] body{background:radial-gradient(ellipse at 50% -25%,#164574 0,transparent 46%),linear-gradient(180deg,#0d1b2c,#07101c 70%);color:var(--text)}
+html[data-theme="blue"] .topbar{background:#0d1c2d;border-color:#326ca0}
+html[data-theme="blue"] .brand b,html[data-theme="blue"] .brand-mark,html[data-theme="blue"] h1 span{color:#80c8ff}
+html[data-theme="blue"] .brand small{color:#91b5d5}
+html[data-theme="blue"] .brand .game-version{color:#80c8ff}
+html[data-theme="blue"] .button{border-color:#365b7d;background:#172b40;color:#e5edf5}
+html[data-theme="blue"] .button:hover{border-color:#65b8ef;background:#203d59}
+html[data-theme="blue"] .button-accent{border-color:#267bb5;background:#17699e;color:#fff}
+html[data-theme="blue"] .button-accent:hover{border-color:#80c8ff;background:#2182bd}
+html[data-theme="blue"] .share-build-actions{border-color:#294867;background:linear-gradient(120deg,#142b41,#0d1b2c)}
+html[data-theme="blue"] .share-build-label,html[data-theme="blue"] .saved-build-title{color:#91b5d5}
+html[data-theme="blue"] .saved-build-toolbar{border-color:#294867}
+html[data-theme="blue"] .saved-build-controls select,html[data-theme="blue"] .top-build-name input{border-color:#365b7d;background:#0b1725;color:#e5edf5}
+html[data-theme="blue"] .save-state{color:#91b5d5}
+html[data-theme="blue"] .workshop,html[data-theme="blue"] .summary{background:#101d2c;border-color:#32618a}
+html[data-theme="blue"] .gear-card{border-color:#2b4d6c;background:#142437}
+html[data-theme="blue"] .gear-card-header{background:linear-gradient(90deg,#3985bb24,transparent 72%)}
+html[data-theme="blue"] .slot-label,html[data-theme="blue"] .search-icon,html[data-theme="blue"] .item-result-type,html[data-theme="blue"] .equipped-tag{color:#80c8ff}
+html[data-theme="blue"] .field label,html[data-theme="blue"] .socket-title{color:#abc6df}
+html[data-theme="blue"] .field input,html[data-theme="blue"] .field select,html[data-theme="blue"] .socket input,html[data-theme="blue"] .socket select,html[data-theme="blue"] .stat-edit input,html[data-theme="blue"] .level-input input,html[data-theme="blue"] .ritual-controls select,html[data-theme="blue"] .class-picker select,html[data-theme="blue"] .magic-select-field select,html[data-theme="blue"] .planner-level input,html[data-theme="blue"] .planner-stat-input,html[data-theme="blue"] .planner-weapon-field select,html[data-theme="blue"] .planner-weapon-field input,html[data-theme="blue"] .color-theme-bar select{border-color:#365b7d;background:#0b1725;color:#e5edf5}
+html[data-theme="blue"] .field input:focus,html[data-theme="blue"] .field select:focus,html[data-theme="blue"] .socket input:focus,html[data-theme="blue"] .socket select:focus,html[data-theme="blue"] .color-theme-bar select:focus{border-color:#65b8ef;box-shadow:0 0 0 2px #65b8ef25}
+html[data-theme="blue"] .item-results,html[data-theme="blue"] .planner-weapon-search-results{border-color:#3979a9;background:#102338}
+html[data-theme="blue"] .item-result:hover,html[data-theme="blue"] .item-result.is-active,html[data-theme="blue"] .item-result.is-equipped,html[data-theme="blue"] .planner-weapon-search-result:hover,html[data-theme="blue"] .planner-weapon-search-result.is-active,html[data-theme="blue"] .planner-weapon-search-result.is-equipped{background:#65b8ef20}
+html[data-theme="blue"] .item-result-stats,html[data-theme="blue"] .base-stat-readout{color:#b5c9dc}
+html[data-theme="blue"] .filter-chip:has(input:checked){border-color:#65b8ef;color:#80c8ff;background:#65b8ef1b}
+html[data-theme="blue"] .filter-chip input{accent-color:#65b8ef}
+html[data-theme="blue"] .filter-chip input:not(:checked){border-color:#52728f;background:#102338}
+html[data-theme="blue"] .filter-chip input:checked::after{border-color:#fff}
+html[data-theme="blue"] .clear-filters:hover{color:#80c8ff}
+html[data-theme="blue"] .item-total-readout,html[data-theme="blue"] .efficiency-total,html[data-theme="blue"] .health-total{border-color:#38628a;background:#13283d}
+html[data-theme="blue"] .item-total-label,html[data-theme="blue"] .item-efficiency,html[data-theme="blue"] .efficiency-total>span,html[data-theme="blue"] .level-input,html[data-theme="blue"] .total-stat.primary span,html[data-theme="blue"] .total-stat.primary b,html[data-theme="blue"] .health-total>strong{color:#80c8ff}
+html[data-theme="blue"] .total-stat span,html[data-theme="blue"] .health-total small,html[data-theme="blue"] .efficiency-total>small,html[data-theme="blue"] .modifier-note{color:#b5c9dc}
+html[data-theme="blue"] .total-stat b,html[data-theme="blue"] .health-total small b{color:#e5edf5}
+html[data-theme="blue"] .socket-subtitle,html[data-theme="blue"] .socket-label{color:#91b5d5}
+html[data-theme="blue"] .enhancement,html[data-theme="blue"] .section-heading,html[data-theme="blue"] .level-row,html[data-theme="blue"] .ritual-controls,html[data-theme="blue"] .summary-foot{border-color:#294867}
+html[data-theme="blue"] .stat-planner-link,html[data-theme="blue"] .planner-class-result{border-color:#3478a7;background:#132d45;color:#e5edf5}
+html[data-theme="blue"] .stat-planner-link span,html[data-theme="blue"] .planner-points strong,html[data-theme="blue"] .planner-weapon-row>strong,html[data-theme="blue"] .planner-weapon-search-icon,html[data-theme="blue"] .planner-weapon-selected-tag{color:#80c8ff}
+html[data-theme="blue"] .planner-panel,html[data-theme="blue"] .planner-move-group{border-color:#315c7e;background:#112235}
+html[data-theme="blue"] .planner-topbar{border-color:#326ca0}
+html[data-theme="blue"] .planner-panel-heading,html[data-theme="blue"] .planner-move-header,html[data-theme="blue"] .planner-weapon-config,html[data-theme="blue"] .planner-weapon-tabs{border-color:#294867}
+html[data-theme="blue"] .planner-back,html[data-theme="blue"] .planner-panel-heading small{color:#91b5d5}
+html[data-theme="blue"] .planner-points,html[data-theme="blue"] .planner-weapon-field,html[data-theme="blue"] .planner-level,html[data-theme="blue"] .planner-move-note,html[data-theme="blue"] .planner-class-result p{color:#bfd0e0}
+html[data-theme="blue"] .planner-stat-row,html[data-theme="blue"] .planner-weapon-inputs,html[data-theme="blue"] .planner-move-list,html[data-theme="blue"] .planner-weapon-results{background:#203b55}
+html[data-theme="blue"] .planner-weapon-row,html[data-theme="blue"] .planner-move,html[data-theme="blue"] .planner-move.is-available,html[data-theme="blue"] .planner-weapon-available-card,html[data-theme="blue"] .planner-weapon-tab{background:#112235}
+html[data-theme="blue"] .planner-stat-label,html[data-theme="blue"] .planner-panel-heading h2,html[data-theme="blue"] .planner-move-header h2,html[data-theme="blue"] .planner-heading h1{color:#e5edf5}
+html[data-theme="blue"] .planner-step-button{border-color:#365b7d;background:#172b40;color:#bfd0e0}
+html[data-theme="blue"] .planner-step-button:hover:not(:disabled){border-color:#65b8ef;background:#203d59;color:#fff}
+html[data-theme="blue"] .planner-stat-slider{accent-color:#65b8ef}
+html[data-theme="blue"] .planner-weapon-tab[aria-selected="true"]{border-color:#3979a9}
+html[data-theme="blue"] .planner-move-name,html[data-theme="blue"] .planner-weapon-config .planner-panel-heading h3,html[data-theme="blue"] .planner-weapon-result-heading h4{color:#e5edf5}
+html[data-theme="blue"] .planner-move-kind,html[data-theme="blue"] .planner-move-status,html[data-theme="blue"] .planner-weapon-quality-summary,html[data-theme="blue"] .planner-weapon-section-heading p{color:#b5c9dc}
+html[data-theme="blue"] .planner-weapon-tab[aria-selected="true"],html[data-theme="blue"] .planner-weapon-result-heading{background:#1b3550;color:#e5edf5}
+html[data-theme="blue"] .planner-weapon-available-card,html[data-theme="blue"] .planner-weapon-result{border-color:#315c7e}
+html[data-theme="blue"] .planner-class-result strong,html[data-theme="blue"] .planner-weapon-available-card>strong,html[data-theme="blue"] .planner-weapon-result-heading strong{color:#73d0bc}
+html[data-theme="blue"] .planner-move.is-available .planner-move-status{color:#73d0bc}
+html[data-theme="blue"] .planner-heading p,html[data-theme="blue"] .planner-footer{color:#bfd0e0}
+html[data-theme="blue"] .color-theme-bar{color:#91b5d5}
+html[data-theme="blue"] .color-theme-bar select{border-color:#365b7d;background:#0b1725;color:#e5edf5}
+html[data-theme="blue"] ::selection{background:#65b8ef66;color:#fff}
+html[data-theme="blue"] ::-webkit-scrollbar-track{background:#081321}
+html[data-theme="blue"] ::-webkit-scrollbar-thumb{background:#365b7d;border-color:#081321}
+
+html[data-theme="light"]{color-scheme:light;--bg:#edf0f3;--panel:#fff;--panel2:#f4f6f8;--border:#c8cdd3;--muted:#68717c;--text:#252b33;--lime:#687887;--green:#237d62;--orange:#4e5965;--red:#a44d57}
+html[data-theme="light"] body{background:linear-gradient(180deg,#f7f8fa,#e9edf1);color:#252b33}
+html[data-theme="light"] .topbar{background:#f8f9fa;border-color:#d5d9de}
+html[data-theme="light"] .brand,html[data-theme="light"] .brand b{color:#28313b}
+html[data-theme="light"] .brand small{color:#58636f}
+html[data-theme="light"] .brand .game-version{color:#58636f}
+html[data-theme="light"] .button{border-color:#c3c9cf;background:#f1f3f5;color:#303944}
+html[data-theme="light"] .button:hover{border-color:#7e8995;background:#e6e9ec}
+html[data-theme="light"] .button-accent{border-color:#5b6672;background:#65717d;color:#fff}
+html[data-theme="light"] .button-accent:hover{border-color:#424c56;background:#505b66;color:#fff}
+html[data-theme="light"] .share-build-actions{border-color:#d1d6db;background:linear-gradient(120deg,#f1f3f5,#e8ebee)}
+html[data-theme="light"] .share-build-label,html[data-theme="light"] .saved-build-title{color:#59636e}
+html[data-theme="light"] .saved-build-toolbar{border-color:#d5d9de}
+html[data-theme="light"] .saved-build-controls select,html[data-theme="light"] .top-build-name input{border-color:#c3c9cf;background:#fff;color:#252b33}
+html[data-theme="light"] .save-state{color:#59636e}
+html[data-theme="light"] .workshop,html[data-theme="light"] .summary{background:#fff;border-color:#cbd1d7;box-shadow:0 8px 26px #19263412}
+html[data-theme="light"] .gear-card{border-color:#cbd1d7;background:#fbfcfd}
+html[data-theme="light"] .gear-card-header{border-color:#e4e7ea;background:linear-gradient(90deg,#606e7b0b,transparent 72%)}
+html[data-theme="light"] .slot-label,html[data-theme="light"] .search-icon,html[data-theme="light"] .item-result-type,html[data-theme="light"] .equipped-tag{color:#536373}
+html[data-theme="light"] .eyebrow,html[data-theme="light"] .field label,html[data-theme="light"] .socket-title,html[data-theme="light"] .level-row label{color:#59636e}
+html[data-theme="light"] .intro p,html[data-theme="light"] .planner-heading p,html[data-theme="light"] .planner-footer{color:#4c5661}
+html[data-theme="light"] .field input,html[data-theme="light"] .field select,html[data-theme="light"] .socket input,html[data-theme="light"] .socket select,html[data-theme="light"] .stat-edit input,html[data-theme="light"] .level-input input,html[data-theme="light"] .ritual-controls select,html[data-theme="light"] .class-picker select,html[data-theme="light"] .magic-select-field select,html[data-theme="light"] .planner-level input,html[data-theme="light"] .planner-stat-input,html[data-theme="light"] .planner-weapon-field select,html[data-theme="light"] .planner-weapon-field input,html[data-theme="light"] .color-theme-bar select{border-color:#c3c9cf;background:#fff;color:#252b33}
+html[data-theme="light"] .field input:focus,html[data-theme="light"] .field select:focus,html[data-theme="light"] .socket input:focus,html[data-theme="light"] .socket select:focus,html[data-theme="light"] .color-theme-bar select:focus{border-color:#65717d;box-shadow:0 0 0 2px #65717d22}
+html[data-theme="light"] .item-results,html[data-theme="light"] .planner-weapon-search-results{border-color:#b9c1c9;background:#fff;box-shadow:0 12px 30px #1926341f}
+html[data-theme="light"] .item-result,html[data-theme="light"] .planner-weapon-search-result{color:#252b33}
+html[data-theme="light"] .item-result:hover,html[data-theme="light"] .item-result.is-active,html[data-theme="light"] .item-result.is-equipped,html[data-theme="light"] .planner-weapon-search-result:hover,html[data-theme="light"] .planner-weapon-search-result.is-active,html[data-theme="light"] .planner-weapon-search-result.is-equipped{background:#66778818}
+html[data-theme="light"] .item-result-stats,html[data-theme="light"] .base-stat-readout{color:#59636e}
+html[data-theme="light"] .filter-chip{border-color:#c5cbd1;background:#f8f9fa;color:#4f5964}
+html[data-theme="light"] .filter-chip:has(input:checked){border-color:#647382;color:#354454;background:#64738218}
+html[data-theme="light"] .filter-chip input{accent-color:#596a7b;border-color:#aeb6bf;background:#fff}
+html[data-theme="light"] .filter-chip input:checked{border-color:#596a7b;background:#596a7b}
+html[data-theme="light"] .filter-chip input:checked::after{border-color:#fff}
+html[data-theme="light"] .item-total-readout,html[data-theme="light"] .efficiency-total,html[data-theme="light"] .health-total{border-color:#cbd1d7;background:#f2f4f6}
+html[data-theme="light"] .item-total-label,html[data-theme="light"] .item-efficiency,html[data-theme="light"] .efficiency-total>span,html[data-theme="light"] .total-stat.primary span,html[data-theme="light"] .total-stat.primary b,html[data-theme="light"] .health-total>strong,html[data-theme="light"] .level-input{color:#43515f}
+html[data-theme="light"] .item-total-stats,html[data-theme="light"] .total-stat span,html[data-theme="light"] .efficiency-total>small,html[data-theme="light"] .health-total small,html[data-theme="light"] .modifier-note{color:#4d5863}
+html[data-theme="light"] .total-stat b,html[data-theme="light"] .health-total small b{color:#252b33}
+html[data-theme="light"] .socket-subtitle,html[data-theme="light"] .socket-label{color:#68717c}
+html[data-theme="light"] .enhancement,html[data-theme="light"] .section-heading,html[data-theme="light"] .level-row,html[data-theme="light"] .ritual-controls,html[data-theme="light"] .summary-foot{border-color:#d8dde2}
+html[data-theme="light"] .stat-planner-link,html[data-theme="light"] .planner-class-result{border-color:#bec6ce;background:#eef1f4;color:#252b33}
+html[data-theme="light"] .stat-planner-link span,html[data-theme="light"] .planner-points strong,html[data-theme="light"] .planner-weapon-row>strong,html[data-theme="light"] .planner-weapon-search-icon,html[data-theme="light"] .planner-weapon-selected-tag{color:#435b72}
+html[data-theme="light"] .planner-panel,html[data-theme="light"] .planner-move-group{border-color:#c6cdd4;background:#fff}
+html[data-theme="light"] .planner-topbar{border-color:#c3cbd2}
+html[data-theme="light"] .planner-panel-heading,html[data-theme="light"] .planner-move-header,html[data-theme="light"] .planner-weapon-config,html[data-theme="light"] .planner-weapon-tabs{border-color:#d9dee3}
+html[data-theme="light"] .planner-back,html[data-theme="light"] .planner-panel-heading small{color:#59636e}
+html[data-theme="light"] .planner-points,html[data-theme="light"] .planner-weapon-field,html[data-theme="light"] .planner-level,html[data-theme="light"] .planner-move-note,html[data-theme="light"] .planner-class-result p{color:#4d5863}
+html[data-theme="light"] .planner-stat-row,html[data-theme="light"] .planner-weapon-inputs,html[data-theme="light"] .planner-move-list,html[data-theme="light"] .planner-weapon-results{background:#dce1e6}
+html[data-theme="light"] .planner-weapon-row,html[data-theme="light"] .planner-move,html[data-theme="light"] .planner-move.is-available,html[data-theme="light"] .planner-weapon-available-card,html[data-theme="light"] .planner-weapon-tab{background:#f8f9fa}
+html[data-theme="light"] .planner-stat-label,html[data-theme="light"] .planner-panel-heading h2,html[data-theme="light"] .planner-move-header h2,html[data-theme="light"] .planner-heading h1,html[data-theme="light"] .planner-move-name,html[data-theme="light"] .planner-weapon-config .planner-panel-heading h3,html[data-theme="light"] .planner-weapon-result-heading h4{color:#252b33}
+html[data-theme="light"] .planner-move-kind,html[data-theme="light"] .planner-move-status,html[data-theme="light"] .planner-weapon-quality-summary,html[data-theme="light"] .planner-weapon-section-heading p{color:#59636e}
+html[data-theme="light"] .planner-weapon-tab[aria-selected="true"],html[data-theme="light"] .planner-weapon-result-heading{background:#e8ebee;color:#252b33}
+html[data-theme="light"] .planner-weapon-available-card,html[data-theme="light"] .planner-weapon-result{border-color:#cbd1d7}
+html[data-theme="light"] .planner-step-button{border-color:#c3c9cf;background:#eef0f2;color:#43505e}
+html[data-theme="light"] .planner-step-button:hover:not(:disabled){border-color:#697582;background:#e2e6e9;color:#252b33}
+html[data-theme="light"] .planner-stat-slider{accent-color:#65717d}
+html[data-theme="light"] .planner-weapon-tab{border-color:#cbd1d7;color:#43505e}
+html[data-theme="light"] .planner-class-result strong,html[data-theme="light"] .planner-weapon-available-card>strong,html[data-theme="light"] .planner-weapon-result-heading strong{color:#237d62}
+html[data-theme="light"] .planner-move.is-available .planner-move-status{color:#237d62}
+html[data-theme="light"] .color-theme-bar{color:#59636e}
+html[data-theme="light"] .color-theme-bar select{border-color:#c3c9cf;background:#fff;color:#252b33}
+html[data-theme="light"] .planner-heading .eyebrow,html[data-theme="light"] .planner-class-result span{color:#59636e}
+html[data-theme="light"] .planner-move-list .planner-move.is-locked{background:#f0f2f4}
+html[data-theme="light"] .planner-move.is-locked .planner-move-name,html[data-theme="light"] .planner-move.is-locked .planner-move-kind,html[data-theme="light"] .planner-move.is-locked .planner-move-status{color:#707984}
+html[data-theme="light"] .planner-secondary-badge{border-color:#87959f;color:#237d62}
+html[data-theme="light"] .planner-ultimate-art-badge{border-color:#ac9560;background:#f5f0e2;color:#78602c}
+html[data-theme="light"] .stat-planner-link:hover{border-color:#687887;background:#e7ebef}
+html[data-theme="light"] .fineprint,html[data-theme="light"] footer{color:#626c76}
+html[data-theme="light"] .toast{background:#35414c;color:#fff}
+html[data-theme="light"] ::selection{background:#7d8c9a55;color:#1b2229}
+html[data-theme="light"] ::-webkit-scrollbar-track{background:#edf0f3}
+html[data-theme="light"] ::-webkit-scrollbar-thumb{background:#b4bdc6;border-color:#edf0f3}
+
+html[data-theme="dark"]{color-scheme:dark;--bg:#111315;--panel:#1b1e21;--panel2:#24282c;--border:#3b4147;--muted:#a2a8ae;--text:#e5e7e9;--lime:#aeb5bc;--green:#81b4a1;--orange:#c5cbd1;--red:#b7a3a5}
+html[data-theme="dark"] body{background:radial-gradient(ellipse at 50% -25%,#353a40 0,transparent 46%),linear-gradient(180deg,#1d2023,#101214 70%);color:#e5e7e9}
+html[data-theme="dark"] .topbar{background:#1b1e21;border-color:#464c52}
+html[data-theme="dark"] .brand b,html[data-theme="dark"] .brand-mark,html[data-theme="dark"] h1 span{color:#d1d5d9}
+html[data-theme="dark"] .brand small,html[data-theme="dark"] .brand .game-version{color:#aeb4ba}
+html[data-theme="dark"] .button{border-color:#484e54;background:#292d31;color:#e5e7e9}
+html[data-theme="dark"] .button:hover{border-color:#aab1b8;background:#34393e}
+html[data-theme="dark"] .button-accent{border-color:#747c84;background:#626a72;color:#fff}
+html[data-theme="dark"] .button-accent:hover{border-color:#c0c6cc;background:#757e86;color:#fff}
+html[data-theme="dark"] .share-build-actions{border-color:#41474d;background:linear-gradient(120deg,#25292d,#1b1e21)}
+html[data-theme="dark"] .share-build-label,html[data-theme="dark"] .saved-build-title{color:#b5bbc1}
+html[data-theme="dark"] .saved-build-toolbar{border-color:#3d4349}
+html[data-theme="dark"] .saved-build-controls select,html[data-theme="dark"] .top-build-name input{border-color:#4b5259;background:#151719;color:#e5e7e9}
+html[data-theme="dark"] .save-state{color:#b5bbc1}
+html[data-theme="dark"] .workshop,html[data-theme="dark"] .summary{background:#1b1e21;border-color:#484e54}
+html[data-theme="dark"] .gear-card{border-color:#3e444a;background:#222629}
+html[data-theme="dark"] .gear-card-header{border-color:#3b4045;background:linear-gradient(90deg,#aeb5bc10,transparent 72%)}
+html[data-theme="dark"] .slot-label,html[data-theme="dark"] .search-icon,html[data-theme="dark"] .item-result-type,html[data-theme="dark"] .equipped-tag{color:#c4cbd1}
+html[data-theme="dark"] .field label,html[data-theme="dark"] .socket-title,html[data-theme="dark"] .level-row label{color:#bbc1c7}
+html[data-theme="dark"] .field input,html[data-theme="dark"] .field select,html[data-theme="dark"] .socket input,html[data-theme="dark"] .socket select,html[data-theme="dark"] .stat-edit input,html[data-theme="dark"] .level-input input,html[data-theme="dark"] .ritual-controls select,html[data-theme="dark"] .class-picker select,html[data-theme="dark"] .magic-select-field select,html[data-theme="dark"] .planner-level input,html[data-theme="dark"] .planner-stat-input,html[data-theme="dark"] .planner-weapon-field select,html[data-theme="dark"] .planner-weapon-field input,html[data-theme="dark"] .color-theme-bar select{border-color:#4b5259;background:#151719;color:#e5e7e9}
+html[data-theme="dark"] .field input:focus,html[data-theme="dark"] .field select:focus,html[data-theme="dark"] .socket input:focus,html[data-theme="dark"] .socket select:focus,html[data-theme="dark"] .color-theme-bar select:focus{border-color:#aeb5bc;box-shadow:0 0 0 2px #aeb5bc22}
+html[data-theme="dark"] .item-results,html[data-theme="dark"] .planner-weapon-search-results{border-color:#50575e;background:#202428}
+html[data-theme="dark"] .item-result:hover,html[data-theme="dark"] .item-result.is-active,html[data-theme="dark"] .item-result.is-equipped,html[data-theme="dark"] .planner-weapon-search-result:hover,html[data-theme="dark"] .planner-weapon-search-result.is-active,html[data-theme="dark"] .planner-weapon-search-result.is-equipped{background:#aeb5bc1c}
+html[data-theme="dark"] .item-result-stats,html[data-theme="dark"] .base-stat-readout{color:#bac0c6}
+html[data-theme="dark"] .filter-chip:has(input:checked){border-color:#aeb5bc;color:#e2e5e8;background:#aeb5bc1c}
+html[data-theme="dark"] .filter-chip input{accent-color:#aeb5bc}
+html[data-theme="dark"] .filter-chip input:not(:checked){border-color:#5a6168;background:#202428}
+html[data-theme="dark"] .filter-chip input:checked::after{border-color:#181b1e}
+html[data-theme="dark"] .item-total-readout,html[data-theme="dark"] .efficiency-total,html[data-theme="dark"] .health-total{border-color:#454b51;background:#24282c}
+html[data-theme="dark"] .item-total-label,html[data-theme="dark"] .item-efficiency,html[data-theme="dark"] .efficiency-total>span,html[data-theme="dark"] .total-stat.primary span,html[data-theme="dark"] .total-stat.primary b,html[data-theme="dark"] .health-total>strong,html[data-theme="dark"] .level-input{color:#d1d5d9}
+html[data-theme="dark"] .total-stat span,html[data-theme="dark"] .health-total small,html[data-theme="dark"] .efficiency-total>small,html[data-theme="dark"] .modifier-note{color:#b5bbc1}
+html[data-theme="dark"] .total-stat b,html[data-theme="dark"] .health-total small b{color:#eceeef}
+html[data-theme="dark"] .socket-subtitle,html[data-theme="dark"] .socket-label{color:#aab1b7}
+html[data-theme="dark"] .enhancement,html[data-theme="dark"] .section-heading,html[data-theme="dark"] .level-row,html[data-theme="dark"] .ritual-controls,html[data-theme="dark"] .summary-foot{border-color:#3d4349}
+html[data-theme="dark"] .stat-planner-link,html[data-theme="dark"] .planner-class-result{border-color:#4a5158;background:#282c30;color:#e5e7e9}
+html[data-theme="dark"] .stat-planner-link span,html[data-theme="dark"] .planner-points strong,html[data-theme="dark"] .planner-weapon-row>strong,html[data-theme="dark"] .planner-weapon-search-icon,html[data-theme="dark"] .planner-weapon-selected-tag{color:#d1d5d9}
+html[data-theme="dark"] .planner-panel,html[data-theme="dark"] .planner-move-group{border-color:#444a50;background:#1e2225}
+html[data-theme="dark"] .planner-topbar{border-color:#464c52}
+html[data-theme="dark"] .planner-panel-heading,html[data-theme="dark"] .planner-move-header,html[data-theme="dark"] .planner-weapon-config,html[data-theme="dark"] .planner-weapon-tabs{border-color:#3d4349}
+html[data-theme="dark"] .planner-back,html[data-theme="dark"] .planner-panel-heading small{color:#b5bbc1}
+html[data-theme="dark"] .planner-points,html[data-theme="dark"] .planner-weapon-field,html[data-theme="dark"] .planner-level,html[data-theme="dark"] .planner-move-note,html[data-theme="dark"] .planner-class-result p{color:#c3c8cd}
+html[data-theme="dark"] .planner-stat-row,html[data-theme="dark"] .planner-weapon-inputs,html[data-theme="dark"] .planner-move-list,html[data-theme="dark"] .planner-weapon-results{background:#343a3f}
+html[data-theme="dark"] .planner-weapon-row,html[data-theme="dark"] .planner-move,html[data-theme="dark"] .planner-move.is-available,html[data-theme="dark"] .planner-weapon-available-card,html[data-theme="dark"] .planner-weapon-tab{background:#1e2225}
+html[data-theme="dark"] .planner-stat-label,html[data-theme="dark"] .planner-panel-heading h2,html[data-theme="dark"] .planner-move-header h2,html[data-theme="dark"] .planner-heading h1,html[data-theme="dark"] .planner-move-name,html[data-theme="dark"] .planner-weapon-config .planner-panel-heading h3,html[data-theme="dark"] .planner-weapon-result-heading h4{color:#e5e7e9}
+html[data-theme="dark"] .planner-move-kind,html[data-theme="dark"] .planner-move-status,html[data-theme="dark"] .planner-weapon-quality-summary,html[data-theme="dark"] .planner-weapon-section-heading p{color:#b5bbc1}
+html[data-theme="dark"] .planner-weapon-tab[aria-selected="true"],html[data-theme="dark"] .planner-weapon-result-heading{background:#30353a;color:#e5e7e9}
+html[data-theme="dark"] .planner-weapon-available-card,html[data-theme="dark"] .planner-weapon-result{border-color:#454b51}
+html[data-theme="dark"] .planner-step-button{border-color:#4b5259;background:#292d31;color:#c3c8cd}
+html[data-theme="dark"] .planner-step-button:hover:not(:disabled){border-color:#aeb5bc;background:#34393e;color:#fff}
+html[data-theme="dark"] .planner-stat-slider{accent-color:#aeb5bc}
+html[data-theme="dark"] .planner-class-result strong,html[data-theme="dark"] .planner-weapon-available-card>strong,html[data-theme="dark"] .planner-weapon-result-heading strong{color:#81b4a1}
+html[data-theme="dark"] .planner-move.is-available .planner-move-status{color:#81b4a1}
+html[data-theme="dark"] .planner-heading p,html[data-theme="dark"] .planner-footer{color:#c3c8cd}
+html[data-theme="dark"] .color-theme-bar{color:#b5bbc1}
+html[data-theme="dark"] ::selection{background:#aeb5bc55;color:#fff}
+html[data-theme="dark"] ::-webkit-scrollbar-track{background:#111315}
+html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#454b51;border-color:#111315}
+
+html[data-theme="blue"] .class-picker{border-color:#315c7e;background:linear-gradient(110deg,#142c43,#102338)}
+html[data-theme="blue"] .class-picker label,html[data-theme="blue"] .magic-select-field{color:#abc6df}
+html[data-theme="blue"] .class-picker small,html[data-theme="blue"] .magic-wiki-note{color:#bfd0e0}
+html[data-theme="blue"] .class-picker a,html[data-theme="blue"] .magic-wiki-link{color:#80c8ff;border-color:#3979a9}
+html[data-theme="blue"] .class-picker a:hover,html[data-theme="blue"] .magic-wiki-link:hover{color:#c5e8ff}
+html[data-theme="blue"] .magic-controls{border-color:#294867}
+
+html[data-theme="light"] .class-picker{border-color:#c6cdd4;background:linear-gradient(110deg,#f5f6f7,#edf0f3)}
+html[data-theme="light"] .class-picker label,html[data-theme="light"] .magic-select-field{color:#43505e}
+html[data-theme="light"] .class-picker small,html[data-theme="light"] .magic-wiki-note{color:#4d5863}
+html[data-theme="light"] .class-picker a,html[data-theme="light"] .magic-wiki-link{color:#435b72;border-color:#9ba8b5}
+html[data-theme="light"] .class-picker a:hover,html[data-theme="light"] .magic-wiki-link:hover{color:#263d53}
+html[data-theme="light"] .magic-controls{border-color:#d9dee3}
+html[data-theme="light"] .stat-icon{padding:2px;border-radius:4px;background:#e2e6ea;filter:drop-shadow(0 1px 1px #0002)}
+html[data-theme="light"] .stat-icon-fallback{border-color:#89939d;background:#e2e6ea;color:#303944}
+
+html[data-theme="dark"] .class-picker{border-color:#444a50;background:linear-gradient(110deg,#25292d,#1e2225)}
+html[data-theme="dark"] .class-picker label,html[data-theme="dark"] .magic-select-field{color:#c3c8cd}
+html[data-theme="dark"] .class-picker small,html[data-theme="dark"] .magic-wiki-note{color:#b5bbc1}
+html[data-theme="dark"] .class-picker a,html[data-theme="dark"] .magic-wiki-link{color:#d1d5d9;border-color:#6b7279}
+html[data-theme="dark"] .class-picker a:hover,html[data-theme="dark"] .magic-wiki-link:hover{color:#fff}
+html[data-theme="dark"] .magic-controls{border-color:#3d4349}
+
+html[data-theme="blue"] .gear-card-header{border-color:#2b4d6c}
+html[data-theme="blue"] .total-stat{border-color:#294867}
+html[data-theme="blue"] .stat-icon-fallback{border-color:#52728f;color:#bfd0e0}
+html[data-theme="blue"] .button-wide span{color:#80c8ff}
+html[data-theme="blue"] .clear-all-button,html[data-theme="blue"] .clear-slot-button{border-color:#365b7d;background:#65b8ef10;color:#9bc9ef}
+html[data-theme="blue"] .clear-all-button:hover,html[data-theme="blue"] .clear-slot-button:not(:disabled):hover{border-color:#65b8ef;background:#65b8ef20;color:#d4edff}
+html[data-theme="blue"] .item-picker .item-search:focus,html[data-theme="blue"] .option-picker .item-search:focus,html[data-theme="blue"] .planner-weapon-search:focus,html[data-theme="blue"] .class-picker select:focus,html[data-theme="blue"] .magic-select-field select:focus,html[data-theme="blue"] .import-panel textarea:focus,html[data-theme="blue"] .top-build-name input:focus,html[data-theme="blue"] .saved-build-controls select:focus{border-color:#65b8ef;outline:none;box-shadow:0 0 0 2px #65b8ef25}
+html[data-theme="blue"] .source-note a{color:#80c8ff;border-color:#3979a9}
+html[data-theme="blue"] .eyebrow,html[data-theme="blue"] .top-build-name,html[data-theme="blue"] footer,html[data-theme="blue"] .fineprint{color:#91b5d5}
+html[data-theme="blue"] .item-picker .item-search::placeholder,html[data-theme="blue"] .option-picker .item-search::placeholder,html[data-theme="blue"] .planner-weapon-search::placeholder,html[data-theme="blue"] .item-count{color:#91b5d5}
+html[data-theme="blue"] .efficiency-total>strong{color:#80c8ff}
+html[data-theme="blue"] .planner-points{border-color:#294867}
+html[data-theme="blue"] .filter-chip{border-color:#365b7d;color:#b5c9dc}
+html[data-theme="blue"] .health-total>span{color:#91b5d5}
+
+html[data-theme="dark"] .gear-card-header{border-color:#3b4045}
+html[data-theme="dark"] .total-stat{border-color:#3d4349}
+html[data-theme="dark"] .stat-icon-fallback{border-color:#5a6168;color:#c3c8cd}
+html[data-theme="dark"] .button-wide span{color:#d1d5d9}
+html[data-theme="dark"] .clear-all-button,html[data-theme="dark"] .clear-slot-button{border-color:#4b5259;background:#aeb5bc10;color:#c3c8cd}
+html[data-theme="dark"] .clear-all-button:hover,html[data-theme="dark"] .clear-slot-button:not(:disabled):hover{border-color:#aeb5bc;background:#aeb5bc1c;color:#fff}
+html[data-theme="dark"] .item-picker .item-search:focus,html[data-theme="dark"] .option-picker .item-search:focus,html[data-theme="dark"] .planner-weapon-search:focus,html[data-theme="dark"] .class-picker select:focus,html[data-theme="dark"] .magic-select-field select:focus,html[data-theme="dark"] .import-panel textarea:focus,html[data-theme="dark"] .top-build-name input:focus,html[data-theme="dark"] .saved-build-controls select:focus{border-color:#aeb5bc;outline:none;box-shadow:0 0 0 2px #aeb5bc22}
+html[data-theme="dark"] .source-note a{color:#d1d5d9;border-color:#6b7279}
+html[data-theme="dark"] .eyebrow,html[data-theme="dark"] .top-build-name,html[data-theme="dark"] footer,html[data-theme="dark"] .fineprint{color:#b5bbc1}
+html[data-theme="dark"] .item-picker .item-search::placeholder,html[data-theme="dark"] .option-picker .item-search::placeholder,html[data-theme="dark"] .planner-weapon-search::placeholder,html[data-theme="dark"] .item-count{color:#aab1b7}
+html[data-theme="dark"] .efficiency-total>strong{color:#d1d5d9}
+html[data-theme="dark"] .planner-points{border-color:#3d4349}
+html[data-theme="dark"] .filter-chip{border-color:#4b5259;color:#b5bbc1}
+html[data-theme="dark"] .health-total>span{color:#b5bbc1}
