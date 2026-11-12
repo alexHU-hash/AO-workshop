@@ -67,6 +67,7 @@ const MODIFIER_DESCRIPTIONS = {
   gilded:"+1 jewel socket.", imbued:"Adds roughly half of a basic modifier for each unique base stat on the item.",
   sandy:"Per 10 levels: +1.4118 Haste.", superheated:"Per 10 levels: +0.25 Power and +0.8236 Haste."
 };
+const MODIFIER_GEAR_CATEGORIES = new Set(["Chestplate","Boots","Helmet","Accessory","Amulet"]);
 const ATLANTEAN_STATS = [
   ["power",.7648],["defense",6.8236],["size",2.2353],
   ["dexterity",2.2353],["range",2.2353],["haste",2.2353]
@@ -164,7 +165,7 @@ function updateItemFromNewerArmor(item){
   const tool=item.magicKey
     ?NEWER_ARMOR_RECORDS.find(entry=>entry.type==="Magic"&&entry.name===item.magicKey)
     :item.fightingStyle?NEWER_ARMOR_RECORDS.find(entry=>entry.type==="Fighting Style"&&entry.name===item.fightingStyle):null;
-  return {...item,category,minLevel:record.min_level??item.minLevel,maxLevel:170,jewelSlots:record.jewels??item.jewelSlots,statRows:getNewerArmorStatRows(record,item,tool),modifierAllowed:false};
+  return {...item,category,minLevel:record.min_level??item.minLevel,maxLevel:170,jewelSlots:record.jewels??item.jewelSlots,statRows:getNewerArmorStatRows(record,item,tool)};
 }
 function updateItemFromWiki(item){
   const magicPiece=(item.magicPiece||(item.magicKey?item.name.slice(item.magicKey.length):"")).trim();
@@ -178,7 +179,7 @@ function createNewerArmorItem(record,dragonGear=false){
   return {
     id:`newer-${record.type}-${record.name}`.toLowerCase().replace(/[^a-z0-9]+/g,"-"),
     name:record.name,category,subType:type,minLevel:record.min_level??100,maxLevel:170,
-    jewelSlots:record.jewels??0,essenceLocked:false,modifierAllowed:dragonGear,dragonGear,
+    jewelSlots:record.jewels??0,essenceLocked:false,dragonGear,
     dragonCorrupted:record.type.startsWith("Corrupted Dragon "),dragonK:record.k,
     dragonColorType:record.type.startsWith("Corrupted Dragon ")?"Corrupted Dragon Color":"Dragon Color",
     statRows:getNewerArmorStatRows(record)
@@ -195,7 +196,7 @@ const ITEMS = [...UPDATED_CATALOG_ITEMS,...ADDED_NEWER_ARMOR_ITEMS,...ADDED_DRAG
   const latest=item.statRows.find(row=>row.level===item.maxLevel)||item.statRows[item.statRows.length-1];
   const magicPiece=(item.magicPiece||(item.magicKey?item.name.slice(item.magicKey.length):"")).trim();
   const category=item.subType==="Head"?"Accessory":item.category;
-  return {...item,magicPiece,category,modifierAllowed:Boolean(item.dragonGear),type:CATEGORY_LABELS[category],level:latest.level,stats:{...latest.stats}};
+  return {...item,magicPiece,category,type:CATEGORY_LABELS[category],level:latest.level,stats:{...latest.stats}};
 });
 function getDragonColorRecords(item){
   return item?.dragonGear?NEWER_ARMOR_RECORDS.filter(record=>record.type===item.dragonColorType):[];
@@ -251,8 +252,14 @@ function clampGameLevel(value){return Math.max(1,Math.min(MAX_GAME_LEVEL,safeNum
 function esc(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function canUseModifier(gear,item){
   const isKnownModifier=MODIFIERS.some(([id])=>id===gear.modifier);
-  const canUse=gear.modifier===""||(gear.modifier==="atlantean"?Boolean(item):Boolean(item?.dragonGear));
-  return Boolean(item&&canUse&&isKnownModifier&&!(gear.modifier==="atlantean"&&gear.enchant==="virtuous"));
+  const isEquipment=MODIFIER_GEAR_CATEGORIES.has(item?.category);
+  const isAtlantean=gear.modifier==="atlantean";
+  const isAtlanteanOnlyItem=item?.name==="Jewel Amulet";
+  const isLostSet=item?.lostSet===true||/\blost\b/i.test(item?.name||"");
+  const isGildedLostSet=gear.modifier==="gilded"&&isLostSet;
+  const isModifierLocked=item?.essenceLocked||isLostSet;
+  const canUse=gear.modifier===""||isAtlantean||(!isAtlanteanOnlyItem&&!isModifierLocked)||isGildedLostSet;
+  return Boolean(item&&isEquipment&&canUse&&isKnownModifier&&!(isAtlantean&&gear.enchant==="virtuous"));
 }
 function sanitizeStatBuild(buildState){
   if(!STAT_BUILDS.some(([id])=>id===buildState.statBuild))buildState.statBuild="";
@@ -529,9 +536,8 @@ function renderCard(slot){
   const sockets=Array.from({length:jewelSlots},(_,i)=>renderSocket(slot.id,i,gear.sockets?.[i])).join("");
   const socketSection=sockets?`<div class="socket-block"><div class="socket-block-head"><span class="socket-title">JEWEL SOCKETS</span><span class="socket-subtitle">${jewelSlots} AVAILABLE · GEM + COMBINED GEM</span></div>${sockets}</div>`:"";
   const modifierDescription=MODIFIER_DESCRIPTIONS[gear.modifier];
-  const canUseAtlantean=Boolean(selectedItem);
   const modifierOptions=MODIFIERS.map(([value,label])=>{
-    const disabled=(value==="atlantean"&&gear.enchant==="virtuous")||(value!==""&&value!=="atlantean"&&!selectedItem?.dragonGear);
+    const disabled=!canUseModifier({...gear,modifier:value},selectedItem);
     return `<option value="${esc(value)}"${value===(gear.modifier||"")?" selected":""}${disabled?" disabled":""}>${esc(label)}</option>`;
   }).join("");
   const modifierHelp=modifierDescription||(gear.enchant==="virtuous"?"Virtuous removes Atlantean; Atlantean cannot be applied while Virtuous is selected.":"");
@@ -700,7 +706,7 @@ document.getElementById("gear-grid").addEventListener("input",event=>{
     if(el.dataset.prop!=="level")gear[el.dataset.prop]=el.value;
     if(el.dataset.prop==="modifier"){
       const item=ITEMS.find(entry=>entry.name===gear.name);
-      if(!canUseModifier(gear,item)){gear.modifier="";showToast("Atlantean cannot be applied to Virtuous gear or items that do not accept modifiers.");}
+      if(!canUseModifier(gear,item)){gear.modifier="";showToast("This modifier cannot be used on this item or with its current enchantment.");}
     }
     if(el.dataset.prop==="enchant"&&gear.enchant==="virtuous"&&gear.modifier==="atlantean")gear.modifier="";
   }
@@ -781,7 +787,7 @@ document.getElementById("gear-grid").addEventListener("change",event=>{
   if(el.dataset.prop==="modifier"&&build.gear[el.dataset.slot]){
     const gear=build.gear[el.dataset.slot];
     const item=ITEMS.find(entry=>entry.name===gear.name);
-    if(!canUseModifier(gear,item)){gear.modifier="";showToast("Atlantean cannot be applied to Virtuous gear or items that do not accept modifiers.");}
+    if(!canUseModifier(gear,item)){gear.modifier="";showToast("This modifier cannot be used on this item or with its current enchantment.");}
     gear.sockets=(gear.sockets||[]).slice(0,(item?.jewelSlots||0)+(gear.modifier==="gilded"?1:0));
     render();persist();return;
   }
