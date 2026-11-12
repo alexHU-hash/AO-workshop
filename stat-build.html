@@ -7,7 +7,7 @@
   <link rel="canonical" href="stat-builds/">
   <link rel="icon" type="image/png" href="assets/everthel-4.2.png">
   <title>Stat Build Planner · Arcane Odyssey</title>
-  <link rel="stylesheet" href="styles.css?v=class-percentage-readable-20261112">
+  <link rel="stylesheet" href="styles.css?v=weapon-search-labels-v2">
 </head>
 <body>
   <div class="planner-shell">
@@ -23,7 +23,7 @@
         <div>
           <span class="eyebrow">CLASS & ABILITY FORECAST</span>
           <h1>Stat build planner</h1>
-          <p>Allocate points across Magic, Weapons, Spirit, and Strength. Class estimates use your current invested-point percentages; ability unlocks update as you invest.</p>
+          <p>Allocate points across Magic, Weapons, Spirit, and Strength. Class estimates use your current invested-point percentages; once estimated, only that class's ability categories are shown.</p>
         </div>
         <label class="planner-level" for="planner-level">PLAYER LEVEL
           <input id="planner-level" type="number" min="1" max="175" value="175" inputmode="numeric">
@@ -39,45 +39,46 @@
             <p id="planner-class-note"></p>
           </div>
         </section>
-        <section class="planner-moves" aria-label="Ability unlocks">
-          <section class="planner-move-group" data-move-stat="magic">
-            <div class="planner-move-header"><h2>Magic spells & scrolls</h2><a href="https://roblox-arcane-odyssey.fandom.com/wiki/Lost_Spells" target="_blank" rel="noreferrer">Wiki ↗</a></div>
-            <p class="planner-move-note">Rare and Lost spells require their scrolls. A 2ND MAGIC badge marks spells available on a Mage's second Magic once their secondary-slot stat requirement is met.</p>
-            <div class="planner-move-list" id="planner-spells"></div>
-          </section>
-          <section class="planner-move-group" data-move-stat="strength">
-            <div class="planner-move-header"><h2>Strength techniques & scrolls</h2><a href="https://roblox-arcane-odyssey.fandom.com/wiki/Lost_Techniques" target="_blank" rel="noreferrer">Wiki ↗</a></div>
-            <p class="planner-move-note">Rare and Lost Techniques require scrolls. A 2ND STYLE badge marks techniques available on a Berserker's second style after its +90-point requirement is met.</p>
-            <div class="planner-move-list" id="planner-techniques"></div>
-          </section>
-          <section class="planner-move-group" data-move-stat="spirit">
-            <div class="planner-move-header"><h2>Spirit Rites</h2><a href="https://roblox-arcane-odyssey.fandom.com/wiki/Relics/Rites" target="_blank" rel="noreferrer">Wiki ↗</a></div>
-            <p class="planner-move-note">Spirit Rite Tomes grant five random rites. Relics also have exclusive rites with separate requirements.</p>
-            <div class="planner-move-list" id="planner-rites"></div>
-          </section>
-          <section class="planner-move-group" data-move-stat="weapons">
-            <div class="planner-move-header"><h2>Weapon skills</h2><a href="https://roblox-arcane-odyssey.fandom.com/wiki/Weapons/Skills" target="_blank" rel="noreferrer">Wiki ↗</a></div>
-            <p class="planner-move-note">Choose each weapon's type and a supported variant. Strength and Arcanium weapons use their separate wiki formulas; other weapons remain normal. Levels are automatic. Use the tabs to switch between currently usable moves and all compatible moves, including locked ones.</p>
-            <div class="planner-weapon-config">
-              <div class="planner-panel-heading"><h3>Equipped weapons</h3><small>3 slots</small></div>
-              <div class="planner-weapon-inputs" id="planner-weapon-inputs"></div>
-            </div>
-            <div class="planner-weapon-tabs" id="planner-weapon-tabs" role="tablist" aria-label="Weapon move views">
-              <button class="planner-weapon-tab" id="planner-weapon-tab-usable" type="button" role="tab" aria-selected="true" aria-controls="planner-weapon-panel-usable" tabindex="0">Usable moves</button>
-              <button class="planner-weapon-tab" id="planner-weapon-tab-all" type="button" role="tab" aria-selected="false" aria-controls="planner-weapon-panel-all" tabindex="-1">All compatible moves</button>
-            </div>
-            <div class="planner-weapon-tab-panel" id="planner-weapon-panel-usable" role="tabpanel" aria-labelledby="planner-weapon-tab-usable">
-              <div class="planner-weapon-available" id="planner-weapon-available"></div>
-            </div>
-            <div class="planner-weapon-tab-panel" id="planner-weapon-panel-all" role="tabpanel" aria-labelledby="planner-weapon-tab-all" hidden>
-              <div class="planner-weapon-results" id="planner-weapon-results"></div>
-            </div>
-          </section>
+        <section class="planner-panel planner-weapon-setup" aria-labelledby="weapon-skills-title" data-move-stat="weapons">
+          <div class="planner-move-header"><h2 id="weapon-skills-title">Weapon skills</h2><a href="https://roblox-arcane-odyssey.fandom.com/wiki/Weapons/Skills" target="_blank" rel="noreferrer">Wiki ↗</a></div>
+          <div class="planner-weapon-config">
+            <div class="planner-panel-heading"><h3>Equipped weapons</h3><small>3 slots</small></div>
+            <div class="planner-weapon-inputs" id="planner-weapon-inputs"></div>
+          </div>
         </section>
       </div>
+      <section class="planner-move-group planner-weapon-results-group" aria-label="Weapon skill results" data-move-stat="weapons">
+        <div class="planner-weapon-tabs" id="planner-weapon-tabs" role="tablist" aria-label="Weapon move views">
+          <button class="planner-weapon-tab" id="planner-weapon-tab-usable" type="button" role="tab" aria-selected="true" aria-controls="planner-weapon-panel-usable" tabindex="0">Usable moves</button>
+          <button class="planner-weapon-tab" id="planner-weapon-tab-all" type="button" role="tab" aria-selected="false" aria-controls="planner-weapon-panel-all" tabindex="-1">All compatible moves</button>
+        </div>
+        <div class="planner-weapon-tab-panel" id="planner-weapon-panel-usable" role="tabpanel" aria-labelledby="planner-weapon-tab-usable">
+          <div class="planner-weapon-available" id="planner-weapon-available"></div>
+        </div>
+        <div class="planner-weapon-tab-panel" id="planner-weapon-panel-all" role="tabpanel" aria-labelledby="planner-weapon-tab-all" hidden>
+          <div class="planner-weapon-results" id="planner-weapon-results"></div>
+        </div>
+      </section>
+      <section class="planner-moves" aria-label="Other ability unlocks">
+        <section class="planner-move-group" data-move-stat="magic">
+          <div class="planner-move-header"><h2>Magic spells & scrolls</h2><a href="https://roblox-arcane-odyssey.fandom.com/wiki/Lost_Spells" target="_blank" rel="noreferrer">Wiki ↗</a></div>
+          <p class="planner-move-note">Locked moves show whether their stat points or class are missing. The ULTIMATE ART badge appears 200 Magic points above a spell's normal unlock requirement. Rare and Lost spells require scrolls; a 2ND MAGIC badge marks moves meeting the secondary-slot requirement.</p>
+          <div class="planner-move-list" id="planner-spells"></div>
+        </section>
+        <section class="planner-move-group" data-move-stat="strength">
+          <div class="planner-move-header"><h2>Strength techniques & scrolls</h2><a href="https://roblox-arcane-odyssey.fandom.com/wiki/Lost_Techniques" target="_blank" rel="noreferrer">Wiki ↗</a></div>
+          <p class="planner-move-note">Locked moves show whether their stat points or class are missing. The ULTIMATE ART badge appears 200 Strength points above a technique's normal unlock requirement. Rare and Lost Techniques require scrolls; a 2ND STYLE badge marks moves meeting the secondary-slot requirement.</p>
+          <div class="planner-move-list" id="planner-techniques"></div>
+        </section>
+        <section class="planner-move-group" data-move-stat="spirit">
+          <div class="planner-move-header"><h2>Spirit Rites</h2><a href="https://roblox-arcane-odyssey.fandom.com/wiki/Relics/Rites" target="_blank" rel="noreferrer">Wiki ↗</a></div>
+          <p class="planner-move-note">Spirit Rite Tomes grant five random rites. Relics also have exclusive rites with separate requirements. The wiki currently lists no Ultimate Art options for Rites.</p>
+          <div class="planner-move-list" id="planner-rites"></div>
+        </section>
+      </section>
       <p class="planner-footer">Class thresholds and ability requirements are transcribed from the <a href="https://roblox-arcane-odyssey.fandom.com/wiki/Stat_Builds" target="_blank" rel="noreferrer">Arcane Odyssey Wiki</a>. Weapon skill results cover slots 1-2 and use their listed requirements; Strength and Arcanium weapons also need their corresponding stat. Owning the required scroll, compatible weapon/relic, and awakening may also be necessary.</p>
     </main>
   </div>
-  <script src="stat-build.js?v=class-percentage-readable-20261112"></script>
+  <script src="stat-build.js?v=weapon-search-labels-v3"></script>
 </body>
 </html>
