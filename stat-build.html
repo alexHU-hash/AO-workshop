@@ -7,7 +7,7 @@
   <link rel="canonical" href="stat-builds/">
   <link rel="icon" type="image/png" href="assets/everthel-4.2.png">
   <title>Stat Build Planner · Arcane Odyssey</title>
-  <link rel="stylesheet" href="styles.css?v=weapon-variant-scaling-20261112">
+  <link rel="stylesheet" href="styles.css?v=class-percentage-readable-20261112">
 </head>
 <body>
   <div class="planner-shell">
@@ -23,7 +23,7 @@
         <div>
           <span class="eyebrow">CLASS & ABILITY FORECAST</span>
           <h1>Stat build planner</h1>
-          <p>Allocate level-up points across Magic, Weapons, Spirit, and Strength. Unlocks update as you invest.</p>
+          <p>Allocate points across Magic, Weapons, Spirit, and Strength. Class estimates use your current invested-point percentages; ability unlocks update as you invest.</p>
         </div>
         <label class="planner-level" for="planner-level">PLAYER LEVEL
           <input id="planner-level" type="number" min="1" max="175" value="175" inputmode="numeric">
@@ -32,10 +32,10 @@
       <div class="planner-layout">
         <section class="planner-panel" aria-labelledby="allocation-title">
           <div class="planner-panel-heading"><h2 id="allocation-title">Point allocation</h2><small>2 points per level</small></div>
-          <div class="planner-points"><span>SPENT / AVAILABLE</span><strong><span id="planner-spent">0</span> / <span id="planner-remaining">350</span></strong></div>
+          <div class="planner-points"><span>POINTS SPENT / REMAINING</span><strong><span id="planner-spent">0</span> / <span id="planner-remaining">350</span></strong></div>
           <div class="planner-stat-list" id="planner-stat-list"></div>
           <div class="planner-class-result" aria-live="polite">
-            <span>ESTIMATED CLASS</span><strong id="planner-class-name">Savant</strong>
+            <span>CLASS FROM CURRENT ALLOCATION</span><strong id="planner-class-name">Savant</strong>
             <p id="planner-class-note"></p>
           </div>
         </section>
@@ -57,20 +57,27 @@
           </section>
           <section class="planner-move-group" data-move-stat="weapons">
             <div class="planner-move-header"><h2>Weapon skills</h2><a href="https://roblox-arcane-odyssey.fandom.com/wiki/Weapons/Skills" target="_blank" rel="noreferrer">Wiki ↗</a></div>
-            <p class="planner-move-note">Choose each weapon's type and a supported variant. Strength and Arcanium weapons use their separate wiki formulas; other weapons remain normal. Levels are automatic, using the lowest wiki-listed level for that variant, or the listed level for special weapons. Available moves appear first.</p>
+            <p class="planner-move-note">Choose each weapon's type and a supported variant. Strength and Arcanium weapons use their separate wiki formulas; other weapons remain normal. Levels are automatic. Use the tabs to switch between currently usable moves and all compatible moves, including locked ones.</p>
             <div class="planner-weapon-config">
               <div class="planner-panel-heading"><h3>Equipped weapons</h3><small>3 slots</small></div>
               <div class="planner-weapon-inputs" id="planner-weapon-inputs"></div>
             </div>
-            <div class="planner-weapon-available" id="planner-weapon-available"></div>
-            <div class="planner-weapon-results" id="planner-weapon-results"></div>
-            <div class="planner-weapon-class" id="planner-weapon-class-skills"></div>
+            <div class="planner-weapon-tabs" id="planner-weapon-tabs" role="tablist" aria-label="Weapon move views">
+              <button class="planner-weapon-tab" id="planner-weapon-tab-usable" type="button" role="tab" aria-selected="true" aria-controls="planner-weapon-panel-usable" tabindex="0">Usable moves</button>
+              <button class="planner-weapon-tab" id="planner-weapon-tab-all" type="button" role="tab" aria-selected="false" aria-controls="planner-weapon-panel-all" tabindex="-1">All compatible moves</button>
+            </div>
+            <div class="planner-weapon-tab-panel" id="planner-weapon-panel-usable" role="tabpanel" aria-labelledby="planner-weapon-tab-usable">
+              <div class="planner-weapon-available" id="planner-weapon-available"></div>
+            </div>
+            <div class="planner-weapon-tab-panel" id="planner-weapon-panel-all" role="tabpanel" aria-labelledby="planner-weapon-tab-all" hidden>
+              <div class="planner-weapon-results" id="planner-weapon-results"></div>
+            </div>
           </section>
         </section>
       </div>
       <p class="planner-footer">Class thresholds and ability requirements are transcribed from the <a href="https://roblox-arcane-odyssey.fandom.com/wiki/Stat_Builds" target="_blank" rel="noreferrer">Arcane Odyssey Wiki</a>. Weapon skill results cover slots 1-2 and use their listed requirements; Strength and Arcanium weapons also need their corresponding stat. Owning the required scroll, compatible weapon/relic, and awakening may also be necessary.</p>
     </main>
   </div>
-  <script src="stat-build.js?v=weapon-variant-scaling-20261112"></script>
+  <script src="stat-build.js?v=class-percentage-readable-20261112"></script>
 </body>
 </html>

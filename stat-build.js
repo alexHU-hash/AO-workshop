@@ -132,7 +132,7 @@ function getWeaponLevelLabel(selectedType,variant){
 }
 const planner=loadPlanner();
 const statList=document.getElementById("planner-stat-list");
-statList.innerHTML=STAT_ORDER.map(stat=>`<div class="planner-stat-row"><label class="planner-stat-label" for="stat-${stat}">${STAT_NAMES[stat]}</label><div class="planner-stepper"><button class="planner-step-button" type="button" data-stat="${stat}" data-stat-step="-10" aria-label="Decrease ${STAT_NAMES[stat]} by 10">-10</button><input class="planner-stat-input" id="stat-${stat}" data-stat="${stat}" type="number" min="0" max="${getPointTotal()}" step="10" value="${planner.stats[stat]||0}" inputmode="numeric"><button class="planner-step-button" type="button" data-stat="${stat}" data-stat-step="10" aria-label="Increase ${STAT_NAMES[stat]} by 10">+10</button></div><input class="planner-stat-slider" id="stat-slider-${stat}" data-stat="${stat}" type="range" min="0" max="${getPointTotal()}" step="10" value="${planner.stats[stat]||0}" aria-label="${STAT_NAMES[stat]} allocation"></div>`).join("");
+statList.innerHTML=STAT_ORDER.map(stat=>`<div class="planner-stat-row"><label class="planner-stat-label" for="stat-${stat}">${STAT_NAMES[stat]}</label><div class="planner-stepper"><button class="planner-step-button" type="button" data-stat="${stat}" data-stat-step="-10" aria-label="Decrease ${STAT_NAMES[stat]} by 10">-10</button><input class="planner-stat-input" id="stat-${stat}" data-stat="${stat}" type="number" min="0" max="${getPointTotal()}" step="1" value="${planner.stats[stat]||0}" inputmode="numeric"><button class="planner-step-button" type="button" data-stat="${stat}" data-stat-step="10" aria-label="Increase ${STAT_NAMES[stat]} by 10">+10</button></div><input class="planner-stat-slider" id="stat-slider-${stat}" data-stat="${stat}" type="range" min="0" max="${getPointTotal()}" step="1" value="${planner.stats[stat]||0}" aria-label="${STAT_NAMES[stat]} allocation"></div>`).join("");
 function loadPlanner(){
   try{
     const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -160,14 +160,16 @@ function savePlanner(){localStorage.setItem(STORAGE_KEY,JSON.stringify(planner))
 function getPointTotal(){return planner.level*2;}
 function getSpent(){return STAT_ORDER.reduce((sum,stat)=>sum+planner.stats[stat],0);}
 function getClass(){
-  const total=getPointTotal();
-  const percentages=Object.fromEntries(STAT_ORDER.map(stat=>[stat,planner.stats[stat]/total]));
+  const spent=getSpent();
+  if(!spent)return {name:"Not determined",stats:null,note:"Invest points to estimate a class from your current percentage split."};
+  const percentages=Object.fromEntries(STAT_ORDER.map(stat=>[stat,planner.stats[stat]/spent]));
+  const distribution=STAT_ORDER.filter(stat=>planner.stats[stat]>0).map(stat=>`${STAT_NAMES[stat]} ${Math.round(percentages[stat]*100)}%`).join(" · ");
+  const summary=`${spent} point${spent===1?"":"s"} invested: ${distribution}.`;
   const match=CLASS_RULES.find(rule=>rule.stats.every(stat=>percentages[stat]>=rule.threshold));
-  if(match)return {name:match.name,stats:match.stats,note:match.stats.length===1?`At least ${Math.round(match.threshold*100)}% of the level ${planner.level} point budget is in ${STAT_NAMES[match.stats[0]]}.`:`At least ${Math.round(match.threshold*100)}% is invested in both ${STAT_NAMES[match.stats[0]]} and ${STAT_NAMES[match.stats[1]]}.`};
+  if(match)return {name:match.name,stats:match.stats,note:`Based on your invested-point split. ${summary}`};
   const savantStats=STAT_ORDER.filter(stat=>percentages[stat]>=.15);
-  if(savantStats.length>=3&&Math.max(...Object.values(percentages))<.5)return {name:"Savant",stats:STAT_ORDER,note:"At least 15% is invested in three stats, with no stat reaching 50%."};
-  if(getSpent()===total)return {name:"Savant",stats:STAT_ORDER,note:"The wiki classifies allocations that meet no full-build or hybrid threshold as Savant."};
-  return {name:"Not determined",stats:null,note:`Spend the remaining ${total-getSpent()} points to complete the allocation and confirm a class.`};
+  if(savantStats.length>=3&&Math.max(...Object.values(percentages))<.5)return {name:"Savant",stats:STAT_ORDER,note:`Your current split meets the Savant thresholds. ${summary}`};
+  return {name:"Not determined",stats:null,note:`No class threshold matches yet. ${summary} Full-stat classes need 60%; hybrid classes need 40% in each stat.`};
 }
 function renderWeaponInputs(){
   const typeOptions=[["","Choose weapon type"],...WEAPON_TYPES.map(type=>[type.value,type.label])];
@@ -180,15 +182,6 @@ function renderWeaponInputs(){
     const variantDisabled=!selectedType||variantOptions.length<2;
     return `<div class="planner-weapon-row"><strong>WEAPON ${index+1}</strong><label class="planner-weapon-field">TYPE<select data-weapon-index="${index}" data-weapon-prop="type" aria-label="Weapon ${index+1} type">${typeHtml}</select></label><label class="planner-weapon-field">VARIANT<select data-weapon-index="${index}" data-weapon-prop="variant" aria-label="Weapon ${index+1} variant"${variantDisabled?" disabled":""}>${variantHtml}</select></label><label class="planner-weapon-field">WIKI LEVEL<output class="planner-weapon-level">${level}</output></label></div>`;
   }).join("");
-}
-function renderClassWeaponSkills(points,classResult){
-  const classCanUseWeapons=classResult.stats?classResult.stats.includes("weapons"):points>0;
-  const skills=classCanUseWeapons?WEAPON_SKILLS:[];
-  const list=skills.map(skill=>`<span class="planner-weapon-skill-chip">${skill.name}<small>${skill.points} pts</small></span>`).join("");
-  const className=classResult.name==="Not determined"?"Your current build has Weapons investment.":`${classResult.name} has access to weapon skills.`;
-  document.getElementById("planner-weapon-class-skills").innerHTML=classCanUseWeapons
-    ?`<div class="planner-weapon-section-heading"><h3>All class-eligible moves</h3></div><p class="planner-weapon-class-note">${className} Compatibility and weapon-level requirements are checked per weapon above.</p><div class="planner-weapon-skill-pool">${list}</div>`
-    :`<div class="planner-weapon-section-heading"><h3>All class-eligible moves</h3></div><p class="planner-weapon-class-note">Weapon skills become class-eligible when your build invests in the Weapons stat.</p>`;
 }
 function getCompatibleWeaponSkills(selectedType){
   const compatibility=new Set((WEAPON_COMPATIBILITY[selectedType.baseType]||"").split("|"));
@@ -229,7 +222,7 @@ function renderAvailableWeaponSkills(points){
     const variantLabel=WEAPON_VARIANTS.find(([value])=>value===weapon.variant)?.[1]||"Normal";
     return `<article class="planner-weapon-available-card"><h4>WEAPON ${index+1} · ${selectedType.label} · ${variantLabel} · LV ${getWeaponLevelLabel(selectedType,weapon.variant)}</h4><strong>${countLabel}</strong>${rows?`<div class="planner-move-list">${rows}</div>`:"<p>No compatible moves meet the current stat requirements.</p>"}</article>`;
   }).join("");
-  return `<div class="planner-weapon-section-heading"><h3>Available moves</h3><p>Moves your current class, weapon, and stats can use now.</p></div><div class="planner-weapon-available-cards">${cards}</div>`;
+  return `<div class="planner-weapon-section-heading"><h3>Usable moves</h3><p>Moves that meet the current stat requirements for each selected weapon.</p></div><div class="planner-weapon-available-cards">${cards}</div>`;
 }
 function renderWeaponSkills(weapon,index,points){
   const selectedType=WEAPON_TYPES.find(type=>type.value===weapon.type);
@@ -240,10 +233,9 @@ function renderWeaponSkills(weapon,index,points){
   const variantLabel=WEAPON_VARIANTS.find(([value])=>value===weapon.variant)?.[1]||"Normal";
   return `<section class="planner-weapon-result"><div class="planner-weapon-result-heading"><h4>WEAPON ${index+1} · ${selectedType.label} · ${variantLabel} · LV ${getWeaponLevelLabel(selectedType,weapon.variant)}</h4><strong>${usable} / ${skills.length} USABLE</strong></div><div class="planner-move-list">${rows||'<p class="planner-weapon-class-note">No skill compatibility data is available for this type.</p>'}</div></section>`;
 }
-function renderWeapons(points,classResult){
+function renderWeapons(points){
   document.getElementById("planner-weapon-available").innerHTML=renderAvailableWeaponSkills(points);
-  document.getElementById("planner-weapon-results").innerHTML=`<div class="planner-weapon-section-heading"><h3>All compatible moves</h3><p>Available skills are listed here again with full stat requirements; locked skills show what additional points are needed.</p></div>${planner.weapons.map((weapon,index)=>renderWeaponSkills(weapon,index,points)).join("")}`;
-  renderClassWeaponSkills(points,classResult);
+  document.getElementById("planner-weapon-results").innerHTML=`<div class="planner-weapon-section-heading"><h3>All compatible moves</h3><p>Usable and locked moves, with their full stat requirements.</p></div>${planner.weapons.map((weapon,index)=>renderWeaponSkills(weapon,index,points)).join("")}`;
 }
 function renderMoveList(id,moves,points,secondarySlot=null){
   document.getElementById(id).innerHTML=moves.map(move=>{
@@ -266,9 +258,9 @@ function render(){
     const slider=document.getElementById(`stat-slider-${stat}`);
     const available=total-(spent-planner.stats[stat]);
     input.value=planner.stats[stat];
-    input.max=available;
+    input.max=total;
     slider.value=planner.stats[stat];
-    slider.max=available;
+    slider.max=total;
     for(const button of statList.querySelectorAll(`[data-stat="${stat}"][data-stat-step]`))button.disabled=button.dataset.statStep==="-10"?planner.stats[stat]===0:available-planner.stats[stat]<10;
   }
   const classResult=getClass();
@@ -279,7 +271,7 @@ function render(){
   renderMoveList("planner-spells",MOVES.spells,planner.stats.magic,classResult.name==="Mage"?{kind:"magic",label:"2ND MAGIC",bonus:120}:null);
   renderMoveList("planner-techniques",MOVES.techniques,planner.stats.strength,classResult.name==="Berserker"?{kind:"strength",label:"2ND STYLE",bonus:90}:null);
   renderMoveList("planner-rites",MOVES.rites,planner.stats.spirit);
-  renderWeapons(planner.stats.weapons,classResult);
+  renderWeapons(planner.stats.weapons);
 }
 document.getElementById("planner-level").addEventListener("input",event=>{
   planner.level=Math.max(1,Math.min(MAX_LEVEL,Math.floor(Number(event.target.value)||1)));
@@ -301,6 +293,34 @@ statList.addEventListener("input",event=>{
   const stat=event.target.dataset.stat;
   if(!STAT_ORDER.includes(stat))return;
   setStatValue(stat,event.target.value);
+});
+const weaponTabs=document.getElementById("planner-weapon-tabs");
+function activateWeaponTab(tab,focus=false){
+  const tabs=Array.from(weaponTabs.querySelectorAll('[role="tab"]'));
+  for(const item of tabs){
+    const active=item===tab;
+    item.setAttribute("aria-selected",String(active));
+    item.tabIndex=active?0:-1;
+    document.getElementById(item.getAttribute("aria-controls")).hidden=!active;
+  }
+  if(focus)tab.focus();
+}
+weaponTabs.addEventListener("click",event=>{
+  const tab=event.target.closest('[role="tab"]');
+  if(tab)activateWeaponTab(tab);
+});
+weaponTabs.addEventListener("keydown",event=>{
+  const tabs=Array.from(weaponTabs.querySelectorAll('[role="tab"]'));
+  const current=tabs.indexOf(event.target);
+  if(current<0)return;
+  let next=current;
+  if(event.key==="ArrowRight")next=(current+1)%tabs.length;
+  else if(event.key==="ArrowLeft")next=(current+tabs.length-1)%tabs.length;
+  else if(event.key==="Home")next=0;
+  else if(event.key==="End")next=tabs.length-1;
+  else return;
+  event.preventDefault();
+  activateWeaponTab(tabs[next],true);
 });
 document.getElementById("planner-weapon-inputs").addEventListener("change",event=>{
   const prop=event.target.dataset.weaponProp;
