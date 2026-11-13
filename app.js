@@ -294,8 +294,11 @@ function canUseModifier(gear,item){
   const isAtlanteanOnlyItem=item?.name==="Jewel Amulet";
   const isLostSet=item?.lostSet===true||/\blost\b/i.test(item?.name||"");
   const isGildedLostSet=gear.modifier==="gilded"&&isLostSet;
+  const isArcaniumGear=/\barcanium\b/i.test(item?.name||"");
+  const isArcaniumBracelet=isArcaniumGear&&/\bbracelet\b/i.test(item?.name||"");
   const isModifierLocked=item?.essenceLocked||isLostSet;
-  const canUse=gear.modifier===""||isAtlantean||(!isAtlanteanOnlyItem&&!isModifierLocked)||isGildedLostSet;
+  const canUseRegularModifiers=!item?.dragonGear&&(item?.modifierAllowed!==false||(isArcaniumGear&&!isArcaniumBracelet));
+  const canUse=gear.modifier===""||isAtlantean||(!isAtlanteanOnlyItem&&!isModifierLocked&&canUseRegularModifiers)||isGildedLostSet;
   return Boolean(item&&isEquipment&&canUse&&isKnownModifier&&!(isAtlantean&&gear.enchant==="virtuous"));
 }
 function sanitizeStatBuild(buildState){
