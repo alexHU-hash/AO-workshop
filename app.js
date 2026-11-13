@@ -122,6 +122,7 @@ const DRAGONBLOOD_RITUALS = [
 const CATEGORY_LABELS = {Amulet:"Amulet",Helmet:"Helmet",Accessory:"Accessory",Chestplate:"Chestpiece",Boots:"Leggings"};
 const NEWER_ARMOR_RECORDS=window.BUILDER_NEW_ARMOR_DATA||[];
 const WIKI_ARMOR_RECORDS=window.BUILDER_WIKI_ARMOR_DATA||[];
+const DRAGON_EQUIPMENT_RECORDS=window.BUILDER_DRAGON_EQUIPMENT_DATA||[];
 const NEWER_ARMOR_CATEGORY_BY_TYPE={Chestpiece:"Chestplate",Leggings:"Boots",Accessory:"Accessory",Helmet:"Helmet",Amulet:"Amulet"};
 const ITEM_CATEGORY_BY_SUBTYPE={Head:"Accessory",Leggings:"Boots"};
 const NEWER_ARMOR_SCALE_VALUES={power:3.5,defense:27,size:5,dexterity:5,range:5,haste:5,resistance:5,regeneration:5,pierce:5,warding:1,drawback:1,insanity:1};
@@ -231,23 +232,26 @@ const ITEMS = [...UPDATED_CATALOG_ITEMS,...ADDED_NEWER_ARMOR_ITEMS,...ADDED_ARCA
 function getDragonColorRecords(item){
   return item?.dragonGear?NEWER_ARMOR_RECORDS.filter(record=>record.type===item.dragonColorType):[];
 }
-function getDragonColorBonusStats(item,colorName){
-  const color=getDragonColorRecords(item).find(record=>(record.name||"Base")===colorName);
-  if(!color?.["armor-stats"])return {};
-  const levelFactor=Math.floor((safeNumber(build.level)||175)/10);
-  const isChest=item.subType==="Chestpiece";
-  const isAmulet=item.subType==="Amulet";
-  const defaultK=item.dragonCorrupted?(isChest||isAmulet?4:3):(isChest?2:isAmulet?3.75:1.5);
-  const k=item.dragonK??defaultK;
-  return Object.fromEntries(Object.entries(color["armor-stats"]).map(([key,value])=>[
-    key,Math.floor(value*(NEWER_ARMOR_EP_VALUES[key]??1)*levelFactor*k)
-  ]));
+function getDragonColorName(item,color){
+  return color.name||(item?.dragonCorrupted?"Dragon":"Base");
 }
-function replacesCorruptedDragonResistance(item,colorName){
-  const color=getDragonColorRecords(item).find(record=>(record.name||"Base")===colorName);
-  return Boolean(item?.dragonCorrupted&&color);
+function getDefaultDragonColor(item){
+  const colors=getDragonColorRecords(item);
+  const defaultColor=item?.dragonCorrupted
+    ?colors.find(color=>!color.name)
+    :colors.find(color=>color.name==="Brown");
+  return defaultColor?getDragonColorName(item,defaultColor):"";
 }
-function getItemStatsAtLevel(item,level){
+function getDragonColorStats(item,colorName,level){
+  const record=DRAGON_EQUIPMENT_RECORDS.find(entry=>entry.item===item?.name&&entry.color===colorName);
+  if(!record)throw new Error(`Missing wiki Dragon stats for ${item?.name||"unknown item"} (${colorName||"no color"}).`);
+  const requested=safeNumber(level)||MAX_GAME_LEVEL;
+  const row=record.rows.find(entry=>entry.level===requested)
+    ||record.rows.reduce((closest,entry)=>Math.abs(entry.level-requested)<Math.abs(closest.level-requested)?entry:closest,record.rows[0]);
+  return {...row.stats};
+}
+function getItemStatsAtLevel(item,level,dragonColor=getDefaultDragonColor(item)){
+  if(item?.dragonGear)return getDragonColorStats(item,dragonColor,level);
   const row=item.statRows.find(entry=>entry.level===level)||item.statRows[item.statRows.length-1];
   return {...row.stats};
 }
@@ -330,14 +334,16 @@ function sanitizeGearModifiers(gearState){
     const item=ITEMS.find(entry=>entry.name===gear.name);
     if(item){
       gear.level=normalizeItemLevel(item,gear.level);
-      gear.stats=getItemStatsAtLevel(item,gear.level);
     }else{
       gear.level=Math.max(1,Math.min(MAX_GAME_LEVEL,safeNumber(gear.level)||170));
     }
     gear.enchant=ENCHANT_UPGRADES[gear.enchant]||gear.enchant;
     if(!canUseModifier(gear,item))gear.modifier="";
-    const colorNames=getDragonColorRecords(item).map(color=>color.name||"Base");
-    if(!item?.dragonGear||!colorNames.includes(gear.dragonColor))gear.dragonColor="";
+    const colorNames=getDragonColorRecords(item).map(color=>getDragonColorName(item,color));
+    if(!item?.dragonGear)gear.dragonColor="";
+    else if(!Object.prototype.hasOwnProperty.call(gear,"dragonColor"))gear.dragonColor=getDefaultDragonColor(item);
+    else if(!colorNames.includes(gear.dragonColor))gear.dragonColor=getDefaultDragonColor(item);
+    if(item)gear.stats=getItemStatsAtLevel(item,gear.level,gear.dragonColor);
     const sockets=(gear.sockets||[]);
     gear.sockets=sockets.slice(0,(item?.jewelSlots||0)+(gear.modifier==="gilded"?1:0));
     for(const socket of gear.sockets){
@@ -440,9 +446,7 @@ function getModifierBonusStats(gear,item,modifier=gear.modifier){
 function getGearTotalStats(gear){
   const total=Object.fromEntries(STAT_KEYS.map(key=>[key,0]));
   const item=ITEMS.find(entry=>entry.name===gear.name);
-  const replacesResistance=replacesCorruptedDragonResistance(item,gear.dragonColor);
-  for(const [key,value]of Object.entries(gear.stats||{}))if(key in total&&!(key==="resistance"&&replacesResistance))total[key]+=safeNumber(value);
-  if(item?.dragonGear&&gear.dragonColor)for(const [key,value]of Object.entries(getDragonColorBonusStats(item,gear.dragonColor)))if(key in total)total[key]+=value;
+  for(const [key,value]of Object.entries(gear.stats||{}))if(key in total)total[key]+=safeNumber(value);
   for(const [key,value]of Object.entries(getEnchantBonusStats(gear,gear.enchant)))total[key]+=value;
   const modifier=gear.modifier;
   for(const [key,value]of Object.entries(getModifierBonusStats(gear,item).stats))total[key]+=value;
@@ -587,10 +591,10 @@ function getPickerBaseChoices(slotId,kind,index=""){
   const gear=build.gear[slotId];
   const item=ITEMS.find(entry=>entry.name===gear?.name);
   if(!gear)return [];
-  if(kind==="dragonColor"&&item?.dragonGear)return [
-    {value:"",label:"No color"},
-    ...getDragonColorRecords(item).map(color=>({value:color.name||"Base",label:color.name||"Base"}))
-  ];
+  if(kind==="dragonColor"&&item?.dragonGear)return getDragonColorRecords(item).map(color=>{
+    const name=getDragonColorName(item,color);
+    return {value:name,label:name};
+  });
   if(kind==="enchant")return ENCHANTS.map(([value,label])=>({value,label}));
   if(kind==="modifier")return MODIFIERS.filter(([value])=>canUseModifier({...gear,modifier:value},item)).map(([value,label])=>({value,label}));
   if(kind==="fusionGem"&&!gear.sockets?.[Number(index)]?.gem)return [];
@@ -601,7 +605,7 @@ function getPickerPreview(slotId,kind,index,value){
   const gear=build.gear[slotId];
   const item=ITEMS.find(entry=>entry.name===gear?.name);
   if(!gear)return {stats:{}};
-  if(kind==="dragonColor")return {stats:getDragonColorBonusStats(item,value)};
+  if(kind==="dragonColor")return {stats:value?getDragonColorStats(item,value,gear.level):{}};
   if(kind==="enchant")return {stats:getEnchantBonusStats(gear,value)};
   if(kind==="modifier")return getModifierBonusStats(gear,item,value);
   const socket={...(gear.sockets?.[Number(index)]||{}),[kind]:value};
@@ -640,7 +644,7 @@ function renderPickerResults(slotId,kind,index=""){
     ?build.gear[slotId]?.sockets?.[Number(index)]?.[kind]||""
     :build.gear[slotId]?.[kind]||"";
   const controls=[];
-  if(!search&&!statFilters.size&&current)controls.push(`<button id="${key.replace(/:/g,"-")}-clear" class="item-result item-result-clear" type="button" role="option" aria-selected="false" data-select-picker data-picker-slot="${slotId}" data-picker-kind="${kind}" data-picker-index="${index}" data-picker-value="">× <span>Clear selection</span></button>`);
+  if(kind!=="dragonColor"&&!search&&!statFilters.size&&current)controls.push(`<button id="${key.replace(/:/g,"-")}-clear" class="item-result item-result-clear" type="button" role="option" aria-selected="false" data-select-picker data-picker-slot="${slotId}" data-picker-kind="${kind}" data-picker-index="${index}" data-picker-value="">× <span>Clear selection</span></button>`);
   for(const [candidateIndex,candidate]of candidates.entries()){
     const selected=current===candidate.value;
     const note=candidate.preview.atlanteanKey?`<span class="option-result-note">Adds ${esc(STAT_LABELS[candidate.preview.atlanteanKey]||candidate.preview.atlanteanKey)}</span>`:"";
@@ -756,7 +760,7 @@ function renderCard(slot){
   const modifierControl=selectedItem?`<div class="modifier-picker-group">${renderPickerInput({slotId:slot.id,kind:"modifier",label:"MODIFIER",placeholder:"Search modifiers…",selectedValue:gear.modifier||"",previewStats:modifierPreview.stats,previewTitle:"MODIFIER",previewAtlanteanKey:modifierPreview.atlanteanKey,previewEmptyText:"Choose a modifier."})}${modifierHelp?`<span class="modifier-note">${esc(modifierHelp)}</span>`:""}</div>`:"";
   const dragonColorPreview=getPickerPreview(slot.id,"dragonColor","",gear.dragonColor||"");
   const dragonColorControl=selectedItem?.dragonGear?renderPickerInput({slotId:slot.id,kind:"dragonColor",label:"DRAGON COLOR",placeholder:"Search dragon colors…",selectedValue:gear.dragonColor||"",previewStats:dragonColorPreview.stats,previewTitle:"DRAGON COLOR",previewEmptyText:"Choose a color."}):"";
-  const baseStats=Object.entries(gear.stats||{}).filter(([key])=>STAT_KEYS.includes(key)&&!(key==="resistance"&&replacesCorruptedDragonResistance(selectedItem,gear.dragonColor))).map(([key,value])=>renderStatValue(key,value)).join(" ")||"No base stats listed";
+  const baseStats=Object.entries(gear.stats||{}).filter(([key])=>STAT_KEYS.includes(key)).map(([key,value])=>renderStatValue(key,value)).join(" ")||"No base stats listed";
   const totalStats=getGearTotalStats(gear);
   const atlanteanKey=gear.modifier==="atlantean"?getAtlanteanBonusStat(gear,selectedItem)[0]:"";
   const totalStatText=formatGearStats(totalStats,atlanteanKey);
@@ -828,7 +832,8 @@ function selectItem(slotId,itemName){
     const conflict=accessoryConflictForSlot(slotId,item);
     if(conflict){showToast(conflict);return;}
     const nextLevel=normalizeItemLevel(item,item.maxLevel);
-    const nextGear={...blankGear(),name:item.name,level:nextLevel,stats:getItemStatsAtLevel(item,nextLevel),enchant:previous?.enchant||"",modifier:previous?.modifier||""};
+    const dragonColor=getDefaultDragonColor(item);
+    const nextGear={...blankGear(),name:item.name,level:nextLevel,stats:getItemStatsAtLevel(item,nextLevel,dragonColor),enchant:previous?.enchant||"",modifier:previous?.modifier||"",dragonColor};
     if(!canUseModifier(nextGear,item))nextGear.modifier="";
     const jewelSlots=item.jewelSlots+(nextGear.modifier==="gilded"?1:0);
     nextGear.sockets=(previous?.sockets||[]).slice(0,jewelSlots);
@@ -914,9 +919,10 @@ function selectPickerOption(slotId,kind,index,value){
   if(!gear)return;
   if(kind==="dragonColor"){
     const item=ITEMS.find(entry=>entry.name===gear.name);
-    const validColors=getDragonColorRecords(item).map(color=>color.name||"Base");
-    if(value&&!validColors.includes(value))return;
+    const validColors=getDragonColorRecords(item).map(color=>getDragonColorName(item,color));
+    if(!validColors.includes(value))return;
     gear.dragonColor=value;
+    gear.stats=getItemStatsAtLevel(item,gear.level,value);
   }else if(kind==="enchant"){
     gear.enchant=ENCHANT_UPGRADES[value]||value;
     if(gear.enchant==="virtuous"&&gear.modifier==="atlantean")gear.modifier="";
@@ -981,7 +987,7 @@ document.getElementById("gear-grid").addEventListener("keydown",event=>{
     const current=kind==="gem"||kind==="fusionGem"
       ?build.gear[slotId]?.sockets?.[Number(index)]?.[kind]||""
       :build.gear[slotId]?.[kind]||"";
-    const hasClear=!search&&!statFilters.size&&Boolean(current);
+    const hasClear=kind!=="dragonColor"&&!search&&!statFilters.size&&Boolean(current);
     const candidates=getPickerCandidates(slotId,kind,index,search);
     const count=candidates.length+(hasClear?1:0);
     if(event.key==="ArrowDown"||event.key==="ArrowUp"){
@@ -1059,7 +1065,7 @@ document.getElementById("gear-grid").addEventListener("change",event=>{
     const gear=build.gear[el.dataset.slot];
     const item=ITEMS.find(entry=>entry.name===gear.name);
     gear.level=item?normalizeItemLevel(item,el.value):Math.max(1,Math.min(MAX_GAME_LEVEL,safeNumber(el.value)||1));
-    if(item)gear.stats=getItemStatsAtLevel(item,gear.level);
+    if(item)gear.stats=getItemStatsAtLevel(item,gear.level,gear.dragonColor);
     render();persist();
   }
 });
