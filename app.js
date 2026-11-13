@@ -2,18 +2,18 @@ const STAT_KEYS = ["power", "defense", "range", "haste", "size", "dexterity", "r
 const MAX_GAME_LEVEL = 175;
 const STAT_LABELS = { power:"Power", defense:"Defense", range:"Range", haste:"Haste", size:"Size", dexterity:"Dexterity", regeneration:"Regeneration", pierce:"Pierce", resistance:"Resistance", warding:"Warding", drawback:"Drawback", insanity:"Insanity" };
 const STAT_ICON_URLS = {
-  power:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/a/a3/Power.svg/revision/latest?cb=20240317050637",
-  defense:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/e/e4/Defense.svg/revision/latest?cb=20240317050627",
-  range:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/c/c5/Range.png/revision/latest?cb=20260104020327",
-  haste:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/3/35/Haste.png/revision/latest?cb=20260104020327",
-  size:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/a/ad/Attack_Size.svg/revision/latest?cb=20240317050622",
-  dexterity:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/3/39/Attack_Speed.svg/revision/latest?cb=20240317050624",
-  regeneration:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/e/e1/Regeneration.svg/revision/latest?cb=20240317050640",
-  pierce:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/4/4d/Armor_Piercing.svg/revision/latest?cb=20240317050650",
-  resistance:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/9/97/Resistance.svg/revision/latest?cb=20240317050643",
-  warding:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/9/90/Warding.svg/revision/latest?cb=20240317050645",
-  drawback:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/3/3f/Drawback.svg/revision/latest?cb=20240317050630",
-  insanity:"https://static.wikia.nocookie.net/roblox-arcane-odyssey/images/3/3a/Insanity.svg/revision/latest?cb=20240317050632"
+  power:"assets/Power.webp",
+  defense:"assets/Defense.webp",
+  range:"assets/Range.webp",
+  haste:"assets/Haste.webp",
+  size:"assets/Attack_Size.webp",
+  dexterity:"assets/Attack_Speed.webp",
+  regeneration:"assets/Regeneration.webp",
+  pierce:"assets/Armor_Piercing.webp",
+  resistance:"assets/Resistance.webp",
+  warding:"assets/Warding.webp",
+  drawback:"assets/Drawback.webp",
+  insanity:"assets/Insanity.webp"
 };
 const STAT_BUILDS = [
   ["savant","Savant","All four stats · 15%+ in three stats; no single stat at 50%+"],
