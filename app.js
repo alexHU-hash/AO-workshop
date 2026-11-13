@@ -87,6 +87,7 @@ const GEM_FUSION_MULTIPLIERS = {
 const GEM_FUSION_RATIO = 0.6;
 const GEM_DEFENSE_DELTA = 1-Number.EPSILON;
 const GEM_DEFENSE_DELTA_IDS = new Set(["defense","defense-size"]);
+const POWER_SUBSTAT_GEM_IDS = new Set(["power-size","power-dexterity","power-range"]);
 const GEMS = [
   {id:"defense",name:"Amethyst",variants:["Diamond","Onyx"],stats:[{defense:6.5},{defense:13.1},{defense:19.6},{defense:26.2},{defense:32.8},{defense:39}]},
   {id:"power",name:"Ruby",variants:["Sunstone","Zircon"],stats:[{power:1},{power:1.4},{power:2.1},{power:2.9},{power:3.6},{power:4}]},
@@ -97,9 +98,9 @@ const GEMS = [
   {id:"dexterity-range",name:"Lapis Lazuli",stats:[{dexterity:1.6,range:1.6},{dexterity:3.2,range:3.2},{dexterity:4.9,range:4.9},{dexterity:6.5,range:6.5},{dexterity:8.2,range:8.2},{dexterity:9,range:9}]},
   {id:"dexterity-haste",name:"Larimar",stats:[{dexterity:1.6,haste:1.6},{dexterity:3.2,haste:3.2},{dexterity:4.9,haste:4.9},{dexterity:6.5,haste:6.5},{dexterity:8.2,haste:8.2},{dexterity:9,haste:9}]},
   {id:"defense-size",name:"Agate",stats:[{size:1,defense:6.5},{size:2.1,defense:13.1},{size:3.2,defense:19.6},{size:4.3,defense:26.2},{size:5.4,defense:32.8},{size:6,defense:39}]},
-  {id:"power-size",name:"Malachite",stats:[{power:1,size:1},{power:1.4,size:2.1},{power:2.1,size:3.2},{power:2.9,size:4.3},{power:3.6,size:5.4},{power:4,size:6}]},
-  {id:"power-dexterity",name:"Candelaria",stats:[{power:1,dexterity:1},{power:1.4,dexterity:2.1},{power:2.1,dexterity:3.2},{power:2.9,dexterity:4.3},{power:3.6,dexterity:5.4},{power:4,dexterity:6}]},
-  {id:"power-range",name:"Morenci",stats:[{power:1,range:1},{power:1.4,range:2.1},{power:2.1,range:3.2},{power:2.9,range:4.3},{power:3.6,range:5.4},{power:4,range:6}]},
+  {id:"power-size",name:"Malachite",fusionStats:{power:4},stats:[{power:1,size:1},{power:1.4,size:2.1},{power:2.1,size:3.2},{power:2.9,size:4.3},{power:3.6,size:5.4},{power:3.9,size:6}]},
+  {id:"power-dexterity",name:"Candelaria",fusionStats:{power:4},stats:[{power:1,dexterity:1},{power:1.4,dexterity:2.1},{power:2.1,dexterity:3.2},{power:2.9,dexterity:4.3},{power:3.6,dexterity:5.4},{power:3.9,dexterity:6}]},
+  {id:"power-range",name:"Morenci",fusionStats:{power:4},stats:[{power:1,range:1},{power:1.4,range:2.1},{power:2.1,range:3.2},{power:2.9,range:4.3},{power:3.6,range:5.4},{power:3.9,range:6}]},
   {id:"double-effect",name:"Musgravite",stats:[{},{},{},{},{},{}]},
   {id:"defense-drawback",name:"Painite",stats:[{drawback:1,defense:31.3},{drawback:1,defense:62.7},{drawback:1,defense:94},{drawback:1,defense:125.4},{drawback:1,defense:156.7},{drawback:1,defense:188}]},
   {id:"range-haste",name:"Kyanite",stats:[{range:1.6,haste:1.6},{range:3.2,haste:3.2},{range:4.9,haste:4.9},{range:6.5,haste:6.5},{range:8.2,haste:8.2},{range:9,haste:9}]},
@@ -136,8 +137,9 @@ function getNewerArmorSourceForItem(item){
     const name=item.fightingPiece||item.name;
     return NEWER_ARMOR_RECORDS.find(record=>record.type.startsWith("Strength ")&&record.name===name);
   }
-  return NEWER_ARMOR_RECORDS.find(record=>record.name===item.name&&(
-    NEWER_ARMOR_CATEGORY_BY_TYPE[record.type]||NEWER_ARMOR_CATEGORY_BY_TYPE[record.type.replace(/^(?:Magic|Strength|Spirit) /,"")]
+  const sourceName=item.name==="Vatrachos Cape"?"Vatrachos Cloak":item.name;
+  return NEWER_ARMOR_RECORDS.find(record=>record.name===sourceName&&(
+    NEWER_ARMOR_CATEGORY_BY_TYPE[record.type]||NEWER_ARMOR_CATEGORY_BY_TYPE[record.type.replace(/^(?:(?:Corrupted )?Dragon|Magic|Strength|Spirit) /,"")]
   ));
 }
 function getNewerArmorStatRows(record,item=null,tool=null){
@@ -172,7 +174,15 @@ function updateItemFromWiki(item){
   const magicPiece=(item.magicPiece||(item.magicKey?item.name.slice(item.magicKey.length):"")).trim();
   const category=item.magicKey&&(magicPiece==="Arcanium Mage Hat"||magicPiece==="mancer Hat")?"Accessory":item.category;
   const record=WIKI_ARMOR_RECORDS.find(entry=>entry.name===item.name&&entry.category===category);
-  return record?{...item,minLevel:record.minLevel,maxLevel:record.maxLevel,statRows:record.statRows}:item;
+  if(!record)return item;
+  const newerRecord=getNewerArmorSourceForItem(item);
+  const sourceRows=newerRecord?getNewerArmorStatRows(newerRecord):[];
+  const statRows=record.statRows.map(row=>{
+    const sourceRow=sourceRows.find(entry=>entry.level===row.level);
+    if(!sourceRow||sourceRow.stats.drawback===undefined)return row;
+    return {...row,stats:{...row.stats,drawback:sourceRow.stats.drawback}};
+  });
+  return {...item,minLevel:record.minLevel,maxLevel:record.maxLevel,statRows};
 }
 function createNewerArmorItem(record,dragonGear=false){
   const type=dragonGear?record.type.replace(/^(?:Corrupted Dragon|Dragon) /,""):record.type;
@@ -204,6 +214,7 @@ function createArcaniumArcsphereItems(){
 const UPDATED_CATALOG_ITEMS=[...BUILDER_ITEM_DATA,...BUILDER_MAGIC_GEAR_DATA,...BUILDER_FIGHTING_GEAR_DATA].map(item=>updateItemFromWiki(updateItemFromNewerArmor(item)));
 const UPDATED_ITEM_KEYS=new Set(UPDATED_CATALOG_ITEMS.map(item=>`${item.name}::${item.category}`));
 const ADDED_NEWER_ARMOR_ITEMS=NEWER_ARMOR_RECORDS.filter(record=>NEWER_ARMOR_CATEGORY_BY_TYPE[record.type])
+  .filter(record=>record.name!=="Vatrachos Cloak")
   .filter(record=>!UPDATED_ITEM_KEYS.has(`${record.name}::${NEWER_ARMOR_CATEGORY_BY_TYPE[record.type]}`))
   .map(record=>updateItemFromWiki(createNewerArmorItem(record)));
 const ADDED_ARCANIUM_ARCSPHERE_ITEMS=createArcaniumArcsphereItems()
@@ -231,6 +242,10 @@ function getDragonColorBonusStats(item,colorName){
   return Object.fromEntries(Object.entries(color["armor-stats"]).map(([key,value])=>[
     key,Math.floor(value*(NEWER_ARMOR_EP_VALUES[key]??1)*levelFactor*k)
   ]));
+}
+function replacesCorruptedDragonResistance(item,colorName){
+  const color=getDragonColorRecords(item).find(record=>(record.name||"Base")===colorName);
+  return Boolean(item?.dragonCorrupted&&color);
 }
 function getItemStatsAtLevel(item,level){
   const row=item.statRows.find(entry=>entry.level===level)||item.statRows[item.statRows.length-1];
@@ -343,28 +358,38 @@ function getGemStats(socket,key){
   const gem=GEMS.find(entry=>entry.id===socket?.[key]);
   return gem?.stats[5]||{};
 }
-function getScaledGemStats(gemId){
+function getGemFusionStats(gemId){
   const gem=GEMS.find(entry=>entry.id===gemId);
-  const stats=gem?.stats[5]||{};
-  const level=Math.max(1,safeNumber(build.level)||175);
-  const scale=level/175;
-  return Object.fromEntries(Object.entries(stats).map(([key,value])=>{
-    if(key==="drawback")return [key,value];
-    if(key==="defense"&&gem?.name==="Painite"&&safeNumber(stats.drawback)>=0.5)return [key,Math.floor(188*level/175)];
-    const scaled=value*scale;
-    return [key,key==="power"?Math.round(scaled):Math.floor(scaled)];
-  }));
+  return {...gem?.stats[5],...gem?.fusionStats};
+}
+function roundGemStats(stats){
+  return Object.fromEntries(Object.entries(stats).map(([key,value])=>[key,Math.round(value*10)/10]));
 }
 function getCombinedGemStats(socket){
+  if(!socket?.gem)return {};
   const primaryBase=getGemStats(socket,"gem");
+  if(socket.gem==="double-effect"||socket.fusionGem==="double-effect"){
+    const activeGemId=socket.gem==="double-effect"?socket.fusionGem:socket.gem;
+    return roundGemStats(getGemStats({gem:activeGemId},"gem"));
+  }
+  if(!socket.fusionGem)return roundGemStats(primaryBase);
   const fusionBase=getGemStats(socket,"fusionGem");
-  if(!Object.keys(fusionBase).length)return Object.fromEntries(Object.entries(primaryBase).map(([key,value])=>[key,Math.trunc(value)]));
-  const primary=getScaledGemStats(socket.gem);
-  const fusion=getScaledGemStats(socket.fusionGem);
+  if(!Object.keys(fusionBase).length)return roundGemStats(primaryBase);
+  const primary=getGemFusionStats(socket.gem);
+  const fusion=getGemFusionStats(socket.fusionGem);
+  const powerSubstatFusion=POWER_SUBSTAT_GEM_IDS.has(socket.gem)&&POWER_SUBSTAT_GEM_IDS.has(socket.fusionGem);
   const combined={};
   for(const key of STAT_KEYS){
     const baseValue = primary[key] || 0;
     const fusionValue = fusion[key] || 0;
+    if(powerSubstatFusion&&key==="power"){
+      combined[key]=Math.round((baseValue+fusionValue)*0.6*10)/10;
+      continue;
+    }
+    if(powerSubstatFusion&&["size","dexterity","range"].includes(key)){
+      combined[key]=Math.round((baseValue+fusionValue)*0.75*10)/10;
+      continue;
+    }
     const multiplier = GEM_FUSION_MULTIPLIERS[key] ?? GEM_FUSION_RATIO;
     if(key==="drawback"){
       combined[key]=(baseValue+fusionValue)*multiplier;
@@ -412,7 +437,8 @@ function getModifierBonusStats(gear,item,modifier=gear.modifier){
 function getGearTotalStats(gear){
   const total=Object.fromEntries(STAT_KEYS.map(key=>[key,0]));
   const item=ITEMS.find(entry=>entry.name===gear.name);
-  for(const [key,value]of Object.entries(gear.stats||{}))if(key in total)total[key]+=safeNumber(value);
+  const replacesResistance=replacesCorruptedDragonResistance(item,gear.dragonColor);
+  for(const [key,value]of Object.entries(gear.stats||{}))if(key in total&&!(key==="resistance"&&replacesResistance))total[key]+=safeNumber(value);
   if(item?.dragonGear&&gear.dragonColor)for(const [key,value]of Object.entries(getDragonColorBonusStats(item,gear.dragonColor)))if(key in total)total[key]+=value;
   for(const [key,value]of Object.entries(getEnchantBonusStats(gear,gear.enchant)))total[key]+=value;
   const modifier=gear.modifier;
@@ -558,6 +584,10 @@ function getPickerBaseChoices(slotId,kind,index=""){
   const gear=build.gear[slotId];
   const item=ITEMS.find(entry=>entry.name===gear?.name);
   if(!gear)return [];
+  if(kind==="dragonColor"&&item?.dragonGear)return [
+    {value:"",label:"No color"},
+    ...getDragonColorRecords(item).map(color=>({value:color.name||"Base",label:color.name||"Base"}))
+  ];
   if(kind==="enchant")return ENCHANTS.map(([value,label])=>({value,label}));
   if(kind==="modifier")return MODIFIERS.filter(([value])=>canUseModifier({...gear,modifier:value},item)).map(([value,label])=>({value,label}));
   if(kind==="fusionGem"&&!gear.sockets?.[Number(index)]?.gem)return [];
@@ -568,6 +598,7 @@ function getPickerPreview(slotId,kind,index,value){
   const gear=build.gear[slotId];
   const item=ITEMS.find(entry=>entry.name===gear?.name);
   if(!gear)return {stats:{}};
+  if(kind==="dragonColor")return {stats:getDragonColorBonusStats(item,value)};
   if(kind==="enchant")return {stats:getEnchantBonusStats(gear,value)};
   if(kind==="modifier")return getModifierBonusStats(gear,item,value);
   const socket={...(gear.sockets?.[Number(index)]||{}),[kind]:value};
@@ -633,6 +664,7 @@ function renderGearPickers(slotId){
   if(!gear){resetSlotPickerState(slotId);return;}
   renderPickerResults(slotId,"enchant");
   if(ITEMS.some(entry=>entry.name===gear.name))renderPickerResults(slotId,"modifier");
+  if(ITEMS.find(entry=>entry.name===gear.name)?.dragonGear)renderPickerResults(slotId,"dragonColor");
   for(const [index]of (gear.sockets||[]).entries()){
     renderPickerResults(slotId,"gem",index);
     renderPickerResults(slotId,"fusionGem",index);
@@ -649,6 +681,7 @@ function refreshPickerPreviews(slotId){
   };
   replacePreview("enchant","","ENCHANT",getPickerPreview(slotId,"enchant","",gear.enchant||""),"Choose an enchant.");
   replacePreview("modifier","","MODIFIER",getPickerPreview(slotId,"modifier","",gear.modifier||""),"Choose a modifier.");
+  replacePreview("dragonColor","","DRAGON COLOR",getPickerPreview(slotId,"dragonColor","",gear.dragonColor||""),"Choose a color.");
   for(const [index,socket]of (gear.sockets||[]).entries()){
     replacePreview("gem",index,"SOCKET TOTAL",{stats:socket.gem?getCombinedGemStats(socket):{}},"Select a gem to preview.");
   }
@@ -718,9 +751,9 @@ function renderCard(slot){
   const modifierHelp=modifierDescription||(gear.enchant==="virtuous"?"Virtuous removes Atlantean; Atlantean cannot be applied while Virtuous is selected.":"");
   const modifierPreview=getModifierBonusStats(gear,selectedItem);
   const modifierControl=selectedItem?`<div class="modifier-picker-group">${renderPickerInput({slotId:slot.id,kind:"modifier",label:"MODIFIER",placeholder:"Search modifiers…",selectedValue:gear.modifier||"",previewStats:modifierPreview.stats,previewTitle:"MODIFIER",previewAtlanteanKey:modifierPreview.atlanteanKey,previewEmptyText:"Choose a modifier."})}${modifierHelp?`<span class="modifier-note">${esc(modifierHelp)}</span>`:""}</div>`:"";
-  const dragonColorOptions=[["","No color"],...getDragonColorRecords(selectedItem).map(color=>{const name=color.name||"Base";const stats=Object.keys(getDragonColorBonusStats(selectedItem,name)).filter(key=>STAT_KEYS.includes(key)).map(key=>STAT_LABELS[key]).join(", ");return [name,stats?`${name} · ${stats}`:name];})];
-  const dragonColorControl=selectedItem?.dragonGear?`<div class="field"><label>DRAGON COLOR</label><select data-slot="${slot.id}" data-prop="dragonColor" aria-label="${slot.name} Dragon color">${options(dragonColorOptions,gear.dragonColor||"")}</select></div>`:"";
-  const baseStats=Object.entries(gear.stats||{}).filter(([key])=>STAT_KEYS.includes(key)).map(([key,value])=>renderStatValue(key,value)).join(" ")||"No base stats listed";
+  const dragonColorPreview=getPickerPreview(slot.id,"dragonColor","",gear.dragonColor||"");
+  const dragonColorControl=selectedItem?.dragonGear?renderPickerInput({slotId:slot.id,kind:"dragonColor",label:"DRAGON COLOR",placeholder:"Search dragon colors…",selectedValue:gear.dragonColor||"",previewStats:dragonColorPreview.stats,previewTitle:"DRAGON COLOR",previewEmptyText:"Choose a color."}):"";
+  const baseStats=Object.entries(gear.stats||{}).filter(([key])=>STAT_KEYS.includes(key)&&!(key==="resistance"&&replacesCorruptedDragonResistance(selectedItem,gear.dragonColor))).map(([key,value])=>renderStatValue(key,value)).join(" ")||"No base stats listed";
   const totalStats=getGearTotalStats(gear);
   const atlanteanKey=gear.modifier==="atlantean"?getAtlanteanBonusStat(gear,selectedItem)[0]:"";
   const totalStatText=formatGearStats(totalStats,atlanteanKey);
@@ -876,7 +909,12 @@ function setSocketValue(slotId,index,key,value){
 function selectPickerOption(slotId,kind,index,value){
   const gear=build.gear[slotId];
   if(!gear)return;
-  if(kind==="enchant"){
+  if(kind==="dragonColor"){
+    const item=ITEMS.find(entry=>entry.name===gear.name);
+    const validColors=getDragonColorRecords(item).map(color=>color.name||"Base");
+    if(value&&!validColors.includes(value))return;
+    gear.dragonColor=value;
+  }else if(kind==="enchant"){
     gear.enchant=ENCHANT_UPGRADES[value]||value;
     if(gear.enchant==="virtuous"&&gear.modifier==="atlantean")gear.modifier="";
   }else if(kind==="modifier"){
@@ -1014,13 +1052,6 @@ document.getElementById("clear-all-gear").addEventListener("click",()=>{
 });
 document.getElementById("gear-grid").addEventListener("change",event=>{
   const el=event.target;
-  if(el.dataset.prop==="dragonColor"&&build.gear[el.dataset.slot]){
-    const gear=build.gear[el.dataset.slot];
-    const item=ITEMS.find(entry=>entry.name===gear.name);
-    const validColors=getDragonColorRecords(item).map(color=>color.name||"Base");
-    gear.dragonColor=validColors.includes(el.value)?el.value:"";
-    render();persist();return;
-  }
   if(el.dataset.prop==="level"&&build.gear[el.dataset.slot]){
     const gear=build.gear[el.dataset.slot];
     const item=ITEMS.find(entry=>entry.name===gear.name);
